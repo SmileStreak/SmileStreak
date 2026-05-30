@@ -41,9 +41,9 @@ export default function NavTabs({ activeTab, setActiveTab }) {
 
   return (
     <>
-      {/* Bottom Tab Bar */}
+      {/* Bottom Tab Bar — matches chat button height (56px) */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 shadow-lg">
-        <div className="flex items-center px-2 py-2 pb-5 gap-1 justify-start pr-20">
+        <div className="flex items-center px-2 gap-1 justify-start pr-20" style={{ height: "72px", paddingBottom: "env(safe-area-inset-bottom)" }}>
           {bottomTabs.map(({ label, value, icon }) => {
             const active = value === "more"
               ? isMoreActive || showMore
@@ -52,10 +52,16 @@ export default function NavTabs({ activeTab, setActiveTab }) {
             return (
               <button
                 key={value}
-                onClick={() => value === "more" ? setShowMore(!showMore) : handleTab(value)}
+                onClick={() => {
+                  if (value === "more") {
+                    setShowMore((prev) => !prev); // toggle on/off
+                  } else {
+                    handleTab(value);
+                  }
+                }}
                 className={`
-                  flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-2xl
-                  transition-all duration-200 min-w-[60px]
+                  flex flex-col items-center justify-center gap-0.5 rounded-2xl
+                  transition-all duration-200 min-w-[60px] h-14
                   ${active ? "bg-gradient-to-br from-blue-500 to-cyan-400" : "bg-transparent"}
                 `}
               >
