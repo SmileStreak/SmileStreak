@@ -25,64 +25,76 @@ export default function NavTabs({ activeTab, setActiveTab }) {
  }, [showMore]);
 
  return (
-   <div className="w-full px-2 pb-3 flex gap-2 items-center">
-     {primaryTabs.map((tab) => {
-       const active = activeTab === tab.toLowerCase();
-       return (
+   <div className="w-full overflow-x-auto pb-3">
+     <div className="flex gap-2 px-2">
+       {primaryTabs.map((tab) => {
+         const active = activeTab === tab.toLowerCase();
+         return (
+           <button
+             key={tab}
+             onClick={() => handleTab(tab)}
+             className={`
+               px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap
+               transition-all duration-200 border
+               ${active
+                 ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-transparent shadow-md"
+                 : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"}
+             `}
+           >
+             {tab}
+           </button>
+         );
+       })}
+
+       <div ref={moreRef} className="relative">
          <button
-           key={tab}
-           onClick={() => handleTab(tab)}
+           onClick={() => setShowMore((prev) => !prev)}
            className={`
              px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap
              transition-all duration-200 border
-             ${active
+             ${isMoreActive || showMore
                ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-transparent shadow-md"
                : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"}
            `}
          >
-           {tab}
+           {isMoreActive
+             ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+             : "More ▾"}
          </button>
-       );
-     })}
 
-     <div ref={moreRef} className="relative">
-       <button
-         onClick={() => setShowMore((prev) => !prev)}
-         className={`
-           px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap
-           transition-all duration-200 border
-           ${isMoreActive || showMore
-             ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-transparent shadow-md"
-             : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"}
-         `}
-       >
-         {isMoreActive
-           ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-           : "More ▾"}
-       </button>
-
-       {showMore && (
-         <div className="absolute top-11 left-0 z-[9999] bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 flex flex-col gap-1 min-w-[160px]">
-           {moreTabs.map((tab) => {
-             const active = activeTab === tab.toLowerCase();
-             return (
-               <button
-                 key={tab}
-                 onClick={() => handleTab(tab)}
-                 className={`
-                   px-4 py-2.5 rounded-xl text-sm font-semibold text-left
-                   transition-all duration-200
-                   ${active
-                     ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
-                     : "text-gray-600 hover:bg-gray-50"}
-                 `}
-               >
-                 {tab}
-               </button>
-             );
-           })}
-         </div>
-       )}
+         {showMore && (
+           <div
+             className="fixed z-[9999] bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 flex flex-col gap-1 min-w-[160px]"
+             style={{
+               top: moreRef.current
+                 ? moreRef.current.getBoundingClientRect().bottom + 8
+                 : 0,
+               left: moreRef.current
+                 ? moreRef.current.getBoundingClientRect().left
+                 : 0,
+             }}
+           >
+             {moreTabs.map((tab) => {
+               const active = activeTab === tab.toLowerCase();
+               return (
+                 <button
+                   key={tab}
+                   onClick={() => handleTab(tab)}
+                   className={`
+                     px-4 py-2.5 rounded-xl text-sm font-semibold text-left
+                     transition-all duration-200
+                     ${active
+                       ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                       : "text-gray-600 hover:bg-gray-50"}
+                   `}
+                 >
+                   {tab}
+                 </button>
+               );
+             })}
+           </div>
+         )}
+       </div>
      </div>
    </div>
  );
