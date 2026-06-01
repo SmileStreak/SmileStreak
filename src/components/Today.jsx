@@ -58,7 +58,6 @@ const UI_STRINGS = [
 "Morning Brushing", "Night Brushing", "Interdental Care",
 "Brush in circular motions…", "Completed", "2 minutes recommended",
 "Floss", "Water Pick", "Interdental Brush",
-"Water Intake", "Goal: 64 fl oz · 8 cups · ~2 L", "Daily hydration goal reached!",
 "Today's Mood", "How are you feeling?", "Log mood",
 "Next Milestone", "days to go — keep it up!",
 "Tip of the Day", "All Brushing Tips",
@@ -97,7 +96,6 @@ const [showShareModal, setShowShareModal] = useState(false);
 const [showReflection, setShowReflection] = useState(false);
 const [showMoodModal, setShowMoodModal] = useState(false);
 const [reflectionText, setReflectionText] = useState("");
-const [waterOz, setWaterOz] = useState(0);
 const [currentMood, setCurrentMood] = useState(null);
 const [weekDots, setWeekDots] = useState([]);
 const [tipIndex, setTipIndex] = useState(0);
@@ -106,7 +104,6 @@ const [copied, setCopied] = useState(false);
 
 // ── DENTIST VISIT STATE ──
 const [showDentistModal, setShowDentistModal] = useState(false);
-const [customMonths, setCustomMonths] = useState(6);
 const [lastVisitDateInput, setLastVisitDateInput] = useState("");
 const [nextCustomMonths, setNextCustomMonths] = useState(6);
 const [nextDateInput, setNextDateInput] = useState("");
@@ -114,7 +111,6 @@ const [nextDateInput, setNextDateInput] = useState("");
 // ── ALIGNER STATE ──
 const [alignerRunning, setAlignerRunning] = useState(false);
 const [alignerSeconds, setAlignerSeconds] = useState(0);
-const [showAlignerModal, setShowAlignerModal] = useState(false);
 const [showAlignerSetup, setShowAlignerSetup] = useState(false);
 const [alignerTrayInput, setAlignerTrayInput] = useState("");
 const [alignerTotalTraysInput, setAlignerTotalTraysInput] = useState("");
@@ -129,8 +125,6 @@ const alignerWornSeconds = todayAlignerWear.seconds + (alignerRunning ? alignerS
 const alignerWornHours = alignerWornSeconds / 3600;
 const alignerGoalReached = alignerWornHours >= ALIGNER_GOAL_HOURS;
 const alignerPct = Math.min(100, (alignerWornHours / ALIGNER_GOAL_HOURS) * 100);
-const alignerTimeOffSeconds = 86400 - alignerWornSeconds;
-const alignerTimeOffHours = Math.max(0, alignerTimeOffSeconds / 3600);
 
 const lastDentistVisit = habitData.__lastDentistVisit || null;
 const nextDentistVisit = habitData.__nextDentistVisit || null;
@@ -307,7 +301,6 @@ setBadges(nb);
 const milestones = [7,30,60,90,180,365];
 const next = milestones.find(m => m > current) || 365;
 setStreakMilestones([{ current, next, remaining: next - current }]);
-setWaterOz(todayData.waterOz || 0);
 setCurrentMood(todayData.mood || null);
 setReflectionText(todayData.reflection || "");
 }, [habitData]);
@@ -331,13 +324,6 @@ setShowCompletion(true);
 setTimeout(() => setShowCompletion(false), 2800);
 }
 }, [todayData, today, isRecoveryDay, setHabitData, habitData]);
-
-const updateWater = (oz) => {
-const next = Math.max(0, Math.min(oz, WATER_GOAL_OZ + 32));
-setWaterOz(next);
-setHabitData(prev => ({ ...prev, [today]: { ...todayData, waterOz: next } }));
-track("water_updated", { ounces: next });
-};
 
 const saveMood = (moodKey) => {
 setCurrentMood(moodKey);
@@ -403,8 +389,6 @@ setCopied(true); setTimeout(() => setCopied(false), 2500);
 
 const openDentistModal = () => {
 setLastVisitDateInput(new Date().toISOString().split("T")[0]);
-const sixMonths = new Date();
-sixMonths.setMonth(sixMonths.getMonth() + 6);
 setNextCustomMonths(6);
 setNextDateInput("");
 setShowDentistModal(true);
@@ -413,33 +397,6 @@ setShowDentistModal(true);
 const parseLocalDate = (dateStr) => {
 const [y, m, d] = dateStr.split("-").map(Number);
 return new Date(y, m - 1, d, 12, 0, 0);
-};
-
-const saveLastVisit = (dateStr) => {
-if (!dateStr) return;
-setHabitData(prev => ({
-...prev,
-__lastDentistVisit: parseLocalDate(dateStr).toISOString(),
-}));
-};
-
-const setNextByMonths = (months) => {
-const nextDate = new Date();
-nextDate.setMonth(nextDate.getMonth() + months);
-setHabitData(prev => ({
-...prev,
-__nextDentistVisit: nextDate.toISOString(),
-}));
-setShowDentistModal(false);
-};
-
-const setNextByDate = (dateStr) => {
-if (!dateStr) return;
-setHabitData(prev => ({
-...prev,
-__nextDentistVisit: parseLocalDate(dateStr).toISOString(),
-}));
-setShowDentistModal(false);
 };
 
 const saveDentistModal = () => {
@@ -478,8 +435,6 @@ const percent = Math.round((completedCount / 3) * 100);
 const { current, longest } = calculateStreaks(habitData);
 const dayLabel = new Date().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
 const tip = translatedTips[tipIndex];
-const waterPct = Math.min(100, (waterOz / WATER_GOAL_OZ) * 100);
-const cups = (waterOz / 8).toFixed(1);
 const alignerTrayProgress = getAlignerTrayProgress();
 
 const motivations = [
@@ -699,7 +654,7 @@ style={{transform:`scaleX(${fillPct/100})`,transition:"transform 1s linear"}} />
 {task === "morning" ? T("Morning Brushing") : T("Night Brushing")}
 </p>
 <p className="text-xs text-gray-500 mt-0.5">
-{isRunning ? `🔄 ${T("Brush in circular motions…")}` : isDone ? `✅ ${T("Completed")}` : `⏱️ ${T("2 minutes recommended")}`}
+{isRunning ? `🔄 ${T("Brush in circular motions…")}` : isDone ? `✅ ${T("Completed")}` : `⏱ ${T("2 minutes recommended")}`}
 </p>
 </div>
 </div>
@@ -755,8 +710,7 @@ style={{transform:`scaleX(${fillPct/100})`,transition:"transform 1s linear"}} />
   </div>
 </button>
 
-<button
-onClick={openDentistModal}
+<button onClick={openDentistModal}
 className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-600 hover:border-blue-400 transition-all flex items-center justify-center gap-2">
 🦷 Log Dentist Visit
 </button>
@@ -773,22 +727,19 @@ className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border b
         <p className="text-xs text-gray-500">Invisalign · ClearCorrect · Any aligner</p>
       </div>
     </div>
-    <button
-      onClick={() => setShowAlignerSetup(true)}
+    <button onClick={() => setShowAlignerSetup(true)}
       className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200 hover:border-blue-400 press">
       {alignerData ? "Edit" : "Setup"}
     </button>
   </div>
 
   {!alignerData ? (
-    <button
-      onClick={() => setShowAlignerSetup(true)}
+    <button onClick={() => setShowAlignerSetup(true)}
       className="press hover-lift w-full py-4 rounded-2xl text-sm font-bold border-2 border-dashed border-blue-200 text-blue-400 bg-blue-50/50 flex items-center justify-center gap-2">
       + Set up your aligner treatment
     </button>
   ) : (
     <>
-      {/* Wear time progress */}
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Today's Wear Time</span>
@@ -806,9 +757,7 @@ className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border b
         </div>
       </div>
 
-      {/* Big in/out button */}
-      <button
-        onClick={toggleAligner}
+      <button onClick={toggleAligner}
         className={`relative press hover-lift w-full py-5 rounded-2xl text-base font-black flex items-center justify-center gap-3 mb-4 transition-all duration-300 ${
           alignerRunning
             ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-100"
@@ -823,7 +772,6 @@ className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border b
         )}
       </button>
 
-      {/* Tray progress */}
       {alignerTrayProgress && (
         <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border border-blue-100 mb-3">
           <div className="flex items-center justify-between mb-2">
@@ -851,7 +799,6 @@ className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border b
         </div>
       )}
 
-      {/* Aligner care reminders */}
       <div className="flex gap-2">
         <div className="flex-1 bg-cyan-50 border border-cyan-100 rounded-xl p-3 text-center">
           <p className="text-lg mb-1">🧼</p>
@@ -911,67 +858,6 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 )}
 </div>
 )}
-
-{/* ── WATER TRACKER ── */}
-<div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-    <div className="flex items-center gap-2 mb-4">
-      <Droplets className="w-5 h-5 text-blue-500" />
-      <h3 className="font-bold text-gray-900">💧 {T("Water Intake")}</h3>
-    </div>
-    <div className="flex items-start justify-between mb-3">
-      <p className="text-xs text-gray-500">{T("Goal: 64 fl oz · 8 cups · ~2 L")}</p>
-      <div className="text-right">
-        <span className="text-sm font-black text-blue-600">{waterOz} oz</span>
-        <span className="text-xs text-gray-400 block">{cups} cups</span>
-      </div>
-    </div>
-    <div className="h-3 bg-blue-50 rounded-full overflow-hidden mb-4 border border-blue-100">
-      <div className="h-full rounded-full transition-all duration-500"
-        style={{width:`${waterPct}%`,background:"linear-gradient(90deg,#60a5fa,#06b6d4)"}} />
-    </div>
-    <div className="grid grid-cols-4 gap-2">
-      {[8,16,24].map(oz => (
-        <button key={oz} onClick={() => updateWater(waterOz + oz)}
-          className="py-3 rounded-xl text-xs font-bold press hover-lift bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-600 border-2 border-blue-200 hover:border-blue-400">
-          +{oz} oz
-        </button>
-      ))}
-      <button onClick={() => updateWater(waterOz - 8)}
-        className="py-3 rounded-xl text-sm font-black press hover-lift text-gray-400 border-2 border-gray-200 bg-gray-50 hover:border-gray-300">
-        −
-      </button>
-    </div>
-    {waterOz >= WATER_GOAL_OZ && (
-      <div className="mt-3 bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
-        <p className="text-xs text-blue-600 font-bold">🎉 {T("Daily hydration goal reached!")}</p>
-      </div>
-    )}
-  </div>
-
-{/* ── MOOD TRACKER ── */}
-<div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <Smile className="w-5 h-5 text-yellow-500" />
-        <div>
-          <p className="font-bold text-gray-900">😊 {T("Today's Mood")}</p>
-          <p className="text-xs text-gray-500">{T("How are you feeling?")}</p>
-        </div>
-      </div>
-      {currentMood ? (
-        <button onClick={() => setShowMoodModal(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 hover:border-blue-400 press transition-all">
-          <span className="text-2xl">{currentMoodOption?.emoji}</span>
-          <span className="text-xs font-bold text-blue-600">{currentMoodTranslated?.label ?? currentMood}</span>
-        </button>
-      ) : (
-        <button onClick={() => setShowMoodModal(true)}
-          className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-600 text-xs font-bold border-2 border-blue-200 hover:border-blue-400 press hover-lift">
-          + {T("Log mood")}
-        </button>
-      )}
-    </div>
-  </div>
 
 {/* ── MILESTONE ── */}
 {streakMilestones.length > 0 && streakMilestones[0].remaining > 0 && (
