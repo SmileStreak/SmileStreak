@@ -1,7 +1,8 @@
-import { scheduleDailyNotifications } from "../utils/scheduleNotifications";
 import { useState, useEffect, useContext } from "react";
 import { getReminders, saveReminders } from "../utils/reminders";
 import { requestNotificationPermission } from "../utils/notifications";
+import { savePushNotificationPreferences } from "../utils/pushNotifications";
+import { auth } from "../firebase";
 import { Bell, BellOff, Clock, Sparkles, Zap, CheckCircle2, TrendingUp, Moon, Sun, Activity, Calendar, AlertCircle } from "lucide-react";
 import { TranslationContext } from "../App";
 
@@ -78,7 +79,16 @@ export default function Reminders() {
     loadTranslations();
   }, [currentLanguage, t]);
 
-  useEffect(() => { saveReminders(reminders); }, [reminders]);
+  useEffect(() => {
+    saveReminders(reminders);
+    if (notificationsEnabled && auth.currentUser) {
+      savePushNotificationPreferences({
+        userId: auth.currentUser.uid,
+        reminders,
+        enabled: true,
+      }).catch(console.error);
+    }
+  }, [reminders, notificationsEnabled]);
 
   useEffect(() => {
     const stats = JSON.parse(localStorage.getItem('reminderStats') || '{"onTimeCount": 0, "streak": 0}');
@@ -263,9 +273,17 @@ export default function Reminders() {
     }
     const permission = await requestNotificationPermission();
     if (permission === "granted") {
-      scheduleDailyNotifications();
-      setNotificationsEnabled(true);
-      setMessage(translatedText.notificationsEnabled || translationKeys.notificationsEnabled);
+      try {
+        await savePushNotificationPreferences({
+          userId: auth.currentUser?.uid,
+          reminders,
+          enabled: true,
+        });
+        setNotificationsEnabled(true);
+        setMessage(translatedText.notificationsEnabled || translationKeys.notificationsEnabled);
+      } catch (error) {
+        setMessage(`❌ ${error.message}`);
+      }
       setTimeout(() => setMessage(""), 3000);
     } else if (permission === "denied") {
       setMessage(translatedText.notificationsBlocked || translationKeys.notificationsBlocked);

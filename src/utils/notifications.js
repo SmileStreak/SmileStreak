@@ -1,9 +1,5 @@
 export async function requestNotificationPermission() {
-  // iOS Safari: do nothing silently
-  if (
-    !("Notification" in window) ||
-    /iPhone|iPad|iPod/.test(navigator.userAgent)
-  ) {
+  if (!("Notification" in window)) {
     return "unsupported";
   }
 
