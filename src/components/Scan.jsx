@@ -671,7 +671,7 @@ return (
       <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-gray-800">
-          <span className="font-bold">This is not a dental exam.</span> It gives general habit tips based on a photo, not a diagnosis. See a dentist for anything you're concerned about.
+          <span className="font-bold">This is not a dental examination.</span> It gives general habit tips based on a photo, not a diagnosis. See a dentist for anything you're concerned about.
         </p>
       </div>
 
