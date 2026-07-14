@@ -28,6 +28,41 @@ import "./App.css";
 export const TranslationContext = createContext();
 export const ThemeContext = createContext();
 
+// ── HELPER: Find available league group for new users ──
+const getAvailableLeagueGroup = async (league = "Bronze") => {
+  const LEAGUE_GROUP_SIZE = 50;
+  
+  try {
+    const snapshot = await getDocs(
+      query(
+        collection(db, "users"),
+        where("leaderboard.league", "==", league)
+      )
+    );
+
+    const groups = {};
+
+    snapshot.forEach((doc) => {
+      const group = doc.data().leaderboard?.leagueGroup;
+      if (group) {
+        groups[group] = (groups[group] || 0) + 1;
+      }
+    });
+
+    let number = 1;
+    while (true) {
+      const groupName = `${league}-${String(number).padStart(3, "0")}`;
+      if (!groups[groupName] || groups[groupName] < LEAGUE_GROUP_SIZE) {
+        return groupName;
+      }
+      number++;
+    }
+  } catch (error) {
+    console.error("Error finding available league group:", error);
+    return `${league}-001`;
+  }
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [user, setUser] = useState(null);
@@ -176,30 +211,46 @@ export default function App() {
         console.log("No user document found, creating new one");
         const joined = new Date().toISOString();
         setJoinedDate(joined);
-        setDoc(ref, { 
-          joinedDate: joined,
-          habitData: {},
-          leaderboard: {
-            weeklyPoints: 0,
-            league: "Bronze",
-            leagueRank: 0,
-            weekId: "",
-            leagueGroup: "default",
-            currentStreak: 0,
-            longestStreak: 0,
-            perfectDays: 0,
-            promotionStatus: "stay"
-          },
-          userProfile: {
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-            uid: user.uid,
-            language: currentLanguage,
-            darkMode: darkMode,
-            lastUpdated: new Date().toISOString()
-          }
-        }, { merge: true });
+        
+        // ── CREATE NEW USER WITH INTELLIGENT LEAGUE GROUP ──
+        const createNewUser = async () => {
+          const leagueGroup = await getAvailableLeagueGroup("Bronze");
+          
+          // Get current week ID
+          const now = new Date();
+          const year = now.getFullYear();
+          const jan1 = new Date(year, 0, 1);
+          const days = Math.floor((now - jan1) / (24 * 60 * 60 * 1000));
+          const weekNumber = Math.ceil((days + jan1.getDay() + 1) / 7);
+          const currentWeekId = `${year}-W${String(weekNumber).padStart(2, "0")}`;
+
+          setDoc(ref, { 
+            joinedDate: joined,
+            habitData: {},
+            leaderboard: {
+              weeklyPoints: 0,
+              league: "Bronze",
+              leagueRank: 0,
+              weekId: currentWeekId,
+              leagueGroup: leagueGroup,
+              currentStreak: 0,
+              longestStreak: 0,
+              perfectDays: 0,
+              promotionStatus: "stay"
+            },
+            userProfile: {
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              uid: user.uid,
+              language: currentLanguage,
+              darkMode: darkMode,
+              lastUpdated: new Date().toISOString()
+            }
+          }, { merge: true });
+        };
+        
+        createNewUser();
         setShowUsernameModal(true);
         setUsernameLoaded(true);
       }
