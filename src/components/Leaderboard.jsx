@@ -46,7 +46,7 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
     };
 
     calculateTimeRemaining();
-    const interval = setInterval(calculateTimeRemaining, 60000); // Update every minute
+    const interval = setInterval(calculateTimeRemaining, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -85,17 +85,23 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
 
         console.log(`🔍 Fetching players in league: ${league}, group: ${leagueGroup}, week: ${weekId}`);
 
-        // Query users in the same league
+        // ── TEMPORARILY USE ONLY LEAGUE TO SEE IF USERS EXIST ──
         const usersRef = collection(db, "users");
         const q = query(
           usersRef,
-          where("leaderboard.league", "==", league),
-          where("leaderboard.leagueGroup", "==", leagueGroup),
-          where("leaderboard.weekId", "==", weekId)
+          where("leaderboard.league", "==", league)
+          // where("leaderboard.leagueGroup", "==", leagueGroup),
+          // where("leaderboard.weekId", "==", weekId)
         );
         
         const querySnapshot = await getDocs(q);
+        
+        // ── ADD DEBUG LOGS ──
         console.log(`📊 Found ${querySnapshot.size} players in this league`);
+        
+        querySnapshot.forEach((doc) => {
+          console.log("📄 Document:", doc.id, doc.data().leaderboard);
+        });
 
         const playersData = [];
 
