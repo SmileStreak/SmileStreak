@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.smilestreak.twa",
+    "sha256_cert_fingerprints": ["64:91:5E:5D:C0:07:E3:14:62:1C:0B:B4:6F:F6:82:D1:CE:85:A1:88:5F:15:0D:C3:01:11:86:2A:3B:F0:17:06"]
+  }
+}]
