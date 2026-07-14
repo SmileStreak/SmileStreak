@@ -17,6 +17,56 @@ const REMINDER_COPY = {
   floss: "Don't forget to floss!",
 };
 
+
+// ===============================
+// LEAGUE CONFIG
+// ===============================
+
+const LEAGUE_ORDER = [
+  "Bronze",
+  "Silver",
+  "Gold",
+  "Diamond",
+  "Champion",
+];
+
+const LEAGUE_GROUP_SIZE = 50;
+
+
+// Assign users into Bronze-001, Bronze-002, etc.
+function assignLeagueGroups(users) {
+  const groupedUsers = {};
+
+  for (const league of LEAGUE_ORDER) {
+    groupedUsers[league] = users.filter(
+      (user) =>
+        user.leaderboard?.league === league
+    );
+  }
+
+
+  const assignments = {};
+
+
+  for (const league of LEAGUE_ORDER) {
+    const leagueUsers = groupedUsers[league];
+
+
+    leagueUsers.forEach((user, index) => {
+      const groupNumber =
+        Math.floor(index / LEAGUE_GROUP_SIZE) + 1;
+
+
+      assignments[user.id] =
+        `${league}-${String(groupNumber).padStart(3, "0")}`;
+    });
+  }
+
+
+  return assignments;
+}
+
+
 function localClock(timeZone) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
@@ -28,27 +78,35 @@ function localClock(timeZone) {
     day: "2-digit",
   }).formatToParts(new Date());
 
+
   const value = Object.fromEntries(
     parts
       .filter(({ type }) => type !== "literal")
       .map(({ type, value }) => [type, value])
   );
 
+
   return {
     day: `${value.year}-${value.month}-${value.day}`,
-    minutes: Number(value.hour) * 60 + Number(value.minute),
+    minutes:
+      Number(value.hour) * 60 +
+      Number(value.minute),
   };
 }
 
-function minutesFromTime(time) {
-  const [hour, minute] = String(time || "").split(":").map(Number);
 
-  return Number.isInteger(hour) && Number.isInteger(minute)
-    ? hour * 60 + Number(minute)
+function minutesFromTime(time) {
+  const [hour, minute] =
+    String(time || "")
+      .split(":")
+      .map(Number);
+
+
+  return Number.isInteger(hour) &&
+    Number.isInteger(minute)
+    ? hour * 60 + minute
     : null;
 }
-
-
 // ===============================
 // PUSH NOTIFICATION REMINDERS
 // ===============================
@@ -69,19 +127,29 @@ export const sendScheduledReminders = onSchedule(
       let clock;
 
       try {
-        clock = localClock(subscription.timeZone || "UTC");
+        clock = localClock(
+          subscription.timeZone || "UTC"
+        );
       } catch {
-        logger.warn("Skipping notification with invalid time zone", {
-          tokenDocument: tokenDoc.id,
-        });
+        logger.warn(
+          "Skipping notification with invalid time zone",
+          {
+            tokenDocument: tokenDoc.id,
+          }
+        );
         continue;
       }
+
 
       for (const [kind, time] of Object.entries(
         subscription.reminders || {}
       )) {
-        const scheduledMinute = minutesFromTime(time);
-        const lastSent = subscription.lastSent?.[kind];
+        const scheduledMinute =
+          minutesFromTime(time);
+
+        const lastSent =
+          subscription.lastSent?.[kind];
+
 
         if (
           !REMINDER_COPY[kind] ||
@@ -92,6 +160,7 @@ export const sendScheduledReminders = onSchedule(
         ) {
           continue;
         }
+
 
         deliveries.push(
           messaging
@@ -118,7 +187,9 @@ export const sendScheduledReminders = onSchedule(
                     [kind]: clock.day,
                   },
                 },
-                { merge: true }
+                {
+                  merge: true,
+                }
               )
             )
             .catch(async (error) => {
@@ -132,22 +203,31 @@ export const sendScheduledReminders = onSchedule(
                 return;
               }
 
-              logger.error("Unable to send reminder", {
-                tokenDocument: tokenDoc.id,
-                error: error.message,
-              });
+              logger.error(
+                "Unable to send reminder",
+                {
+                  tokenDocument: tokenDoc.id,
+                  error: error.message,
+                }
+              );
             })
         );
       }
     }
 
+
     await Promise.all(deliveries);
 
-    logger.info("Finished scheduled reminder run", {
-      deliveries: deliveries.length,
-    });
+
+    logger.info(
+      "Finished scheduled reminder run",
+      {
+        deliveries: deliveries.length,
+      }
+    );
   }
 );
+
 
 
 // ===============================
@@ -160,16 +240,23 @@ export const weeklyLeagueReset = onSchedule(
     timeZone: "America/Chicago",
   },
   async () => {
-    logger.info("Starting weekly league reset");
+    logger.info(
+      "Starting weekly league reset"
+    );
 
-    const usersSnapshot = await db.collection("users").get();
+
+    const usersSnapshot =
+      await db.collection("users").get();
+
 
     if (usersSnapshot.empty) {
       logger.info("No users found");
       return;
     }
 
+
     const users = [];
+
 
     usersSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -182,68 +269,131 @@ export const weeklyLeagueReset = onSchedule(
       }
     });
 
-    users.sort((a, b) => {
-      return (
+
+
+    // Sort users by weekly points
+    users.sort(
+      (a, b) =>
         (b.leaderboard?.weeklyPoints || 0) -
         (a.leaderboard?.weeklyPoints || 0)
-      );
-    });
+    );
 
-    const batch = db.batch();
+
+
+    const totalUsers = users.length;
+
+
+
+    // ===============================
+    // PROMOTION / DEMOTION
+    // ===============================
 
     users.forEach((user, index) => {
       const rank = index + 1;
-      const total = users.length;
-      const percentage = rank / total;
 
-      let newLeague =
-        user.leaderboard?.league || "Bronze";
+      const percentage =
+        rank / totalUsers;
 
-      // Top 20% promote
+
+      let league =
+        user.leaderboard?.league ||
+        "Bronze";
+
+
+      // promote
       if (percentage <= 0.2) {
-        if (newLeague === "Bronze") {
-          newLeague = "Silver";
-        } else if (newLeague === "Silver") {
-          newLeague = "Gold";
-        } else if (newLeague === "Gold") {
-          newLeague = "Diamond";
-        }
+        if (league === "Bronze")
+          league = "Silver";
+        else if (league === "Silver")
+          league = "Gold";
+        else if (league === "Gold")
+          league = "Diamond";
       }
 
-      // Bottom 20% demote
+
+      // demote
       if (percentage > 0.8) {
-        if (newLeague === "Diamond") {
-          newLeague = "Gold";
-        } else if (newLeague === "Gold") {
-          newLeague = "Silver";
-        } else if (newLeague === "Silver") {
-          newLeague = "Bronze";
-        }
+        if (league === "Diamond")
+          league = "Gold";
+        else if (league === "Gold")
+          league = "Silver";
+        else if (league === "Silver")
+          league = "Bronze";
       }
 
-      const ref = db.collection("users").doc(user.id);
+
+      user.newLeague = league;
+    });
+
+
+
+    // Apply new leagues temporarily
+    users.forEach((user) => {
+      user.leaderboard = {
+        ...user.leaderboard,
+        league: user.newLeague,
+      };
+    });
+
+
+
+    // Create Bronze-001, Bronze-002, etc.
+    const leagueGroups =
+      assignLeagueGroups(users);
+
+
+
+    const batch = db.batch();
+
+
+
+    users.forEach((user, index) => {
+      const ref =
+        db.collection("users")
+        .doc(user.id);
+
 
       batch.set(
         ref,
         {
           leaderboard: {
             ...user.leaderboard,
-            league: newLeague,
+
+            league:
+              user.newLeague,
+
+            leagueGroup:
+              leagueGroups[user.id] ||
+              `${user.newLeague}-001`,
+
             weeklyPoints: 0,
-            lastRank: rank,
+
+            lastRank:
+              index + 1,
+
             lastWeekPoints:
-              user.leaderboard?.weeklyPoints || 0,
-            weekId: new Date()
-              .toISOString()
-              .slice(0, 10),
-            lastReset: FieldValue.serverTimestamp(),
+              user.leaderboard?.weeklyPoints ||
+              0,
+
+            weekId:
+              new Date()
+                .toISOString()
+                .slice(0, 10),
+
+            lastReset:
+              FieldValue.serverTimestamp(),
           },
         },
-        { merge: true }
+        {
+          merge: true,
+        }
       );
     });
 
+
+
     await batch.commit();
+
 
     logger.info(
       `League reset complete: ${users.length} users processed`
