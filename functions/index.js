@@ -107,6 +107,8 @@ function minutesFromTime(time) {
     ? hour * 60 + minute
     : null;
 }
+
+
 // ===============================
 // PUSH NOTIFICATION REMINDERS
 // ===============================
@@ -240,23 +242,16 @@ export const weeklyLeagueReset = onSchedule(
     timeZone: "America/Chicago",
   },
   async () => {
-    logger.info(
-      "Starting weekly league reset"
-    );
+    logger.info("Starting weekly league reset");
 
-
-    const usersSnapshot =
-      await db.collection("users").get();
-
+    const usersSnapshot = await db.collection("users").get();
 
     if (usersSnapshot.empty) {
       logger.info("No users found");
       return;
     }
 
-
     const users = [];
-
 
     usersSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -269,119 +264,106 @@ export const weeklyLeagueReset = onSchedule(
       }
     });
 
+    // ── GET CURRENT WEEK ID ──
+    const now = new Date();
+    const year = now.getFullYear();
+    const jan1 = new Date(year, 0, 1);
+    const days = Math.floor((now - jan1) / (24 * 60 * 60 * 1000));
+    const weekNumber = Math.ceil((days + jan1.getDay() + 1) / 7);
+    const currentWeekId = `${year}-W${String(weekNumber).padStart(2, "0")}`;
 
+    logger.info(`Current week ID: ${currentWeekId}`);
 
-    // Sort users by weekly points
-    users.sort(
-      (a, b) =>
-        (b.leaderboard?.weeklyPoints || 0) -
-        (a.leaderboard?.weeklyPoints || 0)
-    );
+    // ── GROUP USERS BY CURRENT LEAGUE ──
+    const usersByLeague = {};
+    for (const league of LEAGUE_ORDER) {
+      usersByLeague[league] = users.filter(
+        (user) => user.leaderboard?.league === league
+      );
+    }
 
+    // ── PROCESS EACH LEAGUE SEPARATELY ──
+    const updatedUsers = [];
 
+    for (const league of LEAGUE_ORDER) {
+      const leagueUsers = usersByLeague[league] || [];
+      
+      // Sort by weekly points within this league
+      leagueUsers.sort(
+        (a, b) =>
+          (b.leaderboard?.weeklyPoints || 0) -
+          (a.leaderboard?.weeklyPoints || 0)
+      );
 
-    const totalUsers = users.length;
+      const totalLeagueUsers = leagueUsers.length;
 
+      // ── ONLY PROMOTE IF LEAGUE IS FULL ──
+      const canPromote = totalLeagueUsers >= LEAGUE_GROUP_SIZE;
 
+      leagueUsers.forEach((user, index) => {
+        const rank = index + 1;
+        const percentage = rank / totalLeagueUsers;
 
-    // ===============================
-    // PROMOTION / DEMOTION
-    // ===============================
+        let newLeague = league;
 
-    users.forEach((user, index) => {
-      const rank = index + 1;
+        // ── PROMOTION: top 20% ONLY if league is full ──
+        if (canPromote && percentage <= 0.2) {
+          const nextLeagueIndex = LEAGUE_ORDER.indexOf(league) + 1;
+          if (nextLeagueIndex < LEAGUE_ORDER.length) {
+            newLeague = LEAGUE_ORDER[nextLeagueIndex];
+          }
+        }
 
-      const percentage =
-        rank / totalUsers;
+        // ── DEMOTION: bottom 20% ──
+        if (percentage > 0.8) {
+          const prevLeagueIndex = LEAGUE_ORDER.indexOf(league) - 1;
+          if (prevLeagueIndex >= 0) {
+            newLeague = LEAGUE_ORDER[prevLeagueIndex];
+          }
+        }
 
+        // Store the updated user
+        updatedUsers.push({
+          ...user,
+          newLeague: newLeague,
+          rank: rank,
+          weeklyPoints: user.leaderboard?.weeklyPoints || 0,
+        });
+      });
+    }
 
-      let league =
-        user.leaderboard?.league ||
-        "Bronze";
-
-
-      // promote
-      if (percentage <= 0.2) {
-        if (league === "Bronze")
-          league = "Silver";
-        else if (league === "Silver")
-          league = "Gold";
-        else if (league === "Gold")
-          league = "Diamond";
-      }
-
-
-      // demote
-      if (percentage > 0.8) {
-        if (league === "Diamond")
-          league = "Gold";
-        else if (league === "Gold")
-          league = "Silver";
-        else if (league === "Silver")
-          league = "Bronze";
-      }
-
-
-      user.newLeague = league;
-    });
-
-
-
-    // Apply new leagues temporarily
-    users.forEach((user) => {
-      user.leaderboard = {
+    // ── NOW ASSIGN LEAGUE GROUPS ──
+    // Create a temporary array with updated leagues
+    const usersWithNewLeagues = updatedUsers.map((user) => ({
+      ...user,
+      leaderboard: {
         ...user.leaderboard,
         league: user.newLeague,
-      };
-    });
+      },
+    }));
 
+    // Use the existing assignLeagueGroups function
+    const leagueGroups = assignLeagueGroups(usersWithNewLeagues);
 
-
-    // Create Bronze-001, Bronze-002, etc.
-    const leagueGroups =
-      assignLeagueGroups(users);
-
-
-
+    // ── CREATE BATCH WRITES ──
     const batch = db.batch();
 
-
-
-    users.forEach((user, index) => {
-      const ref =
-        db.collection("users")
-        .doc(user.id);
-
+    updatedUsers.forEach((user) => {
+      const ref = db.collection("users").doc(user.id);
+      const group = leagueGroups[user.id] || `${user.newLeague}-001`;
 
       batch.set(
         ref,
         {
           leaderboard: {
             ...user.leaderboard,
-
-            league:
-              user.newLeague,
-
-            leagueGroup:
-              leagueGroups[user.id] ||
-              `${user.newLeague}-001`,
-
+            league: user.newLeague,
+            leagueGroup: group,
             weeklyPoints: 0,
-
-            lastRank:
-              index + 1,
-
-            lastWeekPoints:
-              user.leaderboard?.weeklyPoints ||
-              0,
-
-            weekId:
-              new Date()
-                .toISOString()
-                .slice(0, 10),
-
-            lastReset:
-              FieldValue.serverTimestamp(),
+            lastRank: user.rank,
+            lastWeekPoints: user.weeklyPoints,
+            weekId: currentWeekId,
+            lastReset: FieldValue.serverTimestamp(),
           },
         },
         {
@@ -390,13 +372,10 @@ export const weeklyLeagueReset = onSchedule(
       );
     });
 
-
-
     await batch.commit();
 
-
     logger.info(
-      `League reset complete: ${users.length} users processed`
+      `League reset complete: ${updatedUsers.length} users processed`
     );
   }
 );
