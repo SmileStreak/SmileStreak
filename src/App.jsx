@@ -596,28 +596,18 @@ export default function App() {
     <TranslationContext.Provider value={{ t, currentLanguage, translating }}>
       <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
-          <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-cyan-50'}`}>
+          <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-slate-50'}`}>
             <header className={`sticky top-0 z-50 transition-colors duration-300 ${
               darkMode
                 ? 'bg-gray-800/95 backdrop-blur-sm border-b border-gray-700'
-                : 'bg-gradient-to-r from-blue-50 via-white to-cyan-50 shadow-sm'
+                : 'bg-white border-b border-slate-200'
             }`}>
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="/icon-511.png"
-                      alt="Smile Streak"
-                      className="w-10 h-10 rounded-xl shadow-md"
-                    />
-                    <div>
-                      <h1 className="text-xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                        Smile Streak
-                      </h1>
-                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} hidden sm:block`}>
-                        Build better dental habits
-                      </p>
-                    </div>
+                  <div className="flex items-center">
+                    <h1 className="brand-wordmark" aria-label="SmileStreak">
+                      <span>smile</span><span>streak</span>
+                    </h1>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -625,14 +615,14 @@ export default function App() {
                     {user && (
                       <button
                         onClick={() => setShowLeaderboard(!showLeaderboard)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-sm font-semibold ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                           showLeaderboard
                             ? darkMode
-                              ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400'
-                              : 'bg-yellow-50 border-yellow-400 text-yellow-600'
+                              ? 'bg-gray-700 border-gray-600 text-gray-100'
+                              : 'bg-gray-50 border-gray-300 text-gray-700'
                             : darkMode
-                              ? 'bg-gray-700 border-gray-600 text-gray-200 hover:border-yellow-500 hover:shadow-md'
-                              : 'bg-white border-gray-200 text-gray-700 hover:border-yellow-400 hover:shadow-md'
+                              ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
+                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
                         title="Leaderboard"
                       >
@@ -643,10 +633,10 @@ export default function App() {
 
                     <button
                       onClick={toggleDarkMode}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-sm font-semibold ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                         darkMode
-                          ? 'bg-gray-700 border-gray-600 text-yellow-400 hover:border-yellow-500 hover:shadow-md'
-                          : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:shadow-md'
+                          ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
+                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                       }`}
                       title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                     >
@@ -666,10 +656,10 @@ export default function App() {
                     <div className="relative">
                       <button
                         onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-sm font-semibold ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                           darkMode
-                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:border-blue-500 hover:shadow-md'
-                            : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:shadow-md'
+                            ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
+                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
                         title="Change Language"
                       >
@@ -818,10 +808,10 @@ export default function App() {
                     ) : (
                       <button
                         onClick={login}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all font-semibold text-sm ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors font-medium text-sm ${
                           darkMode
-                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:border-blue-500 hover:shadow-md'
-                            : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:shadow-md'
+                            ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
+                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -858,7 +848,7 @@ export default function App() {
               </div>
             )}
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10">
               {/* ── LEADERBOARD ── */}
               {showLeaderboard && user && (
                 <Leaderboard
@@ -882,14 +872,13 @@ export default function App() {
               {activeTab === "legal" && <Legal />}
             </main>
 
-            <button
-              onClick={() => setShowFeedback(true)}
-              className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all duration-200 group"
-              title="Give Feedback"
-            >
-              <MessageCircle className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-            </button>
+            <footer className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 border-t flex items-center justify-between text-xs ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
+              <span>SmileStreak</span>
+              <button onClick={() => setShowFeedback(true)} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
+                <MessageCircle className="w-4 h-4" />
+                <span>Send feedback</span>
+              </button>
+            </footer>
 
             {showFeedback && (
               <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">

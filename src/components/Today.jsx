@@ -5,8 +5,7 @@ import { getDateKey, getYesterdayKey } from "../utils/date.js";
 import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
-Clock, CheckCircle2, Circle, Share2, Heart,
-Sparkles, Droplets, Sun, Moon, Smile, Zap, TrendingUp
+Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap
 } from "lucide-react";
 import { TranslationContext } from "../App";
 
@@ -153,7 +152,7 @@ const UI_STRINGS = [
 "Let's start your day right!", "Great start — keep going!",
 "Almost there, one more to go!", "All done — you're unstoppable!",
 "tasks remaining", "task remaining", "All tasks complete today",
-"Multiplier Active", "Streak", "Best", "Score", "Boost",
+"Multiplier Active", "Current streak", "Personal best", "Weekly completion", "Streak bonus",
 "Energised", "Good", "Calm", "Tired", "Meh", "Unwell",
 "Week Warrior", "Monthly Master", "Century Club", "Perfect Week", "Perfect Month",
 "Circular Motion", "45° Angle", "Two Full Minutes", "Brush Your Tongue",
@@ -621,67 +620,56 @@ return (
     .aligner-pulse::before { content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid #06b6d4; animation:pulse-ring 1.5s ease-out infinite; }
   `}</style>
 
-{/* ── HERO HEADER ── */}
-  <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
-    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
-    <div className="relative z-10">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">{mot.emoji}</span>
-          <div>
-            <h2 className="text-2xl font-black">🦷 {T("Today's Routine")}</h2>
-            <p className="text-sm opacity-90 mt-0.5">{dayLabel}</p>
-          </div>
-        </div>
-        <button onClick={() => setShowReflection(true)}
-          className="p-2.5 rounded-2xl bg-white/20 hover:bg-white/30 transition-colors press">
-          <Heart className="w-5 h-5 text-white" />
-        </button>
-      </div>
-      <div className="mt-4 pt-4 border-t border-white/20">
-        <p className="font-bold text-white">{T(mot.textKey)}</p>
-        <p className="text-sm text-blue-100 mt-0.5">{remainingText}</p>
-      </div>
+{/* ── DAILY ROUTINE HEADER ── */}
+  <header className="today-page-heading">
+    <div>
+      <h2>{T("Today's Routine")}</h2>
+      <p>{dayLabel}</p>
     </div>
-  </div>
+    <div className="today-heading-actions">
+      <span>{completedCount === 3 ? T(mot.textKey) : remainingText}</span>
+      <button onClick={() => setShowReflection(true)} className="today-note-button">
+        <Heart className="w-4 h-4" />
+        <span>{T("Today's Note")}</span>
+      </button>
+    </div>
+  </header>
 
-{/* ── STATS ROW ── */}
-  <div className="grid grid-cols-4 gap-3">
+{/* ── SUMMARY ROW ── */}
+  <dl className="today-stats">
     {[
-      { emoji:"🔥", val:`${current}d`,          labelKey:"Streak",  from:"from-orange-50", border:"border-orange-100", text:"text-orange-600" },
-      { emoji:"🏅", val:`${longest}d`,          labelKey:"Best",    from:"from-yellow-50", border:"border-yellow-100", text:"text-yellow-600" },
-      { emoji:"📈", val:`${consistencyScore}%`, labelKey:"Score",   from:"from-blue-50",   border:"border-blue-100",   text:"text-blue-600"   },
-      { emoji:"⚡", val:`${streakMultiplier}x`, labelKey:"Boost",   from:"from-purple-50", border:"border-purple-100", text:"text-purple-600" },
+      { val:`${current}d`, labelKey:"Current streak" },
+      { val:`${longest}d`, labelKey:"Personal best" },
+      { val:`${consistencyScore}%`, labelKey:"Weekly completion" },
+      { val:`${streakMultiplier}x`, labelKey:"Streak bonus" },
     ].map(s => (
-      <div key={s.labelKey} className={`bg-gradient-to-br ${s.from} to-white rounded-2xl p-3 border ${s.border} shadow-sm text-center`}>
-        <div className="text-xl mb-1">{s.emoji}</div>
-        <div className={`text-sm font-black ${s.text}`}>{s.val}</div>
-        <div className="text-[10px] text-gray-400 mt-0.5 font-medium">{T(s.labelKey)}</div>
+      <div key={s.labelKey} className="today-stat">
+        <dt>{T(s.labelKey)}</dt>
+        <dd>{s.val}</dd>
       </div>
     ))}
-  </div>
+  </dl>
 
 {/* ── WEEKLY CHART ── */}
-  <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-    <div className="flex items-center gap-2 mb-4">
-      <TrendingUp className="w-4 h-4 text-blue-600" />
-      <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">📅 {T("This Week")}</p>
+  <section className="today-week-section">
+    <div className="today-week-heading">
+      <h3>{T("This Week")}</h3>
+      <span>{T("Daily Tasks")}</span>
     </div>
     <div className="flex justify-between items-end gap-2">
       {weekDots.map((d, i) => (
         <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
           <div className="w-full flex flex-col gap-0.5">
             {[2,1,0].map(slot => (
-              <div key={slot} className={`h-2 rounded-full transition-all duration-500 ${d.done > slot ? "bg-gradient-to-r from-blue-400 to-cyan-400" : "bg-blue-50"}`} />
+              <div key={slot} className={`h-2 rounded-sm transition-colors duration-200 ${d.done > slot ? "bg-blue-600" : "bg-slate-100"}`} />
             ))}
           </div>
-          <span className={`text-[10px] font-bold ${d.isToday ? "text-blue-600" : "text-gray-300"}`}>{d.label}</span>
+          <span className={`text-xs ${d.isToday ? "text-blue-700 font-semibold" : "text-gray-500"}`}>{d.label}</span>
           {d.isToday && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
         </div>
       ))}
     </div>
-  </div>
+  </section>
 
 {/* ── RECOVERY NOTICE ── */}
 {isRecoveryDay && (

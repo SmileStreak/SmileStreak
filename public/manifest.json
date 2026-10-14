@@ -1,11 +1,11 @@
 {
-  "name": "Smile Streak",
-"short_name": "Smile Streak",
+  "name": "SmileStreak",
+  "short_name": "SmileStreak",
   "description": "Build better brushing habits",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ecfeff",
-  "theme_color": "#06b6d4",
+  "background_color": "#f6f4ee",
+  "theme_color": "#f6f4ee",
   "icons": [
     {
       "src": "/icon-192.png",

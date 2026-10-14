@@ -139,7 +139,7 @@ export default function Dentists() {
   const [aiLoading, setAiLoading] = useState(false);
 
   const translationKeys = {
-    title: "Find Dentists", subtitle: "Discover top-rated dental care nearby",
+    title: "Find Dentists", subtitle: "Find a dentist and check your insurance.",
     yourInsurance: "Your Insurance", selectInsurance: "Select your insurance",
     recommended: "Recommended", bestRated: "Best Rated", closest: "Closest",
     loading: "Finding dentists near you...", noDentists: "No dentists found nearby",

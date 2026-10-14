@@ -25,8 +25,8 @@ export default function NavTabs({ activeTab, setActiveTab }) {
  }, [showMore]);
 
  return (
-   <div className="w-full overflow-x-auto pb-3">
-     <div className="flex gap-2 px-2">
+   <div className="w-full overflow-x-auto border-b border-gray-200">
+     <div className="flex min-w-max items-end gap-6 px-1">
        {primaryTabs.map((tab) => {
          const active = activeTab === tab.toLowerCase();
          return (
@@ -34,11 +34,11 @@ export default function NavTabs({ activeTab, setActiveTab }) {
              key={tab}
              onClick={() => handleTab(tab)}
              className={`
-               px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap
-               transition-all duration-200 border
+               relative px-1 py-3 text-sm font-medium whitespace-nowrap
+               transition-colors duration-200 border-b-2
                ${active
-                 ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-transparent shadow-md"
-                 : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"}
+                 ? "text-blue-700 border-blue-700"
+                 : "text-gray-600 border-transparent hover:text-gray-900"}
              `}
            >
              {tab}
@@ -50,11 +50,11 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          <button
            onClick={() => setShowMore((prev) => !prev)}
            className={`
-             px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap
-             transition-all duration-200 border
+             px-1 py-3 text-sm font-medium whitespace-nowrap
+             transition-colors duration-200 border-b-2
              ${isMoreActive || showMore
-               ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-transparent shadow-md"
-               : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"}
+               ? "text-blue-700 border-blue-700"
+               : "text-gray-600 border-transparent hover:text-gray-900"}
            `}
          >
            {isMoreActive
@@ -64,7 +64,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
 
          {showMore && (
            <div
-             className="fixed z-[9999] bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 flex flex-col gap-1 min-w-[160px]"
+             className="fixed z-[9999] bg-white rounded-lg border border-gray-200 p-2 flex flex-col gap-1 min-w-[160px]"
              style={{
                top: moreRef.current
                  ? moreRef.current.getBoundingClientRect().bottom + 8
@@ -81,10 +81,10 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                    key={tab}
                    onClick={() => handleTab(tab)}
                    className={`
-                     px-4 py-2.5 rounded-xl text-sm font-semibold text-left
-                     transition-all duration-200
+                     px-3 py-2.5 rounded-md text-sm font-medium text-left
+                     transition-colors duration-200
                      ${active
-                       ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                       ? "bg-slate-100 text-blue-700"
                        : "text-gray-600 hover:bg-gray-50"}
                    `}
                  >
