@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#F6F4EE"/>
-  <text x="256" y="248" text-anchor="middle" fill="#000000" font-family="Avenir Next, Avenir, Segoe UI, sans-serif" font-size="110" font-weight="650" letter-spacing="-7">smile</text>
-  <text x="256" y="350" text-anchor="middle" fill="#16803C" font-family="Avenir Next, Avenir, Segoe UI, sans-serif" font-size="110" font-weight="650" letter-spacing="-7">streak</text>
+  <rect width="512" height="512" fill="#F6F4EE"/>
+  <text x="256" y="238" text-anchor="middle" fill="#000000" font-family="Avenir Next, Avenir, Segoe UI, sans-serif" font-size="94" font-weight="500" letter-spacing="2">smile</text>
+  <text x="256" y="348" text-anchor="middle" fill="#16803C" font-family="Avenir Next, Avenir, Segoe UI, sans-serif" font-size="94" font-weight="500" letter-spacing="2">streak</text>
 </svg>
