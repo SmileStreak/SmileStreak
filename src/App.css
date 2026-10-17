@@ -2543,6 +2543,8 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
 .dentist-result-rating svg { color: var(--brand); stroke-width: 1.7; }
 .dentist-result-rating__value { color: var(--ink); font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; }
 .dentist-result-rating__reviews { color: var(--ink-muted); font-size: 11px; }
+.dentist-result-address { color: var(--ink-secondary); font-size: 13px; line-height: 1.45; }
+.dentist-result-address svg { color: var(--ink-muted); }
 .dentist-icon-action { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink-muted); }
 .dentist-icon-action:hover, .dentist-icon-action.is-active { border-color: var(--line); background: var(--surface-quiet); color: var(--brand); }
 .dentist-icon-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }

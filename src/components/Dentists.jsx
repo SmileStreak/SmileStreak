@@ -894,6 +894,7 @@ const askAIAssistant = async () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className="font-black text-gray-900 text-xl mb-2">{d.name}</h3>
+                    {d.address && <p className="dentist-result-address mb-3 flex items-start gap-2"><MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />{d.address}</p>}
                     <div className="flex flex-wrap gap-2">
                       {badge && <span className="dentist-feature-badge"><badge.icon aria-hidden="true" /> {badge.text}</span>}
                       {d.specialDesignations?.medicaidProvider && (
@@ -981,8 +982,6 @@ const askAIAssistant = async () => {
                     )}
                   </div>
                 )}
-                
-                {d.address && <p className="text-sm text-gray-600 mb-3 flex items-start gap-2"><MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />{d.address}</p>}
                 
                 {/* Know Before You Go Section for Royse City */}
                 {d.knowBeforeYouGo && d.knowBeforeYouGo.length > 0 && (
