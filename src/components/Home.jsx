@@ -107,12 +107,12 @@ export default function Home({ setActiveTab, user, habitData }) {
       const lastScan = new Date(latestDatedScan.date || latestDatedScan.timestamp);
       if (Number.isFinite(lastScan.getTime())) {
         const diffDays = Math.round((getDateFromKey(getDateKey()) - getDateFromKey(getDateKey(lastScan))) / (1000 * 60 * 60 * 24));
-        setLastScanDate(diffDays === 0 ? "Today" : diffDays === 1 ? "Yesterday" : diffDays > 1 ? `${diffDays} days ago` : "Recently");
+        setLastScanDate(diffDays >= 0 ? diffDays : "recently");
       } else {
-        setLastScanDate("Date unavailable");
+        setLastScanDate("unavailable");
       }
     } else if (validScans.length > 0) {
-      setLastScanDate("Date unavailable");
+      setLastScanDate("unavailable");
     } else {
       setLastScanDate(null);
     }
@@ -167,6 +167,8 @@ export default function Home({ setActiveTab, user, habitData }) {
         personalBest: await t("Personal best"),
         scanHistory: await t("Scan history"),
         today: await t("Today"),
+        recently: await t("Recently"),
+        dateUnavailable: await t("Date unavailable"),
         habitsComplete: await t("habits complete"),
         simpleCheckIn: await t("Daily habits"),
         routine: await t("Your routine"),
@@ -224,6 +226,17 @@ export default function Home({ setActiveTab, user, habitData }) {
       : "Date unavailable";
   };
 
+  const formatLastScanDate = () => {
+    if (lastScanDate === null) return texts.noScans || "No scans yet";
+    if (lastScanDate === "unavailable") return texts.dateUnavailable || "Date unavailable";
+    if (lastScanDate === "recently") return texts.recently || "Recently";
+    try {
+      return new Intl.RelativeTimeFormat(currentLanguage, { numeric: "auto" }).format(-lastScanDate, "day");
+    } catch {
+      return new Intl.RelativeTimeFormat(undefined, { numeric: "auto" }).format(-lastScanDate, "day");
+    }
+  };
+
   const daysUntilVisit = getDaysUntilVisit();
 
   return (
@@ -245,7 +258,7 @@ export default function Home({ setActiveTab, user, habitData }) {
           <div className="home-streak-secondary">
             <div><span className="home-eyebrow">{texts.personalBest || "Personal best"}</span><strong>{longestStreak}<small>d</small></strong></div>
             <div><span className="home-eyebrow">{texts.nextMilestone || "Next milestone"}</span><strong>{nextMilestone ? `${nextMilestone} days` : "—"}</strong><small>{nextMilestone && streak ? `${Math.max(nextMilestone - streak, 0)} to go` : "Keep your routine going"}</small></div>
-            <div><span className="home-eyebrow">{texts.scanHistory || "Scan history"}</span><strong>{totalScans}</strong><small>{lastScanDate || texts.noScans || "No scans yet"}</small></div>
+            <div><span className="home-eyebrow">{texts.scanHistory || "Scan history"}</span><strong>{totalScans}</strong><small>{formatLastScanDate()}</small></div>
           </div>
           <div className="home-streak-progress">
             <div className="home-progress-label"><span>{texts.today || "Today"}</span><strong>{todayPct}%</strong></div>
