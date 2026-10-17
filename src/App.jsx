@@ -685,7 +685,7 @@ export default function App() {
           <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-slate-50'}`}>
             <header className={`sticky top-0 z-50 transition-colors duration-300 ${
               darkMode
-                ? 'bg-gray-800/95 backdrop-blur-sm border-b border-gray-700'
+                ? 'bg-gray-800 border-b border-gray-700'
                 : 'bg-white border-b border-slate-200'
             }`}>
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1117,7 +1117,7 @@ export default function App() {
             {/* ── USERNAME MODAL ── */}
             <Presence open={usernameLoaded && showUsernameModal && !!user}>
             {usernameLoaded && showUsernameModal && user && (
-              <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+              <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
                 <div className={`account-modal account-username-modal rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} role="dialog" aria-modal="true" aria-labelledby="username-setup-title" aria-describedby="username-setup-description">
                   <div className="account-modal-intro text-center mb-6">
                     {user.photoURL && <img src={user.photoURL} alt="" className="account-avatar w-16 h-16 rounded-full mx-auto mb-3 object-cover" />}
@@ -1197,7 +1197,7 @@ export default function App() {
             {/* ── EDIT USERNAME MODAL ── */}
             <Presence open={showEditUsername && !!user}>
             {showEditUsername && user && (
-                <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditUsername(false)}>
+                <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" onClick={() => setShowEditUsername(false)}>
                 <div className={`account-modal account-username-modal rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} role="dialog" aria-modal="true" aria-labelledby="edit-username-title" onClick={e => e.stopPropagation()}>
                   <div className="flex items-center justify-between mb-5">
                     <h2 id="edit-username-title" className={`text-lg font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Edit username</h2>
@@ -1277,7 +1277,7 @@ export default function App() {
             {showProfileModal && user && (() => {
               const { currentStreak, longestStreak, perfectDays, completionRate, unlockedAchievements } = getProfileStats();
               return (
-                <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowProfileModal(false)}>
+                <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowProfileModal(false)}>
                   <div
                     className={`account-modal account-profile-modal rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm shadow-2xl overflow-y-auto max-h-[90vh] ${darkMode ? 'bg-gray-800' : 'bg-white'}`}
                     role="dialog" aria-modal="true" aria-labelledby="profile-modal-title"

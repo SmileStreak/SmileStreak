@@ -1030,7 +1030,7 @@ return (
           </div>
         </div>
 
-        <div className="scan-result-copy bg-white/50 backdrop-blur-sm rounded-2xl p-5">
+        <div className="scan-result-copy rounded-2xl p-5">
           <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{feedback}</p>
         </div>
       </div>

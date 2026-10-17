@@ -595,7 +595,7 @@ return (
 
 <Presence open={showCompletion}>
 {showCompletion && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-center justify-center z-50">
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-center justify-center z-50">
 <div className="today-completion-dialog bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100" role="dialog" aria-modal="true" aria-labelledby="today-completion-title">
 <div className="mb-4 flex justify-center"><CheckCircle2 className="h-10 w-10 text-blue-700" strokeWidth={1.5} /></div>
 <h2 id="today-completion-title" className="text-2xl font-black text-gray-900 mb-2">{T("Day Complete!")}</h2>
@@ -1011,7 +1011,7 @@ className="press hover-lift w-full py-4 rounded-2xl text-sm font-black text-whit
 {/* ── MODALS ── */}
 <Presence open={showReflection}>
 {showReflection && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-end sm:items-center justify-center z-50"
 onClick={() => setShowReflection(false)}>
 <div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="today-reflection-title"
 onClick={e => e.stopPropagation()}>
@@ -1041,7 +1041,7 @@ className="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-2xl text-sm font-bold
 
 <Presence open={showMoodModal}>
 {showMoodModal && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-end sm:items-center justify-center z-50"
 onClick={() => setShowMoodModal(false)}>
 <div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="today-mood-title"
 onClick={e => e.stopPropagation()}>
@@ -1067,7 +1067,7 @@ className="w-full mt-4 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl p
 
 <Presence open={showShareModal}>
 {showShareModal && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-end sm:items-center justify-center z-50"
 onClick={() => setShowShareModal(false)}>
 <div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="today-share-title"
 onClick={e => e.stopPropagation()}>
@@ -1093,7 +1093,7 @@ className="w-full mt-2.5 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl
 {/* ── DENTIST VISIT MODAL ── */}
 <Presence open={showDentistModal}>
 {showDentistModal && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-end sm:items-center justify-center z-50"
 onClick={() => setShowDentistModal(false)}>
 <div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-modal="true" aria-labelledby="today-visit-title"
 onClick={e => e.stopPropagation()}>
@@ -1156,7 +1156,7 @@ onClick={e => e.stopPropagation()}>
 {/* ── ALIGNER SETUP MODAL ── */}
 <Presence open={showAlignerSetup}>
 {showAlignerSetup && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-end sm:items-center justify-center z-50"
 onClick={() => setShowAlignerSetup(false)}>
 <div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-modal="true" aria-labelledby="today-aligner-title"
 onClick={e => e.stopPropagation()}>

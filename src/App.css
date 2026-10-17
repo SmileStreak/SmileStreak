@@ -127,11 +127,11 @@ main svg { stroke-width: 1.6; }
 /* Shared page frame and navigation. */
 #root > div > div { min-height: 100vh; }
 header.sticky {
-  background: rgb(250 251 249 / 0.97) !important;
+  background: #fafbf9 !important;
   border-color: var(--line) !important;
-  backdrop-filter: saturate(120%) blur(10px);
+  backdrop-filter: none;
 }
-html.dark header.sticky { background: rgb(17 24 32 / 0.96) !important; border-color: #303a45 !important; }
+html.dark header.sticky { background: #111820 !important; border-color: #303a45 !important; backdrop-filter: none; }
 .app-header-control {
   min-height: 36px; border-color: var(--line) !important; border-radius: 7px !important;
   background: var(--surface) !important; color: var(--ink-secondary) !important;
