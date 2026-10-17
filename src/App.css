@@ -1958,6 +1958,132 @@ html.dark .reminder-feature-section { border-color: var(--line); }
   .dentists-insurance { grid-template-columns: 1fr; gap: 8px; }
   .dentists-tool-button { padding-inline: 9px; }
 }
+
+/* Leaderboard: one ranked record list, with the account summary grouped above it. */
+.leaderboard-panel {
+  border-color: var(--line) !important; border-radius: 9px !important;
+  background: var(--surface) !important; box-shadow: none !important;
+}
+.leaderboard-header { border-color: var(--line) !important; }
+.leaderboard-header h2 { color: var(--ink) !important; }
+.leaderboard-header p { color: var(--ink-muted) !important; }
+.leaderboard-overview {
+  margin: 16px 16px 0; padding: 16px 18px 12px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--surface-quiet); color: var(--ink);
+}
+.leaderboard-overview.is-dark { background: #18232b; color: #e2e8f0; }
+.leaderboard-overview-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.leaderboard-league-name { display: flex; align-items: center; gap: 11px; }
+.leaderboard-league-name > svg { width: 19px; height: 19px; color: var(--brand); stroke-width: 1.7; }
+.leaderboard-league-name div, .leaderboard-position { display: grid; gap: 2px; }
+.leaderboard-league-name span, .leaderboard-position span { color: var(--ink-muted); font-size: 11px; }
+.leaderboard-league-name strong { font: 500 21px/1.1 "Newsreader Variable", Georgia, serif; }
+.leaderboard-position { text-align: right; }
+.leaderboard-position strong { color: var(--brand); font-size: 20px; font-weight: 650; }
+.leaderboard-overview-stats { display: flex; flex-wrap: wrap; gap: 9px 26px; margin: 16px 0 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.leaderboard-overview-stats > div { display: grid; gap: 4px; }
+.leaderboard-overview-stats dt { color: var(--ink-muted); font-size: 11px; }
+.leaderboard-overview-stats dd { display: flex; align-items: center; gap: 5px; margin: 0; color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
+.leaderboard-overview-stats dd svg { width: 14px; height: 14px; }
+.leaderboard-overview-stats dd.is-positive { color: #496a54; }
+.leaderboard-overview-stats dd.is-caution { color: #806445; }
+.leaderboard-overview-stats dd.is-neutral { color: var(--ink-secondary); }
+.leaderboard-standing-track { height: 3px; overflow: hidden; border-radius: 2px; background: var(--line); }
+.leaderboard-standing-track span { display: block; height: 100%; background: var(--brand); transition: width 220ms ease-out; }
+.leaderboard-search { min-height: 40px; border: 1px solid var(--line); border-radius: 7px !important; background: var(--surface) !important; }
+.leaderboard-search:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgb(53 102 108 / .12); }
+.leaderboard-ranking-list { list-style: none; margin-left: 0; margin-right: 0; }
+.leaderboard-player-row { display: flex; min-height: 57px; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--ink-secondary); transition: background-color 180ms ease-out; }
+.leaderboard-player-row:first-child { border-top: 1px solid var(--line); }
+.leaderboard-player-rank { width: 22px; color: var(--ink-muted); font-size: 12px; font-variant-numeric: tabular-nums; text-align: center; }
+.leaderboard-player-row img { width: 32px; height: 32px; border-color: var(--line-strong); }
+.leaderboard-player-avatar { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; object-fit: cover; color: var(--ink-secondary); background: var(--surface-quiet); font-size: 12px; font-weight: 600; }
+.leaderboard-player-row p { margin: 0; }
+.leaderboard-player-row .font-bold { color: var(--ink); font-size: 13px; }
+.leaderboard-player-streak { margin-top: 2px !important; color: var(--ink-muted); font-size: 11px; }
+.leaderboard-player-points { color: var(--ink-secondary); font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.leaderboard-player-points span { color: var(--ink-muted); font-size: 11px; font-weight: 400; }
+.leaderboard-player-row.is-leading .leaderboard-player-rank { color: var(--brand); font-weight: 700; }
+.leaderboard-player-row.is-current { background: #eef3f2; }
+.leaderboard-player-row.is-current .leaderboard-player-rank { color: var(--brand); font-weight: 700; }
+.leaderboard-empty { padding: 18px 0; color: var(--ink-muted); }
+.leaderboard-footer { border-color: var(--line) !important; }
+.leaderboard-footer :is(p,span) { color: var(--ink-muted) !important; }
+html.dark .leaderboard-overview-stats dd, html.dark .leaderboard-player-row,
+html.dark .leaderboard-player-row .font-bold, html.dark .leaderboard-player-points { color: #e2e8f0; }
+html.dark .leaderboard-overview-stats dd.is-positive { color: #9ebca6; }
+html.dark .leaderboard-overview-stats dd.is-caution { color: #c4aa85; }
+html.dark .leaderboard-player-row.is-current { background: #223238; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .leaderboard-player-row:hover { background: var(--surface-quiet); }
+}
+@media (max-width: 500px) {
+  .leaderboard-overview { margin-inline: 10px; padding-inline: 12px; }
+  .leaderboard-overview-stats { column-gap: 14px; }
+  .leaderboard-overview-stats > div:last-child { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .leaderboard-player-row, .leaderboard-standing-track span { transition: none; }
+}
+
+/* Account dialogs use quiet structure so username and progress stay in focus. */
+.account-modal-backdrop { padding: 16px; }
+.account-modal {
+  border: 1px solid var(--line); border-radius: 10px !important;
+  box-shadow: 0 8px 28px rgb(24 33 42 / .09) !important;
+}
+.account-modal-intro { margin-bottom: 22px; }
+.account-avatar { border: 1px solid var(--line-strong); box-shadow: none !important; }
+.account-modal :is(input[type="text"], input:not([type])) {
+  min-height: 42px; border-radius: 7px; border-width: 1px;
+}
+.account-modal :is(input[type="text"], input:not([type])):focus-visible {
+  outline: 2px solid var(--brand); outline-offset: 2px;
+}
+.account-username-modal > button,
+.account-username-modal button:not([aria-label]) { transition: background-color 180ms ease-out, border-color 180ms ease-out, color 180ms ease-out, transform 180ms ease-out; }
+.account-username-modal [class*="border-green"] { border-color: #9aafa0 !important; background-color: #f3f6f3 !important; }
+.account-username-modal [class*="border-red"] { border-color: #c8a5a2 !important; background-color: #f8f4f3 !important; }
+.account-username-modal button[class*="bg-gradient-to-r"] { border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
+.account-username-modal button[class*="bg-gradient-to-r"]:hover { background: var(--brand-hover) !important; }
+.account-username-modal button[class*="bg-blue-50"], .account-username-modal button[class*="bg-gray-700"] { border-width: 1px; border-radius: 6px !important; background: var(--surface-quiet) !important; color: var(--ink-secondary) !important; }
+.account-username-modal button:focus-visible,
+.account-dialog-close:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.account-profile-modal { overflow: hidden auto; }
+.account-profile-heading { border-bottom: 1px solid var(--line); background: var(--surface-quiet); text-align: center; color: var(--ink); }
+.account-profile-heading h2 { color: var(--ink); font: 500 26px/1.1 "Newsreader Variable", Georgia, serif; letter-spacing: -.02em; }
+.account-profile-heading p { color: var(--ink-muted); }
+.account-dialog-close { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink-secondary); transition: background-color 180ms ease-out, border-color 180ms ease-out; }
+.account-profile-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
+.account-profile-stats > div { padding: 13px 10px; border-bottom: 1px solid var(--line); }
+.account-profile-stats > div:nth-child(odd) { border-right: 1px solid var(--line); }
+.account-profile-stats dt { color: var(--ink-muted); font-size: 12px; }
+.account-profile-stats dd { margin: 4px 0 0; color: var(--ink); font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.account-achievements { padding-top: 3px; }
+.account-achievements h3 { margin: 0; }
+.account-achievement { border-color: var(--line); border-radius: 6px !important; background: var(--surface-quiet); color: var(--ink-secondary); }
+.account-profile-content > button { min-height: 42px; border: 1px solid var(--line); border-radius: 7px !important; background: var(--surface-quiet); color: var(--ink-secondary); transition: background-color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out; }
+html.dark .account-profile-heading { background: #202b35; color: #d9e0e6; }
+html.dark .account-profile-heading h2, html.dark .account-profile-stats dd { color: #e2e8f0; }
+html.dark .account-profile-heading p, html.dark .account-profile-stats dt { color: #a4afb8; }
+html.dark .account-achievement { background: #202b35; color: #d9e0e6; }
+html.dark .account-username-modal [class*="border-green"] { border-color: #597561 !important; background-color: #1e2d25 !important; }
+html.dark .account-username-modal [class*="border-red"] { border-color: #765a58 !important; background-color: #302422 !important; }
+html.dark .account-username-modal button[class*="bg-blue-50"], html.dark .account-username-modal button[class*="bg-gray-700"] { background: #202b35 !important; color: #d9e0e6 !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .account-dialog-close:hover, .account-profile-content > button:hover { border-color: var(--line-strong); background: var(--surface-quiet); }
+  .account-username-modal button:not(:disabled):hover { transform: translateY(-1px); }
+}
+@media (hover: none) {
+  .account-username-modal button:not(:disabled):active, .account-profile-content > button:active { transform: scale(.98); }
+}
+@media (max-width: 500px) {
+  .account-profile-modal { border-radius: 11px 11px 0 0 !important; }
+  .account-profile-stats > div { padding-inline: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-username-modal button, .account-dialog-close, .account-profile-content > button { transition: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .dentists-tool-button, .dentists-filter-panel button, .app-page--dentists .dentist-result__photos button { transition: none; }
 }

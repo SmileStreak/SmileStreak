@@ -918,7 +918,7 @@ export default function App() {
               <Presence open={showLeaderboard && !!user}>
               {showLeaderboard && user && (
                 <Suspense fallback={null}>
-                  <Leaderboard user={user} username={username} habitData={habitData} darkMode={darkMode} />
+                  <Leaderboard user={user} darkMode={darkMode} />
                 </Suspense>
               )}
               </Presence>
@@ -1055,12 +1055,12 @@ export default function App() {
             {/* ── USERNAME MODAL ── */}
             <Presence open={usernameLoaded && showUsernameModal && !!user}>
             {usernameLoaded && showUsernameModal && user && (
-              <div className="t-modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                <div className={`rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                  <div className="text-center mb-6">
-                    <img src={user.photoURL} alt={user.displayName} className="w-16 h-16 rounded-full border-4 border-blue-200 mx-auto mb-3 shadow-lg" />
-                    <h2 className={`text-xl font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Welcome, {user.displayName.split(" ")[0]}! 👋</h2>
-                    <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Choose a unique username to get started</p>
+              <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                <div className={`account-modal account-username-modal rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} role="dialog" aria-modal="true" aria-labelledby="username-setup-title" aria-describedby="username-setup-description">
+                  <div className="account-modal-intro text-center mb-6">
+                    {user.photoURL && <img src={user.photoURL} alt="" className="account-avatar w-16 h-16 rounded-full mx-auto mb-3 object-cover" />}
+                    <h2 id="username-setup-title" className={`text-xl font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Welcome, {(user.displayName || "there").split(" ")[0]}</h2>
+                    <p id="username-setup-description" className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Choose a unique username to get started</p>
                   </div>
 
                   <div className="mb-4">
@@ -1071,6 +1071,7 @@ export default function App() {
                     }`}>
                       <span className={`text-sm font-bold ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>@</span>
                       <input
+                        aria-label="Choose a username"
                         type="text"
                         placeholder="yourname"
                         value={usernameInput}
@@ -1083,10 +1084,10 @@ export default function App() {
                     </div>
 
                     {usernameError && (
-                      <p className="text-xs text-red-500 font-medium mt-1.5 px-1">{usernameError}</p>
+                      <p role="alert" className="text-xs text-red-500 font-medium mt-1.5 px-1">{usernameError}</p>
                     )}
                     {usernameStatus === "available" && usernameInput && (
-                      <p className="text-xs text-green-600 font-medium mt-1.5 px-1">✓ Username available!</p>
+                      <p role="status" className="text-xs text-green-600 font-medium mt-1.5 px-1">Username available</p>
                     )}
                     <p className={`text-xs mt-1.5 px-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                       Letters, numbers, underscores · 3–20 characters
@@ -1134,11 +1135,11 @@ export default function App() {
             {/* ── EDIT USERNAME MODAL ── */}
             <Presence open={showEditUsername && !!user}>
             {showEditUsername && user && (
-              <div className="t-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditUsername(false)}>
-                <div className={`rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
+                <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditUsername(false)}>
+                <div className={`account-modal account-username-modal rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} role="dialog" aria-modal="true" aria-labelledby="edit-username-title" onClick={e => e.stopPropagation()}>
                   <div className="flex items-center justify-between mb-5">
-                    <h2 className={`text-lg font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Edit Username</h2>
-                    <button onClick={() => setShowEditUsername(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+                    <h2 id="edit-username-title" className={`text-lg font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Edit username</h2>
+                    <button aria-label="Close username editor" onClick={() => setShowEditUsername(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
                       <X className="w-5 h-5" />
                     </button>
                   </div>
@@ -1154,6 +1155,7 @@ export default function App() {
                   }`}>
                     <span className={`text-sm font-bold ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>@</span>
                     <input
+                      aria-label="New username"
                       type="text"
                       placeholder="newusername"
                       value={editUsernameInput}
@@ -1166,10 +1168,10 @@ export default function App() {
                   </div>
 
                   {editUsernameError && (
-                    <p className="text-xs text-red-500 font-medium mb-1.5 px-1">{editUsernameError}</p>
+                    <p role="alert" className="text-xs text-red-500 font-medium mb-1.5 px-1">{editUsernameError}</p>
                   )}
                   {editUsernameStatus === "available" && editUsernameInput && editUsernameInput !== username && (
-                    <p className="text-xs text-green-600 font-medium mb-1.5 px-1">✓ Username available!</p>
+                    <p role="status" className="text-xs text-green-600 font-medium mb-1.5 px-1">Username available</p>
                   )}
 
                   {editUsernameSuggestions.length > 0 && (
@@ -1213,62 +1215,59 @@ export default function App() {
             {showProfileModal && user && (() => {
               const { currentStreak, longestStreak, perfectDays, completionRate, unlockedAchievements } = getProfileStats();
               return (
-                <div className="t-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowProfileModal(false)}>
+                <div className="t-modal-backdrop account-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowProfileModal(false)}>
                   <div
-                    className={`rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm shadow-2xl overflow-y-auto max-h-[90vh] ${darkMode ? 'bg-gray-800' : 'bg-white'}`}
+                    className={`account-modal account-profile-modal rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm shadow-2xl overflow-y-auto max-h-[90vh] ${darkMode ? 'bg-gray-800' : 'bg-white'}`}
+                    role="dialog" aria-modal="true" aria-labelledby="profile-modal-title"
                     onClick={e => e.stopPropagation()}
                   >
                     <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 sm:hidden" />
 
-                    <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 p-6 text-white text-center relative">
-                      <button onClick={() => setShowProfileModal(false)} className="absolute top-4 right-4 text-white/70 hover:text-white">
+                    <div className="account-profile-heading p-6 relative">
+                      <button aria-label="Close profile" onClick={() => setShowProfileModal(false)} className="account-dialog-close absolute top-4 right-4">
                         <X className="w-5 h-5" />
                       </button>
-                      <img
+                      {user.photoURL && <img
                         src={user.photoURL}
-                        alt={user.displayName}
-                        className="w-20 h-20 rounded-full border-4 border-white/40 mx-auto mb-3 shadow-xl"
-                      />
-                      <h2 className="text-xl font-black">{user.displayName}</h2>
+                        alt=""
+                        className="account-avatar w-16 h-16 rounded-full mx-auto mb-3 object-cover"
+                      />}
+                      <h2 id="profile-modal-title" className="text-xl font-medium">{user.displayName || username || "SmileStreak member"}</h2>
                       {username && (
-                        <p className="text-blue-100 text-sm font-medium mt-0.5">@{username}</p>
+                        <p className="text-sm font-medium mt-0.5">@{username}</p>
                       )}
-                      <p className="text-blue-200 text-xs mt-1">Joined {formatJoinedDate(joinedDate)}</p>
+                      <p className="text-xs mt-1">Joined {formatJoinedDate(joinedDate)}</p>
                     </div>
 
-                    <div className="p-5 space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
+                    <div className="account-profile-content p-5 space-y-4">
+                      <dl className="account-profile-stats">
                         {[
-                          { emoji: "🔥", label: "Current Streak", value: `${currentStreak}d`, color: "from-orange-50 to-red-50", border: "border-orange-100", text: "text-orange-600" },
-                          { emoji: "🏅", label: "Longest Streak", value: `${longestStreak}d`, color: "from-yellow-50 to-orange-50", border: "border-yellow-100", text: "text-yellow-600" },
-                          { emoji: "✅", label: "Perfect Days", value: perfectDays, color: "from-green-50 to-emerald-50", border: "border-green-100", text: "text-green-600" },
-                          { emoji: "📈", label: "Completion", value: `${completionRate}%`, color: "from-blue-50 to-cyan-50", border: "border-blue-100", text: "text-blue-600" },
+                          { label: "Current streak", value: `${currentStreak} days` },
+                          { label: "Longest streak", value: `${longestStreak} days` },
+                          { label: "Perfect days", value: perfectDays },
+                          { label: "Completion", value: `${completionRate}%` },
                         ].map(s => (
-                          <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-2xl p-4 border ${s.border} text-center`}>
-                            <p className="text-2xl mb-1">{s.emoji}</p>
-                            <p className={`text-xl font-black ${s.text}`}>{s.value}</p>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">{s.label}</p>
-                          </div>
+                          <div key={s.label}><dt>{s.label}</dt><dd>{s.value}</dd></div>
                         ))}
-                      </div>
+                      </dl>
 
-                      <div className={`rounded-2xl p-4 border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-100'}`}>
+                      <section className="account-achievements">
                         <div className="flex items-center justify-between mb-3">
-                          <p className={`text-sm font-bold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>🏆 Achievements</p>
+                          <h3 className={`text-sm font-bold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>Achievements</h3>
                           <p className={`text-xs font-bold ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{unlockedAchievements.length}/{ACHIEVEMENTS.length}</p>
                         </div>
                         {unlockedAchievements.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {unlockedAchievements.map(a => (
-                              <span key={a.id} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200 rounded-xl text-xs font-bold text-yellow-800">
+                              <span key={a.id} className="account-achievement inline-flex items-center gap-1 px-2.5 py-1.5 border rounded-xl text-xs font-bold">
                                 {a.icon} {a.label}
                               </span>
                             ))}
                           </div>
                         ) : (
-                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Complete your first perfect day to earn your first achievement! 🌅</p>
+                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Complete your first perfect day to earn your first achievement.</p>
                         )}
-                      </div>
+                      </section>
 
                       <button
                         onClick={() => setShowProfileModal(false)}

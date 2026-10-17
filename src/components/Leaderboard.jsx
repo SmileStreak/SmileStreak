@@ -1,23 +1,14 @@
 import { useState, useEffect } from "react";
-import { X, Trophy, Medal, Flame, Search, Crown, Shield, ArrowUp, ArrowDown, Minus, Clock } from "lucide-react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { Trophy, Search, Shield, Clock } from "lucide-react";
+import { collection, doc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { calculateStreaks } from "../utils/progress";
 
-export default function Leaderboard({ user, username, habitData, darkMode }) {
+export default function Leaderboard({ user, darkMode }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [timeRemaining, setTimeRemaining] = useState({ days: 0, hours: 0, minutes: 0 });
-
-  // ── LEAGUE CONFIG ──
-  const LEAGUE_EMOJIS = {
-    Bronze: "🥉",
-    Silver: "🥈",
-    Gold: "🥇",
-    Diamond: "💎",
-    Champion: "👑"
-  };
 
   // ── TIME REMAINING CALCULATION ──
   useEffect(() => {
@@ -46,27 +37,17 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
   useEffect(() => {
     const fetchLeaguePlayers = async () => {
       if (!user) {
-        console.log("No user logged in, skipping leaderboard fetch");
         setLoading(false);
         return;
       }
 
       setLoading(true);
       try {
-        // First, get the current user's league data
-        const userRef = collection(db, "users");
-        const userQuery = query(userRef);
-        const userSnapshot = await getDocs(userQuery);
-        
-        let currentUserData = null;
-        userSnapshot.forEach((doc) => {
-          if (doc.id === user.uid) {
-            currentUserData = doc.data();
-          }
-        });
+        // Read only the signed-in user's document to determine their league.
+        const currentUserSnapshot = await getDoc(doc(db, "users", user.uid));
+        const currentUserData = currentUserSnapshot.exists() ? currentUserSnapshot.data() : null;
 
         if (!currentUserData) {
-          console.log("User data not found");
           setLoading(false);
           return;
         }
@@ -74,8 +55,6 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
         const league = currentUserData.leaderboard?.league || "Bronze";
         const leagueGroup = currentUserData.leaderboard?.leagueGroup || "default";
         const weekId = currentUserData.leaderboard?.weekId || "";
-
-        console.log(`🔍 Fetching players in league: ${league}, group: ${leagueGroup}, week: ${weekId}`);
 
         // Query users in the same league
         const usersRef = collection(db, "users");
@@ -87,8 +66,6 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
         );
         
         const querySnapshot = await getDocs(q);
-        console.log(`📊 Found ${querySnapshot.size} players in this league`);
-
         const playersData = [];
 
         querySnapshot.forEach((doc) => {
@@ -121,11 +98,10 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
           player.rank = index + 1;
         });
 
-        console.log("🏆 Final players array:", playersData);
         setPlayers(playersData);
 
       } catch (error) {
-        console.error("❌ Error fetching leaderboard:", error);
+        console.error("Unable to load the leaderboard.", error);
       } finally {
         setLoading(false);
       }
@@ -144,32 +120,20 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
 
   // ── PROMOTION STATUS ──
   const getPromotionStatus = (rank, totalPlayers) => {
-    if (totalPlayers === 0) return { status: "Unknown", icon: "❓", color: "text-gray-400" };
+    if (totalPlayers === 0) return { status: "Position pending", color: "is-neutral" };
     const percentile = rank / totalPlayers;
     if (percentile <= 0.2) {
-      return { status: "Promotion Zone ↑", icon: "⬆️", color: "text-green-600" };
+      return { status: "Promotion zone", color: "is-positive" };
     } else if (percentile <= 0.8) {
-      return { status: "Safe ✓", icon: "✅", color: "text-blue-600" };
+      return { status: "Maintaining position", color: "is-neutral" };
     } else {
-      return { status: "Demotion Zone ↓", icon: "⬇️", color: "text-red-600" };
+      return { status: "Below promotion line", color: "is-caution" };
     }
-  };
-
-  // ── TOP 3 AND REST ──
-  const topThree = filteredPlayers.slice(0, 3);
-  const rest = filteredPlayers.slice(3);
-
-  // ── MEDAL EMOJI ──
-  const medal = (rank) => {
-    if (rank === 1) return "🥇";
-    if (rank === 2) return "🥈";
-    if (rank === 3) return "🥉";
-    return rank;
   };
 
   if (loading) {
     return (
-      <div className={`w-full rounded-2xl p-8 text-center ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+      <div className={`leaderboard-loading w-full rounded-2xl p-8 text-center ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`} role="status" aria-label="Loading leaderboard">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mx-auto mb-4"></div>
           <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mx-auto"></div>
@@ -179,96 +143,48 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
   }
 
   return (
-    <div className={`w-full overflow-hidden rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200'} mb-6`}>
+    <section className={`leaderboard-panel w-full overflow-hidden rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200'} mb-6`} aria-labelledby="leaderboard-title">
       
       {/* ── HEADER ── */}
-      <div className={`border-b p-5 ${darkMode ? 'border-gray-700' : 'border-slate-200'}`}>
+      <div className={`leaderboard-header border-b p-5 ${darkMode ? 'border-gray-700' : 'border-slate-200'}`}>
         <div className="flex items-center gap-3">
           <div>
-            <h2 className={`font-serif text-xl font-medium tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>League leaderboard</h2>
+            <h2 id="leaderboard-title" className={`font-serif text-xl font-medium tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>League leaderboard</h2>
             <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>Ranked by weekly points</p>
           </div>
         </div>
       </div>
 
       {/* ── LEAGUE HEADER ── */}
-      {currentUser && (
-        <div className={`mx-4 mt-4 rounded-xl p-4 border ${
-          darkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
-        }`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{LEAGUE_EMOJIS[currentUser.league] || "🏆"}</span>
-              <div>
-                <p className={`text-xs font-bold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Your League</p>
-                <h3 className="text-xl font-semibold text-slate-700">
-                  {currentUser.league || "Bronze"}
-                </h3>
+      {currentUser && (() => {
+        const position = getPromotionStatus(currentUser.rank, players.length);
+        const percentile = players.length ? Math.round((currentUser.rank / players.length) * 100) : 0;
+        return (
+          <div className={`leaderboard-overview ${darkMode ? "is-dark" : ""}`}>
+            <div className="leaderboard-overview-heading">
+              <div className="leaderboard-league-name">
+                <Trophy aria-hidden="true" />
+                <div><span>Your league</span><strong>{currentUser.league || "Bronze"}</strong></div>
+              </div>
+              <div className="leaderboard-position">
+                <span>Your place</span><strong>#{currentUser.rank}</strong>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-400">Weekly Points</p>
-              <p className="text-xl font-black text-blue-600">{currentUser.weeklyPoints || 0}</p>
+            <dl className="leaderboard-overview-stats">
+              <div><dt>Weekly points</dt><dd>{currentUser.weeklyPoints || 0}</dd></div>
+              <div><dt>Current streak</dt><dd>{currentUser.currentStreak} days</dd></div>
+              <div><dt>Season outlook</dt><dd className={position.color}><Shield aria-hidden="true" />{position.status}</dd></div>
+            </dl>
+            <div className="leaderboard-standing-track" role="progressbar" aria-label="Rank position in league" aria-valuemin="1" aria-valuemax={players.length || 1} aria-valuenow={currentUser.rank}>
+              <span style={{ width: `${percentile}%` }} />
             </div>
           </div>
-        </div>
-      )}
-
-      {/* ── YOUR RANK ── */}
-      {currentUser && (
-        <div className={`mx-4 mt-4 rounded-xl p-4 border ${
-          darkMode ? "bg-blue-900/30 border-blue-700" : "bg-blue-50 border-blue-200"
-        }`}>
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs font-bold uppercase text-blue-500">Your Rank</p>
-              <h3 className="text-2xl font-black">#{currentUser.rank}</h3>
-            </div>
-            <div className="text-right">
-              <p className="font-bold">@{currentUser.username}</p>
-              <p className="text-sm text-gray-500">
-                🔥 {currentUser.currentStreak} day streak
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── PROMOTION STATUS ── */}
-      {currentUser && (
-        <div className={`mx-4 mt-4 rounded-xl p-4 border ${
-          darkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
-        }`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-gray-400" />
-              <span className={`text-sm font-bold ${getPromotionStatus(currentUser.rank, players.length).color}`}>
-                {getPromotionStatus(currentUser.rank, players.length).status}
-              </span>
-            </div>
-            <span className="text-xs text-gray-400">
-              {Math.round((currentUser.rank / players.length) * 100)}th percentile
-            </span>
-          </div>
-          <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${(currentUser.rank / players.length) * 100}%`,
-                background: currentUser.rank / players.length <= 0.2 
-                  ? "linear-gradient(90deg, #22c55e, #16a34a)"
-                  : currentUser.rank / players.length <= 0.8
-                  ? "linear-gradient(90deg, #3b82f6, #06b6d4)"
-                  : "linear-gradient(90deg, #ef4444, #dc2626)"
-              }}
-            />
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── SEARCH ── */}
       <div className="px-4 mt-4">
-        <div className={`flex items-center rounded-xl px-4 py-2 ${
+        <div className={`leaderboard-search flex items-center rounded-xl px-4 py-2 ${
           darkMode ? "bg-gray-700" : "bg-gray-100"
         }`}>
           <Search className="w-4 h-4 mr-2 text-gray-400" />
@@ -284,76 +200,42 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
         </div>
       </div>
 
-      {/* ── TOP 3 ── */}
-      <div className="px-4 mt-4">
-        <div className="grid grid-cols-3 items-end gap-3">
-          {topThree.map((player, index) => (
-            <div
-              key={player.uid}
-              className={`rounded-lg p-3 text-center border transition-transform duration-200 ease-out hover:-translate-y-0.5 ${
-                index === 0
-                  ? darkMode ? "border-amber-700 bg-amber-950/30" : "border-amber-200 bg-amber-50/70"
-                  : darkMode
-                  ? "border-gray-700 bg-gray-700/50"
-                  : "border-gray-200 bg-gray-50"
-              }`}
-            >
-              <div className="text-2xl mb-1">{medal(index + 1)}</div>
-              <img
-                src={player.photoURL}
-                alt={player.username}
-                className="w-12 h-12 rounded-full mx-auto border border-slate-200 object-cover"
-              />
-              <h4 className="mt-2 font-bold text-sm truncate">@{player.username}</h4>
-              <p className="text-xs text-gray-500">⭐ {player.weeklyPoints} pts</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── FULL LIST ── */}
-      <div className="mt-4 max-h-[300px] overflow-y-auto px-4 pb-4">
-        {rest.length === 0 && topThree.length === 0 && (
-          <p className={`text-center py-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+      {/* ── RANKED LIST ── */}
+      <ol className="leaderboard-ranking-list mt-4 max-h-[360px] overflow-y-auto px-4 pb-4" aria-label="League rankings">
+        {filteredPlayers.length === 0 && (
+          <li className={`leaderboard-empty text-center py-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             No players found in your league
-          </p>
+          </li>
         )}
-        {rest.map((player) => (
-          <div
+        {filteredPlayers.map((player) => (
+          <li
             key={player.uid}
-            className={`flex items-center justify-between rounded-xl px-3 py-2 mb-2 transition ${
-              player.uid === user?.uid
-                ? "bg-blue-500 text-white"
-                : darkMode
-                ? "bg-gray-700/50 hover:bg-gray-700"
-                : "bg-gray-50 hover:bg-gray-100"
-            }`}
+            aria-current={player.uid === user?.uid ? "true" : undefined}
+            className={`leaderboard-player-row ${player.rank <= 3 ? "is-leading" : ""} ${player.uid === user?.uid ? "is-current" : ""}`}
           >
             <div className="flex items-center gap-3">
-              <span className={`font-black w-6 text-sm ${player.uid === user?.uid ? 'text-white' : ''}`}>
-                {player.rank}
-              </span>
-              <img
-                src={player.photoURL}
-                alt={player.username}
-                className="w-8 h-8 rounded-full border border-slate-200 object-cover"
-              />
+              <span className="leaderboard-player-rank">{player.rank}</span>
+              {player.photoURL ? (
+                <img src={player.photoURL} alt="" className="leaderboard-player-avatar w-8 h-8 rounded-full border border-slate-200 object-cover" />
+              ) : (
+                <span className="leaderboard-player-avatar is-placeholder" aria-hidden="true">{player.username.slice(0, 1).toUpperCase()}</span>
+              )}
               <div>
                 <p className="font-bold text-sm">@{player.username}</p>
-                <p className="text-xs text-gray-400">🔥 {player.currentStreak} day streak</p>
+                <p className="leaderboard-player-streak">{player.currentStreak} day streak</p>
               </div>
             </div>
             <div className="text-right">
-              <p className={`font-bold text-sm ${player.uid === user?.uid ? 'text-white' : 'text-blue-600'}`}>
-                ⭐ {player.weeklyPoints}
+              <p className="leaderboard-player-points">
+                {player.weeklyPoints} <span>pts</span>
               </p>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
 
       {/* ── FOOTER ── */}
-      <div className={`px-4 py-3 text-center border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className={`leaderboard-footer px-4 py-3 text-center border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex flex-col items-center gap-1">
           <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             {players.length} players in this league
@@ -364,7 +246,6 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
           </div>
         </div>
       </div>
-
-    </div>
+    </section>
   );
 }
