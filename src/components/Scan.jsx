@@ -1080,15 +1080,15 @@ return (
         <h3 className="text-xl font-black text-gray-900 mb-2">{translatedText.analyzingTitle}</h3>
         <p className="text-sm text-gray-600 mb-4">{translatedText.analyzingDesc}</p>
         
-        <div className="space-y-2 text-left max-w-xs mx-auto">
+        <div className="scan-analyzing-steps text-left max-w-xs mx-auto">
           {[
             translatedText.analyzingStep1,
             translatedText.analyzingStep2, 
             translatedText.analyzingStep3,
             translatedText.analyzingStep4
           ].map((step, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs text-gray-500">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: `${i * 200}ms` }} />
+            <div key={i} className="scan-analyzing-step">
+              <span aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
               {step}
             </div>
           ))}

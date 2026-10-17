@@ -1750,7 +1750,10 @@ html.dark .scan-privacy-controls { background: #1c2630; border-color: #34404c; }
 .scan-capture-action > span { width: 50px; height: 50px; border: 3px solid var(--brand); border-radius: 50%; }
 .scan-capture-action > p { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); color: #fff; }
 .scan-analyzing-mark { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-quiet); color: var(--brand); }
-.scan-analyzing-panel .space-y-2 > div > div { background: var(--brand) !important; animation: none !important; }
+.scan-analyzing-steps { border-top: 1px solid var(--line); }
+.scan-analyzing-step { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: baseline; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--line); color: var(--ink-muted); font-size: 12px; line-height: 1.45; }
+.scan-analyzing-step > span { color: var(--brand); font-size: 10px; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+html.dark .scan-analyzing-steps, html.dark .scan-analyzing-step { border-color: var(--line); }
 .scan-result-action, .scan-export-option, .scan-step-action, .scan-capture-action { transition: background-color 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .scan-history-toggle:hover, .scan-export-option:hover { background: var(--surface-quiet) !important; }
