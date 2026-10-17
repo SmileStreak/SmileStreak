@@ -10,13 +10,14 @@ import { getCurrentStreak, getLongestStreak, getWeeklyActivity } from "../utils/
 import { TranslationContext, ThemeContext } from "../App";
 import { storage } from "../utils/storage";
 import { getDateFromKey, getDateKey } from "../utils/date";
+import { translateBatch } from "../utils/translate.js";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export default function Home({ setActiveTab, user, habitData }) {
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
-  const { t, currentLanguage } = useContext(TranslationContext);
+  const { currentLanguage } = useContext(TranslationContext);
   const { darkMode } = useContext(ThemeContext);
   const [texts, setTexts] = useState({});
   const [nextMilestone, setNextMilestone] = useState(null);
@@ -133,68 +134,70 @@ export default function Home({ setActiveTab, user, habitData }) {
     let active = true;
     const translateAll = async () => {
       const translations = {
-        title: await t("SmileStreak"),
-        currentStreak: await t("Current Streak"),
-        days: await t("days"),
-        keepItUp: await t("Keep it up!"),
-        updateToday: await t("Update Today"),
-        dailyStreak: await t("Daily streak tracking"),
-        dentistFinder: await t("Dentist finder tool"),
-        progressInsights: await t("Progress insights"),
-        scanTeeth: await t("Scan Teeth"),
-        scanSummary: await t("Photo-based observations"),
-        streaks: await t("Streaks"),
-        trackHabits: await t("Track daily habits"),
-        findDentists: await t("Find Dentists"),
-        nearbyCare: await t("Nearby dental offices"),
-        progress: await t("Progress"),
-        reviewImprovements: await t("Review improvements"),
-        longestStreak: await t("Longest Streak"),
-        todayProgress: await t("Today's Progress"),
-        nextMilestone: await t("Next Milestone"),
-        recentScans: await t("Recent Scans"),
-        savedScan: await t("Saved scan"),
-        viewAll: await t("View All"),
-        upcomingAppointments: await t("Upcoming Appointments"),
-        weeklyActivity: await t("Weekly Activity"),
-        totalScans: await t("Total Scans"),
-        lastScan: await t("Last Scan"),
-        goodMorning: await t("Good Morning"),
-        goodAfternoon: await t("Good Afternoon"),
-        goodEvening: await t("Good Evening"),
-        welcomeBack: await t("Welcome Back"),
-        dailyCare: await t("Your daily care"),
-        careIntro: await t("Log brushing and flossing to keep your streak on track."),
-        personalBest: await t("Personal best"),
-        scanHistory: await t("Scan history"),
-        today: await t("Today"),
-        recently: await t("Recently"),
-        dateUnavailable: await t("Date unavailable"),
-        habitsComplete: await t("habits complete"),
-        simpleCheckIn: await t("Daily habits"),
-        routine: await t("Your routine"),
-        updateRoutine: await t("Update routine"),
-        done: await t("Done"),
-        notYet: await t("Not yet"),
-        consistency: await t("Consistency"),
-        dailyHabits: await t("Daily habits completed"),
-        lessActivity: await t("Less activity"),
-        moreActivity: await t("More activity"),
-        nextVisit: await t("Next dentist visit"),
-        notScheduled: await t("Not scheduled"),
-        tapToLogVisit: await t("Tap to log a visit"),
-        visitOverdue: await t("Visit is overdue"),
-        addVisitWhenReady: await t("Add a visit when you're ready"),
-        noteRoutine: await t("A note for your routine"),
-        onCalendar: await t("On your calendar"),
-        quickAccess: await t("Quick access"),
-        noScans: await t("No scans yet")
+        title: "SmileStreak",
+        currentStreak: "Current Streak",
+        days: "days",
+        keepItUp: "Keep it up!",
+        updateToday: "Update Today",
+        dailyStreak: "Daily streak tracking",
+        dentistFinder: "Dentist finder tool",
+        progressInsights: "Progress insights",
+        scanTeeth: "Scan Teeth",
+        scanSummary: "Photo-based observations",
+        streaks: "Streaks",
+        trackHabits: "Track daily habits",
+        findDentists: "Find Dentists",
+        nearbyCare: "Nearby dental offices",
+        progress: "Progress",
+        reviewImprovements: "Review improvements",
+        longestStreak: "Longest Streak",
+        todayProgress: "Today's Progress",
+        nextMilestone: "Next Milestone",
+        recentScans: "Recent Scans",
+        savedScan: "Saved scan",
+        viewAll: "View All",
+        upcomingAppointments: "Upcoming Appointments",
+        weeklyActivity: "Weekly Activity",
+        totalScans: "Total Scans",
+        lastScan: "Last Scan",
+        goodMorning: "Good Morning",
+        goodAfternoon: "Good Afternoon",
+        goodEvening: "Good Evening",
+        welcomeBack: "Welcome Back",
+        dailyCare: "Your daily care",
+        careIntro: "Log brushing and flossing to keep your streak on track.",
+        personalBest: "Personal best",
+        scanHistory: "Scan history",
+        today: "Today",
+        recently: "Recently",
+        dateUnavailable: "Date unavailable",
+        habitsComplete: "habits complete",
+        simpleCheckIn: "Daily habits",
+        routine: "Your routine",
+        updateRoutine: "Update routine",
+        done: "Done",
+        notYet: "Not yet",
+        consistency: "Consistency",
+        dailyHabits: "Daily habits completed",
+        lessActivity: "Less activity",
+        moreActivity: "More activity",
+        nextVisit: "Next dentist visit",
+        notScheduled: "Not scheduled",
+        tapToLogVisit: "Tap to log a visit",
+        visitOverdue: "Visit is overdue",
+        addVisitWhenReady: "Add a visit when you're ready",
+        noteRoutine: "A note for your routine",
+        onCalendar: "On your calendar",
+        quickAccess: "Quick access",
+        noScans: "No scans yet"
       };
-      if (active) setTexts(translations);
+      const keys = Object.keys(translations);
+      const values = await translateBatch(Object.values(translations), currentLanguage, "en");
+      if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     translateAll().catch((error) => console.error("Could not load home translations:", error));
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   const go = (tab) => {
     if (typeof setActiveTab === "function") setActiveTab(tab);

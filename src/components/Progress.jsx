@@ -6,9 +6,10 @@ import { Trophy, Lock, Sparkles, CheckCircle2, Sun, Moon, Brush } from "lucide-r
 import { useState, useEffect, useContext, useMemo, useRef } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
+import { translateBatch } from "../utils/translate.js";
 
 export default function Progress({ habitData }) {
-  const { t, currentLanguage } = useContext(TranslationContext);
+  const { currentLanguage } = useContext(TranslationContext);
   const [texts, setTexts] = useState({});
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [tooltip, setTooltip] = useState(null);
@@ -181,41 +182,43 @@ export default function Progress({ habitData }) {
     let active = true;
     const translateAll = async () => {
       const translations = {
-        yourProgress: await t("Your Progress"),
-        trackJourney: await t("Track your dental care journey"),
-        perfectDaysLabel: await t("Perfect days"),
-        completionRate: await t("completion rate"),
-        currentStreak: await t("Current Streak"),
-        keepGoing: await t("Keep it going!"),
-        startToday: await t("Start today!"),
-        bestStreak: await t("Best Streak"),
-        personalRecord: await t("Personal record"),
-        achievements: await t("Achievements"),
-        unlocked: await t("unlocked"),
-        nextAchievement: await t("Next Achievement"),
-        daysNeeded: await t("Days needed"),
-        daysCompleted: await t("days completed"),
-        days: await t("days"),
-        awesome: await t("Awesome!"),
-        completedMessage: await t("You've completed"),
-        perfectDays: await t("perfect days of dental care. Keep up the amazing work!"),
-        greatStart: await t("Great start!"),
-        buildingMomentum: await t("Building momentum!"),
-        onFire: await t("You're on fire!"),
-        legendaryDedication: await t("Legendary dedication!"),
-        maintainedPerfect: await t("You've maintained"),
-        day: await t("day"),
-        dentalCare: await t("of dental care"),
-        activityHeatmap: await t("Activity Heatmap"),
-        visualizeHabits: await t("Visualize your daily dental habits"),
-        contributionsThisYear: await t("contributions this year"),
-        longestStreak: await t("Longest Streak"),
+        yourProgress: "Your Progress",
+        trackJourney: "Track your dental care journey",
+        perfectDaysLabel: "Perfect days",
+        completionRate: "completion rate",
+        currentStreak: "Current Streak",
+        keepGoing: "Keep it going!",
+        startToday: "Start today!",
+        bestStreak: "Best Streak",
+        personalRecord: "Personal record",
+        achievements: "Achievements",
+        unlocked: "unlocked",
+        nextAchievement: "Next Achievement",
+        daysNeeded: "Days needed",
+        daysCompleted: "days completed",
+        days: "days",
+        awesome: "Awesome!",
+        completedMessage: "You've completed",
+        perfectDays: "perfect days of dental care. Keep up the amazing work!",
+        greatStart: "Great start!",
+        buildingMomentum: "Building momentum!",
+        onFire: "You're on fire!",
+        legendaryDedication: "Legendary dedication!",
+        maintainedPerfect: "You've maintained",
+        day: "day",
+        dentalCare: "of dental care",
+        activityHeatmap: "Activity Heatmap",
+        visualizeHabits: "Visualize your daily dental habits",
+        contributionsThisYear: "contributions this year",
+        longestStreak: "Longest Streak",
       };
-      if (active) setTexts(translations);
+      const keys = Object.keys(translations);
+      const values = await translateBatch(Object.values(translations), currentLanguage, "en");
+      if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     translateAll().catch((error) => console.error("Could not load progress translations:", error));
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   return (
     <section className="space-y-6 pb-8">
