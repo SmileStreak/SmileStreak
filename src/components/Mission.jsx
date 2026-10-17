@@ -1,9 +1,9 @@
 import {
-  Heart, Shield, Target, Users, Lightbulb, Mail, Github, Award, Sparkles,
+  Heart, Target, Users, Lightbulb, Mail, Github, Award, Sparkles,
   CheckCircle2, Globe, Star, TrendingUp, Clock, Zap, Brain, BookOpen, Code,
   Coffee, Palette, Rocket, Smile, ThumbsUp, HelpCircle, MessageCircle, Share2,
   Download, ExternalLink, Lock, Eye, EyeOff, Bell, Calendar, Filter, RefreshCw,
-  AlertTriangle, Gift, Crown, Medal, Users2, Building, Microscope, Newspaper,
+  AlertTriangle, Gift, Crown, Medal, Users2, Building, Newspaper,
   BookMarked, Video, Headphones, Instagram, Twitter, Linkedin, Youtube, Facebook,
   MapPin, Camera, Flame, X
 } from "lucide-react";
@@ -240,12 +240,7 @@ export default function Mission() {
 
       {/* Research-Informed */}
       <section className="mission-research">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="mt-1 flex-shrink-0 text-slate-500">
-            <Microscope className="w-5 h-5" />
-          </div>
-          <h3 className="text-xl font-black text-gray-900">{translatedText.researchTitle}</h3>
-        </div>
+        <h3 className="mb-4 font-serif text-xl font-medium tracking-tight text-slate-900">{translatedText.researchTitle}</h3>
         <p className="mb-3 max-w-3xl text-sm leading-6 text-slate-700">
           {translatedText.researchDesc1}
         </p>
@@ -453,17 +448,10 @@ export default function Mission() {
 </Presence>
 
       {/* Disclaimer */}
-      <div className="bg-yellow-50 p-6 rounded-3xl border-2 border-yellow-200 shadow-lg">
-        <div className="flex items-start gap-3">
-          <Shield className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold text-gray-900 text-sm mb-2">{translatedText.medicalDisclaimer}</p>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {translatedText.disclaimerText}
-            </p>
-          </div>
-        </div>
-      </div>
+      <aside className="mission-disclaimer">
+        <p>{translatedText.medicalDisclaimer}</p>
+        <p>{translatedText.disclaimerText}</p>
+      </aside>
 
       {/* Version & Credits */}
       <div className="text-center py-4">

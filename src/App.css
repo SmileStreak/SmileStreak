@@ -1258,6 +1258,9 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .mission-editorial p { max-width: 62ch; font-size: 16px; line-height: 1.75; color: var(--ink-secondary); }
 .mission-features .text-slate-500 { color: var(--ink-muted); }
 .mission-problem { padding: 22px 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-quiet); }
+.mission-disclaimer { padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.mission-disclaimer p:first-child { margin: 0 0 4px; color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
+.mission-disclaimer p + p { max-width: 70ch; margin: 0; color: var(--ink-muted); font-size: 13px; line-height: 1.6; }
 .mission-faq__item { border-top: 1px solid var(--line); }
 .mission-faq__item:last-child { border-bottom: 1px solid var(--line); }
 .mission-faq__item > button { padding: 16px 2px; }
