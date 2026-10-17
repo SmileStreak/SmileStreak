@@ -73,6 +73,10 @@ translations[`myth${myth.id}`] = myth.myth;
 translations[`truth${myth.id}`] = myth.truth;
 }
 DID_YOU_KNOW.forEach((fact, index) => { translations[`fact${index}`] = fact; });
+TIPS.forEach((tip, index) => {
+translations[`tipTitle${index}`] = tip.title;
+translations[`tipContent${index}`] = tip.content;
+});
 const keys = Object.keys(translations);
 const values = await translateBatch(Object.values(translations), currentLanguage, "en");
 if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
@@ -223,13 +227,13 @@ return (
 
   {/* Tips Grid */}
   <div className="divide-y divide-slate-200">
-    {TIPS.map((tip) => (
+    {TIPS.map((tip, index) => (
       <article
-        key={tip.id}
+        key={`tip-${index}`}
         className="py-5 first:pt-0 last:pb-0"
       >
-        <h3 className="font-bold text-gray-900 mb-1">{tip.title}</h3>
-        <p className="text-sm text-gray-600 leading-relaxed">{tip.content}</p>
+        <h3 className="font-bold text-gray-900 mb-1">{texts[`tipTitle${index}`] || tip.title}</h3>
+        <p className="text-sm text-gray-600 leading-relaxed">{texts[`tipContent${index}`] || tip.content}</p>
         {tip.sourceLink && (
           <a href={tip.sourceLink} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium mt-2">
