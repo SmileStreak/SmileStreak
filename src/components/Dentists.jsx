@@ -118,6 +118,32 @@ export default function Dentists() {
   }, [currentLanguage, t]);
 
   useEffect(() => {
+    const hasDialog = showPhotoModal || showAIAssistant || showPriceEstimator || showTreatmentPlanner || selectedDentist || showCompare || showFavorites || showInsuranceHelp;
+    if (!hasDialog) return undefined;
+
+    const closeTopDialog = (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      if (showPhotoModal) {
+        setShowPhotoModal(false);
+        setSelectedPhoto(null);
+      } else if (showAIAssistant) {
+        setShowAIAssistant(false);
+        setAiResponse("");
+        setAiQuery("");
+      } else if (showPriceEstimator) setShowPriceEstimator(false);
+      else if (showTreatmentPlanner) setShowTreatmentPlanner(false);
+      else if (selectedDentist) setSelectedDentist(null);
+      else if (showCompare) setShowCompare(false);
+      else if (showFavorites) setShowFavorites(false);
+      else if (showInsuranceHelp) setShowInsuranceHelp(false);
+    };
+
+    document.addEventListener("keydown", closeTopDialog);
+    return () => document.removeEventListener("keydown", closeTopDialog);
+  }, [showPhotoModal, showAIAssistant, showPriceEstimator, showTreatmentPlanner, selectedDentist, showCompare, showFavorites, showInsuranceHelp]);
+
+  useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('favoriteDentists') || '[]');
       if (!Array.isArray(saved)) throw new TypeError("Saved dentist favorites are not a list");
