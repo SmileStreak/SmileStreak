@@ -1,6 +1,6 @@
 import { TIPS } from "../data";
 import { ExternalLink, XCircle, CheckCircle, AlertCircle, BookOpen, RefreshCw } from "lucide-react";
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { TranslationContext } from "../App";
 
 const MYTHS = [
@@ -36,6 +36,7 @@ const [revealedMyths, setRevealedMyths] = useState(new Set());
 const [didYouKnowIndex, setDidYouKnowIndex] = useState(0);
 const [factAnimating, setFactAnimating] = useState(false);
 const [visibleMythCount, setVisibleMythCount] = useState(4);
+const factTimerRef = useRef(null);
 
 useEffect(() => {
 const idx = Math.floor(Math.random() * DID_YOU_KNOW.length);
@@ -85,12 +86,19 @@ setRevealedMyths(prev => new Set([...prev, mythId]));
 };
 
 const rotateFact = useCallback(() => {
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+setDidYouKnowIndex(prev => (prev + 1) % DID_YOU_KNOW.length);
+return;
+}
+window.clearTimeout(factTimerRef.current);
 setFactAnimating(true);
-setTimeout(() => {
+factTimerRef.current = window.setTimeout(() => {
 setDidYouKnowIndex(prev => (prev + 1) % DID_YOU_KNOW.length);
 setFactAnimating(false);
 }, 300);
 }, []);
+
+useEffect(() => () => window.clearTimeout(factTimerRef.current), []);
 
 const translatedMyths = MYTHS.map((myth) => ({
 ...myth,
@@ -115,32 +123,26 @@ return (
 </div>
 
   {/* Did You Know - Rotating Fact */}
-  <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-5">
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex items-start gap-3 flex-1">
-        <div className="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center flex-shrink-0">
-          <span className="text-xl">🧠</span>
-        </div>
-        <div className="flex-1">
-          <p className="font-bold text-amber-900 mb-1 text-sm">{texts.didYouKnow || "Did You Know?"}</p>
-          <p
-            className="text-sm text-gray-700 leading-relaxed transition-opacity duration-300"
-            style={{ opacity: factAnimating ? 0 : 1 }}
-          >
-            {DID_YOU_KNOW[didYouKnowIndex]}
-          </p>
-        </div>
-      </div>
-      <button
-        onClick={rotateFact}
-        className="flex-shrink-0 w-8 h-8 bg-amber-200 hover:bg-amber-300 rounded-full flex items-center justify-center transition-colors"
-        title={texts.newFact || "New fact"}
-        aria-label={texts.newFact || "Show another dental fact"}
+  <aside className="tips-fact-note" aria-live="polite">
+    <div className="tips-fact-note__copy">
+      <p className="tips-fact-note__label">{texts.didYouKnow || "Did You Know?"}</p>
+      <p
+        className="tips-fact-note__fact"
+        style={{ opacity: factAnimating ? 0 : 1 }}
       >
-        <RefreshCw className="w-4 h-4 text-amber-700" />
-      </button>
+        {DID_YOU_KNOW[didYouKnowIndex]}
+      </p>
     </div>
-  </div>
+    <button
+      onClick={rotateFact}
+      className="tips-fact-note__refresh"
+      type="button"
+      title={texts.newFact || "New fact"}
+      aria-label={texts.newFact || "Show another dental fact"}
+    >
+      <RefreshCw className="w-4 h-4" />
+    </button>
+  </aside>
 
   {/* MYTH BUSTERS */}
   <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
