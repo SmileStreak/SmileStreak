@@ -14,7 +14,7 @@ export default function Report({ habitData }) {
   // Translation keys
   const translationKeys = {
     title: "Dental Report",
-    subtitle: "Comprehensive analysis of your dental care habits",
+    subtitle: "A summary of the brushing and flossing you’ve logged",
     allTime: "All Time",
     last30Days: "Last 30 Days",
     last7Days: "Last 7 Days",

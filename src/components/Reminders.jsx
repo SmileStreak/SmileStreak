@@ -75,7 +75,7 @@ export default function Reminders() {
 
   const translationKeys = {
     title: "Reminders",
-    subtitle: "Stay on track with smart notifications",
+    subtitle: "Choose when you want a brushing or flossing reminder",
     notificationsActive: "Notifications Active",
     notificationsActiveDesc: "You'll receive reminders at your scheduled times",
     enableNotifications: "Enable Notifications",

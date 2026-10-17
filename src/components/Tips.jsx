@@ -43,7 +43,7 @@ let active = true;
 const translateAll = async () => {
 const translations = {
 dentalTips: await t("Dental Tips & Facts"),
-expertAdvice: await t("Expert advice backed by science"),
+expertAdvice: await t("Everyday answers, with sources to explore"),
 mythBusters: await t("Myth Busters"),
 testKnowledge: await t("Test your dental knowledge!"),
 myth: await t("MYTH!"),
@@ -117,7 +117,7 @@ return (
 <div className="flex items-center gap-2 mb-2">
 <h2 className="text-2xl font-black">{texts.dentalTips || "Dental Tips & Facts"}</h2>
 </div>
-<p className="text-sm opacity-90">{texts.expertAdvice || "Expert advice backed by science"}</p>
+<p className="text-sm opacity-90">{texts.expertAdvice || "Everyday answers, with sources to explore"}</p>
 </div>
 </div>
 
