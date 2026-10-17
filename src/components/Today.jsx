@@ -629,14 +629,14 @@ return (
 {/* ── SUMMARY ROW ── */}
   <dl className="today-stats">
     {[
-      { val:`${current}d`, labelKey:"Current streak" },
-      { val:`${longest}d`, labelKey:"Personal best" },
-      { val:`${consistencyScore}%`, labelKey:"Weekly completion" },
-      { val:`${streakMultiplier}x`, labelKey:"Streak bonus" },
+      { val:current, unit:"d", labelKey:"Current streak" },
+      { val:longest, unit:"d", labelKey:"Personal best" },
+      { val:consistencyScore, unit:"%", labelKey:"Weekly completion" },
+      { val:streakMultiplier, unit:"x", labelKey:"Streak bonus" },
     ].map(s => (
       <div key={s.labelKey} className="today-stat">
         <dt>{T(s.labelKey)}</dt>
-        <dd>{s.val}</dd>
+        <dd><strong>{s.val}</strong><span>{s.unit}</span></dd>
       </div>
     ))}
   </dl>
@@ -695,6 +695,8 @@ return (
         <p className="text-xs text-gray-500">{completedCount} {T("of 3 completed")}</p>
       </div>
       <button onClick={toggleTimer}
+        type="button"
+        aria-pressed={timerEnabled}
         className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold press transition-all hover-lift ${
           timerEnabled
             ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-200"
@@ -710,7 +712,7 @@ const isDone = todayData[task];
 const isRunning = activeTimer === task;
 const fillPct = isRunning ? ((BRUSH_TIME - timeLeft) / BRUSH_TIME) * 100 : 0;
 return (
-<button key={task} className="press w-full text-left group"
+<button key={task} type="button" aria-pressed={isDone} className={`today-task-button ${isDone ? "is-complete" : ""} ${isRunning ? "is-running" : ""}`}
 onClick={() => {
 if (isDone) toggleTask(task);
 else if (timerEnabled) {
@@ -720,37 +722,32 @@ setTimeLeft(BRUSH_TIME);
 }
 else toggleTask(task);
 }}>
-<div className={`relative overflow-hidden rounded-2xl border-2 p-4 transition-all duration-200 ${ isDone ? "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200" : isRunning ? "bg-white border-blue-400 shadow-lg shadow-blue-100" : "bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200 hover:border-blue-300 hover:shadow-md" }`}>
+<div className={`today-task-row ${isDone ? "is-complete" : ""} ${isRunning ? "is-running" : ""}`}>
 {isRunning && (
-<div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-cyan-50 origin-left"
-style={{transform:`scaleX(${fillPct/100})`,transition:"transform 1s linear"}} />
+<div className="today-task-row__progress" style={{transform:`scaleX(${fillPct/100})`}} />
 )}
-<div className="relative flex items-center justify-between gap-3">
+<div className="today-task-row__content">
 <div className="flex items-center gap-3">
-<div className={`w-11 h-11 rounded-xl flex items-center justify-center ${ task === "morning" ? "bg-gradient-to-br from-yellow-100 to-orange-100 text-amber-800" : "bg-slate-100 text-slate-600"}`}>
-{task === "morning" ? <Sun className="w-5 h-5" strokeWidth={1.6} /> : <Moon className="w-5 h-5" strokeWidth={1.6} />}
+<div className="today-task-icon">
+{task === "morning" ? <Sun className="w-[18px] h-[18px]" strokeWidth={1.6} /> : <Moon className="w-[18px] h-[18px]" strokeWidth={1.6} />}
 </div>
 <div>
-<p className="font-bold text-gray-900 text-sm">
+<p className="today-task-name">
 {task === "morning" ? T("Morning Brushing") : T("Night Brushing")}
 </p>
-<p className="text-xs text-gray-500 mt-0.5">
-{isRunning ? `🔄 ${T("Brush in circular motions…")}` : isDone ? `✅ ${T("Completed")}` : `⏱ ${T("2 minutes recommended")}`}
+<p className="today-task-detail">
+{isRunning ? T("Brush in circular motions…") : isDone ? T("Completed") : T("2 minutes recommended")}
 </p>
 </div>
 </div>
 {isRunning ? (
-<div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-3 py-1.5 rounded-xl text-sm font-black tabular-nums shadow-md">
+<span className="today-task-timer">
 {formatTime(timeLeft)}
-</div>
+</span>
 ) : isDone ? (
-<div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
-<CheckCircle2 className="w-5 h-5 text-white" />
-</div>
+<CheckCircle2 className="today-task-check" aria-hidden="true" />
 ) : (
-<div className="w-9 h-9 rounded-full border-2 border-blue-200 flex items-center justify-center bg-white group-hover:border-blue-400 transition-colors">
-<Circle className="w-4 h-4 text-blue-200" />
-</div>
+<Circle className="today-task-circle" aria-hidden="true" />
 )}
 </div>
 </div>
@@ -758,42 +755,28 @@ style={{transform:`scaleX(${fillPct/100})`,transition:"transform 1s linear"}} />
 );
 })}
 
-<button className="press w-full text-left group" onClick={() => toggleTask("floss")}>
-<div className={`rounded-2xl border-2 p-4 transition-all duration-200 ${
-    todayData.floss
-      ? "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
-      : "bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200 hover:border-blue-300 hover:shadow-md"
-  }`}>
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center text-2xl">🧵</div>
-        <div>
-          <p className="font-bold text-gray-900 text-sm">{T("Interdental Care")}</p>
-          <select value={interdentalType} onChange={e => setInterdentalType(e.target.value)}
-            onClick={e => e.stopPropagation()}
-            className="text-xs text-gray-500 bg-transparent border-none focus:outline-none p-0 mt-0.5 block cursor-pointer font-medium">
-            <option value="Floss">🧵 {T("Floss")}</option>
-            <option value="Water Pick">💦 {T("Water Pick")}</option>
-            <option value="Interdental Brush">🔹 {T("Interdental Brush")}</option>
-          </select>
-        </div>
+<div className={`today-task-row ${todayData.floss ? "is-complete" : ""}`}>
+  <div className="today-task-row__content">
+    <div className="flex items-center gap-3">
+      <div className="today-task-icon"><Brush className="w-[18px] h-[18px]" strokeWidth={1.6} /></div>
+      <div>
+        <p className="today-task-name">{T("Interdental Care")}</p>
+        <select aria-label={T("Interdental care type")} value={interdentalType} onChange={e => setInterdentalType(e.target.value)} className="today-task-select">
+          <option value="Floss">{T("Floss")}</option>
+          <option value="Water Pick">{T("Water Pick")}</option>
+          <option value="Interdental Brush">{T("Interdental Brush")}</option>
+        </select>
       </div>
-      {todayData.floss ? (
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md">
-          <CheckCircle2 className="w-5 h-5 text-white" />
-        </div>
-      ) : (
-        <div className="w-9 h-9 rounded-full border-2 border-blue-200 flex items-center justify-center flex-shrink-0 bg-white group-hover:border-blue-400 transition-colors">
-          <Circle className="w-4 h-4 text-blue-200" />
-        </div>
-      )}
     </div>
+    <button type="button" aria-label={todayData.floss ? T("Interdental care complete") : T("Mark interdental care complete")} aria-pressed={!!todayData.floss}
+      onClick={() => toggleTask("floss")} className="today-task-toggle">
+      {todayData.floss ? <CheckCircle2 className="today-task-check" aria-hidden="true" /> : <Circle className="today-task-circle" aria-hidden="true" />}
+    </button>
   </div>
-</button>
+</div>
 
-<button onClick={openDentistModal}
-className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-600 hover:border-blue-400 transition-all flex items-center justify-center gap-2">
-🦷 Log Dentist Visit
+<button type="button" onClick={openDentistModal} className="today-log-visit">
+Log Dentist Visit
 </button>
 
   </div>

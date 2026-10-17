@@ -368,7 +368,7 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
 .home-streak-secondary strong {
   display: block;
   color: var(--home-secondary);
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
@@ -1031,6 +1031,31 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   border-bottom: 1px solid #e2e8f0;
 }
 
+.today-task-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.today-task-row { position: relative; overflow: hidden; padding: 13px 8px; border-top: 1px solid var(--line); transition: background-color 180ms ease-out; }
+.today-task-row.is-complete { background: var(--surface-quiet); }
+.today-task-row__content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.today-task-row__progress { position: absolute; inset: 0 auto 0 0; z-index: 0; width: 100%; transform-origin: left center; background: var(--surface-quiet); pointer-events: none; transition: transform 1000ms linear; }
+.today-task-icon { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 7px; color: var(--brand); }
+.today-task-name { margin: 0; color: var(--ink-secondary); font-size: 14px; font-weight: 600; }
+.today-task-detail { margin: 3px 0 0; color: var(--ink-muted); font-size: 12px; }
+.today-task-timer { padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.today-task-check { flex: 0 0 auto; width: 20px; height: 20px; color: var(--brand); stroke-width: 1.8; }
+.today-task-circle { flex: 0 0 auto; width: 20px; height: 20px; color: var(--line-strong); stroke-width: 1.5; }
+.today-task-toggle { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 36px; height: 36px; border: 0; border-radius: 7px; background: transparent; cursor: pointer; }
+.today-task-select { display: block; max-width: 100%; margin-top: 2px; padding: 1px 20px 1px 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent; color: var(--ink-muted); font-size: 12px; cursor: pointer; }
+.today-log-visit { width: 100%; margin-top: 2px; padding: 12px 8px 2px; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--brand); font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; }
+.today-log-visit:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.today-task-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.today-task-button:focus-visible .today-task-row, .today-task-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .today-task-button:hover .today-task-row { background-color: var(--surface-quiet); }
+  .today-task-toggle:hover { background-color: var(--surface-quiet); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .today-task-row, .today-task-row__progress, .today-task-toggle { transition: none; }
+}
+
 .today-stat {
   padding: 2px 18px;
   border-left: 1px solid #e2e8f0;
@@ -1047,6 +1072,9 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
 }
 
 .today-stat dd {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
   margin: 4px 0 0;
   color: #2a2a2a;
   font-size: 22px;
@@ -1054,6 +1082,8 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
+.today-stat dd strong { font-weight: 600; }
+.today-stat dd span { color: var(--ink-muted); font-size: 12px; font-weight: 500; letter-spacing: 0; }
 
 .today-week-section {
   padding: 16px 0 18px;
