@@ -154,6 +154,7 @@ export default function Mission() {
     feedbackPlaceholder: "Share your thoughts, suggestions, or report issues...",
     cancel: "Cancel",
     submit: "Submit",
+    closeFeedback: "Close feedback form",
     thankYou: "Thank you for your feedback!"
   };
 
@@ -368,7 +369,7 @@ export default function Mission() {
                 <MessageCircle className="w-5 h-5 text-blue-600" />
                 <h3 id="mission-feedback-title" className="text-xl font-black text-gray-900">{translatedText.feedbackTitle}</h3>
               </div>
-              <button type="button" aria-label="Close feedback form" onClick={() => setShowFeedback(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+              <button type="button" aria-label={translatedText.closeFeedback || "Close feedback form"} onClick={() => setShowFeedback(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
