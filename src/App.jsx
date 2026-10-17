@@ -663,7 +663,10 @@ export default function App() {
 
   const formatJoinedDate = (iso) => {
     if (!iso) return "—";
-    return new Date(iso).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const date = new Date(iso);
+    return Number.isFinite(date.getTime())
+      ? date.toLocaleDateString(currentLanguage, { month: "long", year: "numeric" })
+      : "—";
   };
 
   const UsernameStatusIcon = ({ status }) => {
