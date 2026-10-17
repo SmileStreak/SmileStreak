@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import Presence from "./Presence";
 import { ChevronDown } from "lucide-react";
+import { TranslationContext } from "../App";
+import { translateBatch } from "../utils/translate.js";
 
 const primaryTabs = ["Home", "Today", "Progress", "Reminders"];
 const moreTabs = ["Tips", "Scan", "Dentists", "Insights", "Report", "Mission", "Legal"];
@@ -8,6 +10,8 @@ const moreTabs = ["Tips", "Scan", "Dentists", "Insights", "Report", "Mission", "
 export default function NavTabs({ activeTab, setActiveTab }) {
  const [showMore, setShowMore] = useState(false);
  const [moreMenuPosition, setMoreMenuPosition] = useState({ top: 0, left: 0 });
+ const [labels, setLabels] = useState({});
+ const { currentLanguage } = useContext(TranslationContext);
  const moreRef = useRef(null);
 
  const isMoreActive = moreTabs.map(t => t.toLowerCase()).includes(activeTab);
@@ -16,6 +20,17 @@ export default function NavTabs({ activeTab, setActiveTab }) {
    setActiveTab(tab.toLowerCase());
    setShowMore(false);
  };
+
+ useEffect(() => {
+   let active = true;
+   const tabs = [...primaryTabs, ...moreTabs];
+   const keys = [...tabs.map((tab) => tab.toLowerCase()), "more", "primaryNavigation"];
+   const values = [...tabs, "More", "Primary navigation"];
+   translateBatch(values, currentLanguage, "en").then((translated) => {
+     if (active) setLabels(Object.fromEntries(keys.map((key, index) => [key, translated[index]])));
+   });
+   return () => { active = false; };
+ }, [currentLanguage]);
 
  useEffect(() => {
    const handleClickOutside = (e) => {
@@ -64,7 +79,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
  }, [showMore]);
 
  return (
-   <nav aria-label="Primary navigation" className="app-tabs w-full overflow-x-auto border-b border-gray-200">
+   <nav aria-label={labels.primaryNavigation || "Primary navigation"} className="app-tabs w-full overflow-x-auto border-b border-gray-200">
      <div className="flex min-w-max items-end gap-6 px-1">
        {primaryTabs.map((tab) => {
          const active = activeTab === tab.toLowerCase();
@@ -79,7 +94,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                ${active ? "is-active" : ""}
              `}
            >
-             {tab}
+             {labels[tab.toLowerCase()] || tab}
            </button>
          );
        })}
@@ -97,8 +112,8 @@ export default function NavTabs({ activeTab, setActiveTab }) {
            `}
          >
            {isMoreActive
-             ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-             : <><span>More</span><ChevronDown aria-hidden="true" size={14} /></>}
+             ? labels[activeTab] || activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+             : <><span>{labels.more || "More"}</span><ChevronDown aria-hidden="true" size={14} /></>}
          </button>
 
          <Presence open={showMore}>
@@ -122,7 +137,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                      ${active ? "is-active" : ""}
                    `}
                  >
-                   {tab}
+                   {labels[tab.toLowerCase()] || tab}
                  </button>
                );
              })}
