@@ -65,6 +65,7 @@ export default function App() {
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState("idle");
+  const appDialogReturnFocusRef = useRef(null);
   const [analyticsChoice, setAnalyticsChoice] = useState(() => {
     try {
       const saved = localStorage.getItem("smilestreak-analytics-consent");
@@ -131,6 +132,54 @@ export default function App() {
     document.addEventListener("keydown", closeMenusOnEscape);
     return () => document.removeEventListener("keydown", closeMenusOnEscape);
   }, [showAccountMenu, showLanguageMenu]);
+
+  useEffect(() => {
+    const titleId = showFeedback ? "feedback-dialog-title"
+      : usernameLoaded && showUsernameModal && user ? "username-setup-title"
+      : showEditUsername && user ? "edit-username-title"
+      : showProfileModal && user ? "profile-modal-title"
+      : null;
+    const dialog = titleId ? document.getElementById(titleId)?.closest('[role="dialog"]') : null;
+
+    if (!dialog) {
+      const returnTo = appDialogReturnFocusRef.current;
+      if (returnTo?.isConnected) returnTo.focus();
+      else if (showProfileModal || showEditUsername) document.getElementById("account-menu-trigger")?.focus();
+      appDialogReturnFocusRef.current = null;
+      return undefined;
+    }
+
+    if (!appDialogReturnFocusRef.current) appDialogReturnFocusRef.current = document.activeElement;
+    const getFocusable = () => [...dialog.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+      .filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+    const focusable = getFocusable();
+    (focusable[0] || dialog).focus();
+
+    const handleDialogKeys = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (showFeedback) { setShowFeedback(false); setFeedbackStatus("idle"); }
+        else if (showEditUsername) setShowEditUsername(false);
+        else if (showProfileModal) setShowProfileModal(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = getFocusable();
+      if (!items.length) { event.preventDefault(); dialog.focus(); return; }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleDialogKeys);
+    return () => document.removeEventListener("keydown", handleDialogKeys);
+  }, [showFeedback, showUsernameModal, showEditUsername, showProfileModal, usernameLoaded, user]);
 
   const isRemoteUpdate = useRef(false);
   const currentLanguageRef = useRef(currentLanguage);
