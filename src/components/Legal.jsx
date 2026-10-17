@@ -271,7 +271,7 @@ export default function Legal({ onAnalyticsChoice }) {
               onClick={() => toggle(s.id)}
               aria-expanded={open === s.id}
               aria-controls={`legal-section-${s.id}`}
-              className="w-full flex items-center justify-between p-5 text-left transition-colors duration-200 ease-out hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
+              className="w-full flex items-center justify-between p-5 text-left transition-colors duration-200 ease-out hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#52777b]"
             >
               <div className="flex items-center gap-3 text-left">
                 <div className="text-slate-500">{s.icon}</div>
@@ -321,14 +321,9 @@ export default function Legal({ onAnalyticsChoice }) {
         </h3>
 
         <div className="grid gap-3">
-          <button 
-            onClick={exportData}
-            className="group flex items-center justify-between p-5 rounded-2xl bg-blue-50 border-2 border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all"
-          >
+          <button type="button" onClick={exportData} className="legal-data-action">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Download className="w-5 h-5 text-white" />
-              </div>
+              <Download className="w-5 h-5 text-slate-600" />
               <div className="text-left">
                 <span className="font-bold text-gray-900 text-sm block">
                   {translatedText.exportReport}
@@ -341,14 +336,9 @@ export default function Legal({ onAnalyticsChoice }) {
             {exported && <CheckCircle className="text-green-500 w-5 h-5" />}
           </button>
 
-          <button 
-            onClick={deleteData}
-            className="group flex items-center justify-between p-5 rounded-2xl bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:border-red-300 transition-all"
-          >
+          <button type="button" onClick={deleteData} className="legal-data-action legal-data-action--destructive">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Trash2 className="w-5 h-5 text-white" />
-              </div>
+              <Trash2 className="w-5 h-5 text-slate-600" />
               <div className="text-left">
                 <span className="font-bold text-gray-900 text-sm block">
                   {translatedText.resetApp}
@@ -388,7 +378,7 @@ export default function Legal({ onAnalyticsChoice }) {
               name="email" 
               placeholder={translatedText.yourEmail} 
               required
-              className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none transition-colors" 
+              className="w-full p-4 rounded-xl border border-gray-200 focus:border-blue-400 focus:outline-none transition-colors"
             />
 
             <label htmlFor="support-message" className="sr-only">{translatedText.describeIssue}</label>
@@ -398,7 +388,7 @@ export default function Legal({ onAnalyticsChoice }) {
               placeholder={translatedText.describeIssue} 
               required 
               rows={4}
-              className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none resize-none transition-colors" 
+              className="w-full p-4 rounded-xl border border-gray-200 focus:border-blue-400 focus:outline-none resize-none transition-colors"
             />
 
             <label className="flex items-start gap-2 text-xs leading-5 text-slate-600">
@@ -419,7 +409,7 @@ export default function Legal({ onAnalyticsChoice }) {
 
       {/* EXPORT SUCCESS MESSAGE */}
       {exported && (
-        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-2 animate-[slideUp_0.3s_ease-out]">
+        <div className="legal-export-toast" role="status" aria-live="polite">
           <CheckCircle className="w-5 h-5" />
           <span className="font-semibold">{translatedText.exportSuccess}</span>
         </div>
@@ -427,15 +417,15 @@ export default function Legal({ onAnalyticsChoice }) {
 
       {/* FOOTER */}
       <div className="border-t border-slate-200 pt-4 text-center">
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-slate-600">
           {translatedText.version} • {translatedText.lastUpdated} {new Date().toLocaleDateString()}
         </p>
-        <div className="flex items-center justify-center gap-2 mt-2">
-          <Lock className="w-3 h-3 text-gray-300" />
-          <span className="text-xs text-gray-300">This app is purely for educational purposes and should not be used for medical advice. </span>
-          <span className="text-xs text-gray-300">•</span>
-          <Shield className="w-3 h-3 text-gray-300" />
-          <span className="text-xs text-gray-300">If you have real medical concerns, contact a dentist. </span>
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 mt-2">
+          <Lock className="w-3 h-3 text-slate-500" />
+          <span className="text-xs text-slate-600">For general education and habit tracking. Not a diagnosis or treatment recommendation.</span>
+          <span className="text-xs text-slate-500">•</span>
+          <Shield className="w-3 h-3 text-slate-500" />
+          <span className="text-xs text-slate-600">Contact a licensed dental professional about personal concerns.</span>
         </div>
       </div>
 
