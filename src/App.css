@@ -37,8 +37,8 @@ button, input, select, textarea { font: inherit; }
   font-size: 20px; font-weight: 650; letter-spacing: -0.055em; line-height: 1.1;
 }
 .brand-wordmark span + span { color: #16803c; }
-html.dark .brand-wordmark { color: #000; }
-html.dark .brand-wordmark span + span { color: #16803c; }
+html.dark .brand-wordmark { color: #e2e8e0; }
+html.dark .brand-wordmark span + span { color: #79c78f; }
 
 /* Neutralize decorative gradients while keeping semantic text and actions legible. */
 main [class*="bg-gradient-to-"] {
