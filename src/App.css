@@ -1539,6 +1539,54 @@ html.dark .dentist-result { border-bottom-color: var(--line); }
   .scan-start-action, .scan-upload-action { transition: none; }
 }
 html.dark .scan-privacy-controls { background: #1c2630; border-color: #34404c; }
+.scan-history-toggle { min-height: 36px; border-color: var(--line-strong); background: var(--surface) !important; color: var(--ink-secondary) !important; }
+.scan-dialog { max-height: min(88vh, 820px); overflow-y: auto; border: 1px solid var(--line); border-radius: 10px !important; box-shadow: 0 8px 24px rgb(0 0 0 / .04) !important; }
+.scan-dialog h3 { font-family: "Newsreader Variable", Georgia, serif; font-size: 25px; font-weight: 500; }
+.scan-dialog :is(input, textarea) { border: 1px solid var(--line-strong); border-radius: 7px !important; }
+.scan-dialog :is(input, textarea):focus-visible { border-color: var(--brand); box-shadow: 0 0 0 3px rgb(53 102 108 / .12); }
+.scan-dialog-primary { border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
+.scan-export-option { min-height: 50px; padding: 12px 2px !important; border: 0; border-top: 1px solid var(--line); border-radius: 0 !important; background: transparent !important; text-align: left; }
+.scan-export-option svg { color: var(--brand) !important; }
+.scan-history-row { padding: 12px 0 !important; border-bottom: 1px solid var(--line); border-radius: 0 !important; background: transparent !important; }
+.scan-history-row > img { border-radius: 6px !important; }
+.scan-comparison-panel, .scan-analyzing-panel, .scan-result-panel {
+  padding: 18px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
+  border-bottom: 1px solid var(--line) !important; border-radius: 0 !important;
+  background: transparent !important; box-shadow: none !important;
+}
+.scan-comparison-panel h3, .scan-analyzing-panel h3, .scan-result-panel h3 { color: var(--ink); font-size: 21px; font-weight: 500; }
+.scan-image-preview { max-height: min(58vh, 560px); background: #111820; box-shadow: none !important; }
+.scan-image-preview img { display: block; width: 100%; max-height: min(58vh, 560px); object-fit: contain; }
+.scan-quality-note, .scan-result-disclaimer { padding: 12px 14px !important; border: 1px solid var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; }
+.scan-quality-note > div > svg, .scan-result-disclaimer > svg { color: var(--brand) !important; }
+.scan-result-copy { max-width: 78ch; margin-top: 12px; padding: 0 !important; border: 0; border-radius: 0 !important; background: transparent !important; color: var(--ink-secondary); }
+.scan-result-panel > div:first-child { gap: 10px; margin-bottom: 0; }
+.scan-result-disclaimer { color: var(--ink-muted); }
+.scan-result-action { min-height: 44px; padding: 10px 12px !important; border: 1px solid var(--line-strong) !important; border-radius: 7px !important; background: var(--surface) !important; color: var(--ink-secondary) !important; box-shadow: none !important; font-size: 13px; font-weight: 600 !important; }
+.scan-result-action--primary { border-color: var(--brand-action) !important; background: var(--brand-action) !important; color: white !important; }
+.scan-progress-note { max-width: 72ch; padding: 14px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+.scan-progress-note > div > svg { color: var(--brand) !important; }
+.scan-camera-preview { border-radius: 9px !important; box-shadow: none !important; background: #10171c; }
+.scan-camera-overlay { background-image: linear-gradient(to bottom, rgb(0 0 0 / .16), transparent 24%, transparent 62%, rgb(0 0 0 / .4)) !important; }
+.scan-camera-reticle { width: min(58vw, 300px); height: min(68vw, 370px); max-height: 48vh; border: 1px solid rgb(255 255 255 / .7); border-radius: 12px; box-shadow: 0 0 0 1px rgb(17 24 32 / .24); }
+.scan-guidance-icon { font-size: 26px; line-height: 1; }
+.scan-step-action { min-height: 44px; border: 1px solid var(--line-strong); border-radius: 7px !important; box-shadow: none !important; }
+.scan-capture-action { position: relative; display: grid; width: 66px; height: 66px; place-items: center; border: 1px solid rgb(255 255 255 / .84); border-radius: 50%; background: rgb(255 255 255 / .93); cursor: pointer; transition: transform 180ms ease-out, background-color 180ms ease-out; }
+.scan-capture-action > span { width: 50px; height: 50px; border: 3px solid var(--brand); border-radius: 50%; }
+.scan-capture-action > p { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); color: #fff; }
+.scan-analyzing-mark { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-quiet); color: var(--brand); }
+.scan-analyzing-panel .space-y-2 > div > div { background: var(--brand) !important; animation: none !important; }
+.scan-result-action, .scan-export-option, .scan-step-action, .scan-capture-action { transition: background-color 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .scan-history-toggle:hover, .scan-export-option:hover { background: var(--surface-quiet) !important; }
+  .scan-result-action:not(.scan-result-action--primary):hover, .scan-step-action:hover { border-color: var(--brand) !important; background: var(--surface-quiet) !important; }
+  .scan-result-action--primary:hover, .scan-dialog-primary:hover { filter: brightness(1.05); }
+  .scan-capture-action:hover { transform: translateY(-2px); background: #fff; }
+}
+.scan-capture-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .scan-result-action, .scan-export-option, .scan-step-action, .scan-capture-action { transition: none; }
+}
 html.dark .mission-heading, html.dark .mission-editorial, html.dark .mission-features,
 html.dark .mission-principles, html.dark .mission-research, html.dark .mission-faq,
 html.dark .mission-involved, html.dark .mission-faq__item, html.dark .mission-involved__action { border-color: #34404c; }

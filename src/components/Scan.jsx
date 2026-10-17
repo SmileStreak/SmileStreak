@@ -451,7 +451,7 @@ setShareNotes('');
 // Show loading state while translating
 if (translating || Object.keys(translatedText).length === 0) {
 return (
-<div className="space-y-6 pb-8">
+<div className="scan-page space-y-6 pb-8">
 <div className="page-heading-surface">
 <div className="animate-pulse flex items-center gap-2">
 <Sparkles className="w-6 h-6" />
@@ -463,7 +463,7 @@ return (
 }
 
 return (
-<div className="space-y-6 pb-8">
+<div className="scan-page space-y-6 pb-8">
 {/* Header */}
 <div className="page-heading-surface relative overflow-hidden">
 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
@@ -481,7 +481,7 @@ return (
         {scanHistory.length > 0 && (
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="bg-white/20 backdrop-blur-sm rounded-xl p-3 hover:bg-white/30 transition-colors"
+            className="scan-history-toggle rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-700 transition-colors"
             aria-label={showHistory ? "Close scan history" : "Open scan history"}
           >
             <History className="w-5 h-5" />
@@ -495,11 +495,11 @@ return (
   <Presence open={showHistory}>
 {showHistory && (
     <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
-      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[80vh] overflow-hidden animate-[scaleBounce_0.3s_ease-out]">
+      <div role="dialog" aria-modal="true" aria-labelledby="scan-history-title" className="scan-dialog bg-white rounded-3xl max-w-lg w-full max-h-[80vh] overflow-hidden animate-[scaleBounce_0.3s_ease-out]">
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-blue-600" />
-            <h3 className="font-black text-gray-900">{translatedText.scanHistory}</h3>
+            <h3 id="scan-history-title" className="font-black text-gray-900">{translatedText.scanHistory}</h3>
           </div>
           <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
@@ -511,7 +511,7 @@ return (
             <p className="text-center text-gray-500 py-8">{translatedText.noScans}</p>
           ) : (
             scanHistory.map((scan) => (
-              <div key={scan.id} className="group flex gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div key={scan.id} className="scan-history-row group flex gap-3 p-3 rounded-xl bg-gray-50 transition-colors">
                 <img 
                   src={scan.image} 
                   alt="Scan" 
@@ -558,9 +558,9 @@ return (
   <Presence open={showShareModal}>
 {showShareModal && (
     <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6">
+      <div role="dialog" aria-modal="true" aria-labelledby="scan-share-title" className="scan-dialog bg-white rounded-3xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-black text-gray-900">{translatedText.shareTitle}</h3>
+          <h3 id="scan-share-title" className="text-xl font-black text-gray-900">{translatedText.shareTitle}</h3>
           <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
@@ -569,10 +569,11 @@ return (
         <p className="text-sm text-gray-600 mb-4">{translatedText.shareDesc}</p>
         
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label htmlFor="scan-share-email" className="block text-sm font-semibold text-gray-700 mb-2">
             {translatedText.emailPlaceholder}
           </label>
           <input
+            id="scan-share-email"
             type="email"
             value={shareEmail}
             onChange={(e) => setShareEmail(e.target.value)}
@@ -582,10 +583,11 @@ return (
         </div>
         
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label htmlFor="scan-share-notes" className="block text-sm font-semibold text-gray-700 mb-2">
             {translatedText.notesPlaceholder}
           </label>
           <textarea
+            id="scan-share-notes"
             value={shareNotes}
             onChange={(e) => setShareNotes(e.target.value)}
             rows={3}
@@ -595,7 +597,7 @@ return (
         
         <button
           onClick={shareWithDentist}
-          className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 rounded-xl font-bold hover:shadow-lg transition-all"
+          className="scan-dialog-primary w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-xl font-semibold transition-all"
         >
           {translatedText.sendEmail}
         </button>
@@ -608,9 +610,9 @@ return (
   <Presence open={showExportOptions}>
 {showExportOptions && (
     <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-md w-full p-6">
+      <div role="dialog" aria-modal="true" aria-labelledby="scan-export-title" className="scan-dialog bg-white rounded-3xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-black text-gray-900">{translatedText.exportTitle}</h3>
+          <h3 id="scan-export-title" className="text-xl font-black text-gray-900">{translatedText.exportTitle}</h3>
           <button onClick={() => setShowExportOptions(false)} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
@@ -621,7 +623,7 @@ return (
         <div className="space-y-3">
           <button
             onClick={exportAsText}
-            className="w-full flex items-center gap-3 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+            className="scan-export-option w-full flex items-center gap-3 p-4 bg-blue-50 rounded-xl transition-colors"
           >
             <Download className="w-5 h-5 text-blue-600" />
             <span className="font-semibold text-gray-900">Export as JSON</span>
@@ -632,7 +634,7 @@ return (
               setShowExportOptions(false);
               setShowShareModal(true);
             }}
-            className="w-full flex items-center gap-3 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+            className="scan-export-option w-full flex items-center gap-3 p-4 bg-green-50 rounded-xl transition-colors"
           >
             <Mail className="w-5 h-5 text-green-600" />
             <span className="font-semibold text-gray-900">{translatedText.emailResults}</span>
@@ -640,7 +642,7 @@ return (
           
           <button
             onClick={() => window.print()}
-            className="w-full flex items-center gap-3 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
+            className="scan-export-option w-full flex items-center gap-3 p-4 bg-purple-50 rounded-xl transition-colors"
           >
             <Printer className="w-5 h-5 text-purple-600" />
             <span className="font-semibold text-gray-900">{translatedText.printResults}</span>
@@ -653,7 +655,7 @@ return (
 
   {/* Comparison View - Based on real scan data */}
   {showComparison && selectedScanForComparison && mode === 'results' && (
-    <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-blue-200">
+    <div className="scan-comparison-panel bg-white rounded-3xl p-6 shadow-lg border-2 border-blue-200">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-black text-gray-900 flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-blue-600" />
@@ -802,7 +804,7 @@ return (
       </button>
 
       {/* Camera Preview */}
-      <div className="relative rounded-3xl overflow-hidden bg-black shadow-2xl">
+      <div className="scan-camera-preview relative rounded-3xl overflow-hidden bg-black shadow-2xl">
         <video
           ref={videoRef}
           autoPlay
@@ -812,25 +814,19 @@ return (
         />
         
         {/* Guidance Overlay - Visual guide only, not data */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 pointer-events-none">
-          <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className="border border-white/20" />
-            ))}
-          </div>
-          
+        <div className="scan-camera-overlay absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 pointer-events-none">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-64 h-80 border-4 border-white/40 rounded-full" />
+            <div className="scan-camera-reticle" aria-hidden="true" />
           </div>
         </div>
 
         {/* Guidance Instructions */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
           <div className="text-center text-white space-y-3">
-            <div className="text-4xl mb-2">{guidanceSteps[guidanceStep].icon}</div>
+            <div className="scan-guidance-icon mb-2" aria-hidden="true">{guidanceSteps[guidanceStep].icon}</div>
             <h3 className="text-xl font-black">{guidanceSteps[guidanceStep].title}</h3>
             <p className="text-sm opacity-90">{guidanceSteps[guidanceStep].instruction}</p>
-            <p className="text-xs opacity-75">💡 {guidanceSteps[guidanceStep].tip}</p>
+            <p className="text-xs opacity-75">{guidanceSteps[guidanceStep].tip}</p>
             
             {/* Progress dots */}
             <div className="flex justify-center gap-2 pt-2">
@@ -856,7 +852,7 @@ return (
         {guidanceStep < guidanceSteps.length - 1 ? (
           <button
             onClick={nextGuidanceStep}
-            className="bg-white text-gray-900 px-8 py-4 rounded-2xl font-black shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2"
+            className="scan-step-action bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2"
           >
             {translatedText.nextStep}
             <ChevronRight className="w-5 h-5" />
@@ -864,12 +860,10 @@ return (
         ) : (
           <button
             onClick={capturePhoto}
-            className="relative group"
+            aria-label="Take photo"
+            className="scan-capture-action"
           >
-            <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-            <div className="relative w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-              <div className="w-16 h-16 border-4 border-blue-500 rounded-full" />
-            </div>
+            <span aria-hidden="true" />
             <p className="absolute -bottom-8 text-xs text-gray-500 font-medium whitespace-nowrap">Tap to take photo</p>
           </button>
         )}
@@ -883,7 +877,7 @@ return (
   {mode === 'analyzing' && (
     <div className="space-y-6">
       {image && (
-        <div className="relative rounded-3xl overflow-hidden shadow-xl">
+        <div className="scan-image-preview relative rounded-3xl overflow-hidden shadow-xl">
           <img
             src={image}
             alt="Captured"
@@ -894,7 +888,7 @@ return (
       )}
 
       {captureQuality && (
-        <div className={`rounded-2xl p-4 border-2 ${
+        <div className={`scan-quality-note rounded-2xl p-4 border-2 ${
           captureQuality.isGoodQuality 
             ? 'bg-green-50 border-green-300' 
             : 'bg-yellow-50 border-yellow-300'
@@ -910,9 +904,9 @@ return (
         </div>
       )}
 
-      <div className="bg-white rounded-3xl p-8 shadow-xl text-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl mx-auto mb-4 flex items-center justify-center animate-pulse">
-          <Sparkles className="w-8 h-8 text-white" />
+      <div className="scan-analyzing-panel bg-white rounded-3xl p-8 shadow-xl text-center" role="status" aria-live="polite">
+        <div className="scan-analyzing-mark mx-auto mb-4 flex items-center justify-center">
+          <Sparkles className="w-5 h-5" aria-hidden="true" />
         </div>
         <h3 className="text-xl font-black text-gray-900 mb-2">{translatedText.analyzingTitle}</h3>
         <p className="text-sm text-gray-600 mb-4">{translatedText.analyzingDesc}</p>
@@ -938,7 +932,7 @@ return (
   {mode === 'results' && feedback && (
     <div className="space-y-6">
       {image && (
-        <div className="relative rounded-3xl overflow-hidden shadow-xl">
+        <div className="scan-image-preview relative rounded-3xl overflow-hidden shadow-xl">
           <img
             src={image}
             alt="Analyzed"
@@ -947,24 +941,22 @@ return (
         </div>
       )}
 
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-3xl p-6 shadow-xl">
+      <div className="scan-result-panel bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-3xl p-6 shadow-xl">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center">
-            <CheckCircle2 className="w-6 h-6 text-white" />
-          </div>
+          <CheckCircle2 className="h-5 w-5 text-[var(--brand)]" aria-hidden="true" />
           <div>
             <h3 className="font-black text-gray-900 text-lg">{translatedText.analysisComplete}</h3>
             <p className="text-sm text-gray-600">{translatedText.analysisCompleteDesc}</p>
           </div>
         </div>
 
-        <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-5">
+        <div className="scan-result-copy bg-white/50 backdrop-blur-sm rounded-2xl p-5">
           <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{feedback}</p>
         </div>
       </div>
 
       {/* Post-scan disclaimer */}
-      <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex items-start gap-3">
+      <div className="scan-result-disclaimer bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-gray-800">
           General, educational observation only, not a diagnosis. See a licensed dentist for anything you're concerned about.
@@ -981,7 +973,7 @@ return (
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={reset}
-          className="bg-white border-2 border-gray-200 text-gray-900 py-4 rounded-2xl font-bold hover:border-blue-300 hover:shadow-md transition-all flex items-center justify-center gap-2"
+          className="scan-result-action scan-result-action--primary bg-white border-2 border-gray-200 text-gray-900 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
           <Camera className="w-5 h-5" />
           {translatedText.newScan}
@@ -989,7 +981,7 @@ return (
         
         <button
           onClick={() => setShowHistory(true)}
-          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 rounded-2xl font-bold hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+          className="scan-result-action bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
           <History className="w-5 h-5" />
           {translatedText.viewHistory}
@@ -997,7 +989,7 @@ return (
 
         <button
           onClick={() => setShowExportOptions(true)}
-          className="bg-purple-50 border-2 border-purple-200 text-purple-700 py-4 rounded-2xl font-bold hover:bg-purple-100 hover:border-purple-300 transition-all flex items-center justify-center gap-2"
+          className="scan-result-action bg-purple-50 border-2 border-purple-200 text-purple-700 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
           <Download className="w-5 h-5" />
           Export
@@ -1005,7 +997,7 @@ return (
 
         <button
           onClick={() => setShowShareModal(true)}
-          className="bg-green-50 border-2 border-green-200 text-green-700 py-4 rounded-2xl font-bold hover:bg-green-100 hover:border-green-300 transition-all flex items-center justify-center gap-2"
+          className="scan-result-action bg-green-50 border-2 border-green-200 text-green-700 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
           <Mail className="w-5 h-5" />
           Share
@@ -1022,7 +1014,7 @@ return (
               setShowComparison(true);
             }
           }}
-          className="w-full bg-white border-2 border-blue-200 text-blue-700 py-4 rounded-2xl font-bold hover:bg-blue-50 hover:border-blue-300 transition-all flex items-center justify-center gap-2"
+          className="scan-result-action w-full bg-white border-2 border-blue-200 text-blue-700 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
           <BarChart3 className="w-5 h-5" />
           {translatedText.compareScans}
@@ -1030,7 +1022,7 @@ return (
       )}
 
       {/* Improvement Tips - Educational content only */}
-      <div className="bg-slate-50 border border-purple-200 rounded-2xl p-5">
+      <aside className="scan-progress-note bg-slate-50 border border-purple-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <TrendingUp className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>
@@ -1038,7 +1030,7 @@ return (
             <p className="text-xs text-gray-600">{translatedText.trackProgressDesc}</p>
           </div>
         </div>
-      </div>
+      </aside>
     </div>
   )}
 </div>
