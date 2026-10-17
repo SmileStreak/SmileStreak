@@ -1720,6 +1720,16 @@ html.dark .reminder-feature-section { border-color: var(--line); }
 .insights-task-breakdown .space-y-4 > div { padding-top: 11px; border-top: 1px solid rgb(42 42 42 / .09); }
 .insights-task-breakdown .relative.h-3 { height: 4px; border-radius: 0; }
 .insights-task-breakdown .relative.h-3 > div { background: var(--brand); }
+.insights-share-feedback { flex-basis: 100%; margin: 3px 0 0; color: var(--ink-muted); font-size: 12px; }
+.insights-share-feedback:empty { display: none; }
+.insights-share-actions > button { min-height: 38px; border: 1px solid transparent; border-radius: 6px !important; transition: color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out; }
+.insights-share-actions > button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .insights-share-actions > button:hover { border-color: var(--line); background: var(--surface-quiet); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .insights-share-actions > button { transition: none; }
+}
 .app-page--insights :is(button, a[href]) { transition: color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .app-page--insights :is(button, a[href]):hover { color: var(--brand-hover); }

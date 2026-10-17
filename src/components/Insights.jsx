@@ -10,6 +10,28 @@ import { TranslationContext } from "../App";
 export default function Insights({ habitData }) {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
   const [translatedText, setTranslatedText] = useState({});
+  const [shareFeedback, setShareFeedback] = useState("");
+
+  const handleShare = async () => {
+    setShareFeedback("");
+    const shareData = {
+      title: "My SmileStreak Routine Score",
+      text: `My SmileStreak routine score is ${healthScore.total}%.`,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareFeedback("Share sheet opened.");
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareData.text);
+        setShareFeedback("Summary copied to clipboard.");
+      } else {
+        setShareFeedback("Sharing isn’t available in this browser.");
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") setShareFeedback("We couldn’t share the summary. Try exporting it instead.");
+    }
+  };
 
   // Translation keys
   const translationKeys = {
@@ -340,7 +362,7 @@ export default function Insights({ habitData }) {
                 </div>
                 <span className="font-bold text-gray-900">{metric.value}%</span>
               </div>
-              <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-label={`${metric.label}: ${metric.value}%`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={metric.value}>
                 <div
                   className="h-full bg-[var(--brand-action)] transition-all duration-500"
                   style={{ width: `${metric.value}%` }}
@@ -372,7 +394,7 @@ export default function Insights({ habitData }) {
               </div>
               <span className="font-bold text-gray-900">{timePatterns.morningRate}%</span>
             </div>
-            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-label={`${translatedText.morning}: ${timePatterns.morningRate}%`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={timePatterns.morningRate}>
               <div
                 className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.morningRate}%` }}
@@ -388,7 +410,7 @@ export default function Insights({ habitData }) {
               </div>
               <span className="font-bold text-gray-900">{timePatterns.nightRate}%</span>
             </div>
-            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-label={`${translatedText.night}: ${timePatterns.nightRate}%`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={timePatterns.nightRate}>
               <div
                 className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.nightRate}%` }}
@@ -404,7 +426,7 @@ export default function Insights({ habitData }) {
               </div>
               <span className="font-bold text-gray-900">{timePatterns.flossRate}%</span>
             </div>
-            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-label={`Floss: ${timePatterns.flossRate}%`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={timePatterns.flossRate}>
               <div
                 className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.flossRate}%` }}
@@ -461,14 +483,9 @@ export default function Insights({ habitData }) {
       </aside>
 
       {/* Share & Export */}
-      <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
+      <div className="insights-share-actions flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
         <button
-          onClick={() => {
-            navigator.share?.({
-              title: 'My SmileStreak Routine Score',
-              text: `My SmileStreak routine score is ${healthScore.total}%.`
-            });
-          }}
+          onClick={handleShare}
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
           <Share2 className="h-4 w-4 text-[var(--brand)]" />
@@ -488,6 +505,7 @@ export default function Insights({ habitData }) {
             a.href = url;
             a.download = `smile-streak-insights-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
+            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
           }}
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
@@ -502,6 +520,7 @@ export default function Insights({ habitData }) {
           <Printer className="h-4 w-4 text-[var(--brand)]" />
           <span>Print</span>
         </button>
+        <p className="insights-share-feedback" role="status" aria-live="polite">{shareFeedback}</p>
       </div>
     </div>
   );
