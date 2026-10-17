@@ -257,11 +257,16 @@ export default function Progress({ habitData }) {
       <WeeklyCalendar habitData={habitData || {}} />
 
       {/* ── ACTIVITY HEATMAP ── */}
-      <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-        {/* Card Header */}
-      <div className="mb-1">
-            <p className="font-bold text-gray-900">{texts.activityHeatmap || "Activity Heatmap"}</p>
-            <p className="text-xs text-gray-500">{texts.visualizeHabits || "Visualize your daily dental habits"}</p>
+      <section className="progress-heatmap-section" aria-labelledby="progress-heatmap-title">
+        <div className="progress-heatmap-heading">
+          <div>
+            <h3 id="progress-heatmap-title">{texts.activityHeatmap || "Activity Heatmap"}</h3>
+            <p>{texts.visualizeHabits || "Visualize your daily dental habits"}</p>
+          </div>
+          <span className="progress-heatmap-total">
+            <strong>{heatmapData.yearContributions}</strong>
+            <span>{texts.contributionsThisYear || "this year"}</span>
+          </span>
         </div>
 
         <div className="mt-4 overflow-x-auto">
@@ -349,21 +354,17 @@ export default function Progress({ habitData }) {
         </div>
 
         {/* Below graph stats */}
-        <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-100">
-          <div className="text-center">
-            <p className="text-lg font-semibold text-slate-800">{heatmapData.yearContributions}</p>
-            <p className="text-[10px] text-gray-400 font-medium">{texts.contributionsThisYear || "this year"}</p>
+        <div className="progress-heatmap-stats">
+          <div>
+            <p>{currentStreak}</p>
+            <span>{texts.currentStreak || "Current Streak"}</span>
           </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold text-slate-800">{currentStreak}</p>
-            <p className="text-[10px] text-gray-400 font-medium">{texts.currentStreak || "Current Streak"}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold text-slate-800">{longestStreak}</p>
-            <p className="text-[10px] text-gray-400 font-medium">{texts.longestStreak || "Longest Streak"}</p>
+          <div>
+            <p>{longestStreak}</p>
+            <span>{texts.longestStreak || "Longest Streak"}</span>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Tooltip — pinned modal on mobile tap */}
       <Presence open={tooltip && tooltip.pinned}>

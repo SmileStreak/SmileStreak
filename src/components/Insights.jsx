@@ -43,6 +43,7 @@ export default function Insights({ habitData }) {
     noDataDesc: "Start tracking your dental habits to see personalized insights and analytics!",
     healthScore: "Routine Score",
     scoreBreakdown: "Score Breakdown",
+    taskBreakdown: "Task Breakdown",
     completionRate: "Completion Rate",
     consistency: "Consistency",
     balance: "Balance",
@@ -53,6 +54,7 @@ export default function Insights({ habitData }) {
     timePerformance: "Time-of-Day Performance",
     morning: "Morning",
     night: "Night",
+    floss: "Floss",
     yourStrongestTime: "Your strongest time!",
     howYouCompare: "How You Compare",
     yourScore: "Your Score",
@@ -412,7 +414,7 @@ export default function Insights({ habitData }) {
 
       {/* Task Breakdown */}
       <div className="insights-task-breakdown bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <h3 className="font-black text-gray-900 mb-4">Task Breakdown</h3>
+        <h3 className="font-black text-gray-900 mb-4">{translatedText.taskBreakdown || translationKeys.taskBreakdown}</h3>
         
         <div className="space-y-4">
           <div>
@@ -451,11 +453,11 @@ export default function Insights({ habitData }) {
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-slate-600" />
-                <span className="font-semibold text-gray-900">Floss</span>
+                <span className="font-semibold text-gray-900">{translatedText.floss || translationKeys.floss}</span>
               </div>
               <span className="font-bold text-gray-900">{timePatterns.flossRate}%</span>
             </div>
-            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-label={`Floss: ${timePatterns.flossRate}%`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={timePatterns.flossRate}>
+            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-label={`${translatedText.floss || translationKeys.floss}: ${timePatterns.flossRate}%`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={timePatterns.flossRate}>
               <div
                 className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.flossRate}%` }}
