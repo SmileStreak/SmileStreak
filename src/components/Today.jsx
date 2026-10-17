@@ -250,6 +250,7 @@ const [timerEnabled, setTimerEnabled] = useState(false);
 const [interdentalType, setInterdentalType] = useState("Floss");
 const [, forceUpdate] = useState(0);
 const timerIntervalRef = useRef(null);
+const todayDialogReturnFocusRef = useRef(null);
 
 useEffect(() => { forceUpdate(v => v + 1); }, [habitData]);
 useEffect(() => { setTipIndex(new Date().getDate() % DENTAL_TIPS_EN.length); }, []);
@@ -262,6 +263,50 @@ const seconds = Math.floor((Date.now() - start) / 1000);
 track("today_screen_duration", { seconds });
 };
 }, []);
+
+useEffect(() => {
+const titleId = showReflection ? "today-reflection-title" : showMoodModal ? "today-mood-title" : showShareModal ? "today-share-title" : showDentistModal ? "today-visit-title" : showAlignerSetup ? "today-aligner-title" : null;
+const dialog = titleId ? document.getElementById(titleId)?.closest('[role="dialog"]') : null;
+
+if (!dialog) {
+  if (todayDialogReturnFocusRef.current?.isConnected) todayDialogReturnFocusRef.current.focus();
+  todayDialogReturnFocusRef.current = null;
+  return undefined;
+}
+
+if (!todayDialogReturnFocusRef.current) todayDialogReturnFocusRef.current = document.activeElement;
+const getFocusable = () => [...dialog.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+  .filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+const focusable = getFocusable();
+(focusable[0] || dialog).focus();
+
+const handleDialogKeys = (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    if (showReflection) setShowReflection(false);
+    else if (showMoodModal) setShowMoodModal(false);
+    else if (showShareModal) setShowShareModal(false);
+    else if (showDentistModal) setShowDentistModal(false);
+    else if (showAlignerSetup) setShowAlignerSetup(false);
+    return;
+  }
+  if (event.key !== "Tab") return;
+  const items = getFocusable();
+  if (!items.length) { event.preventDefault(); dialog.focus(); return; }
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+    event.preventDefault();
+    first.focus();
+  }
+};
+
+document.addEventListener("keydown", handleDialogKeys);
+return () => document.removeEventListener("keydown", handleDialogKeys);
+}, [showReflection, showMoodModal, showShareModal, showDentistModal, showAlignerSetup]);
 
 // ── ALIGNER TIMER ──
 useEffect(() => {
