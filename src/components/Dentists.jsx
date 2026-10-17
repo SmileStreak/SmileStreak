@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useMemo } from "react";
+import React, { useEffect, useState, useContext, useMemo, useRef } from "react";
 import {
   MapPin, Star, Clock, Heart, Phone, ChevronRight, TrendingUp, Award,
   Navigation, X, CheckCircle2, AlertCircle, Calendar, Users,
@@ -65,7 +65,6 @@ export default function Dentists() {
   const [selectedForCompare, setSelectedForCompare] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showInsuranceHelp, setShowInsuranceHelp] = useState(false);
   const [placeDetails, setPlaceDetails] = useState({});
   const [loadingDetails, setLoadingDetails] = useState({});
   const [filterOpenNow, setFilterOpenNow] = useState(false);
@@ -83,6 +82,7 @@ export default function Dentists() {
   const [aiQuery, setAiQuery] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const dentistDialogReturnFocusRef = useRef(null);
 
   const translationKeys = {
     title: "Find Dentists", subtitle: "Find nearby dental offices and confirm plan coverage directly.",
@@ -118,30 +118,52 @@ export default function Dentists() {
   }, [currentLanguage, t]);
 
   useEffect(() => {
-    const hasDialog = showPhotoModal || showAIAssistant || showPriceEstimator || showTreatmentPlanner || selectedDentist || showCompare || showFavorites || showInsuranceHelp;
-    if (!hasDialog) return undefined;
+    const titleId = showPhotoModal ? null : showAIAssistant ? "dentist-assistant-title" : showPriceEstimator ? "treatment-cost-title" : showTreatmentPlanner ? "visit-prep-title" : selectedDentist ? "dentist-details-title" : showCompare ? "compare-dentists-title" : showFavorites ? "saved-dentists-title" : null;
+    const dialog = showPhotoModal
+      ? document.querySelector('[role="dialog"][aria-label="Dental office photo"]')
+      : titleId ? document.getElementById(titleId)?.closest('[role="dialog"]') : null;
 
-    const closeTopDialog = (event) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      if (showPhotoModal) {
-        setShowPhotoModal(false);
-        setSelectedPhoto(null);
-      } else if (showAIAssistant) {
-        setShowAIAssistant(false);
-        setAiResponse("");
-        setAiQuery("");
-      } else if (showPriceEstimator) setShowPriceEstimator(false);
-      else if (showTreatmentPlanner) setShowTreatmentPlanner(false);
-      else if (selectedDentist) setSelectedDentist(null);
-      else if (showCompare) setShowCompare(false);
-      else if (showFavorites) setShowFavorites(false);
-      else if (showInsuranceHelp) setShowInsuranceHelp(false);
+    if (!dialog) {
+      if (dentistDialogReturnFocusRef.current?.isConnected) dentistDialogReturnFocusRef.current.focus();
+      dentistDialogReturnFocusRef.current = null;
+      return undefined;
+    }
+
+    if (!dentistDialogReturnFocusRef.current) dentistDialogReturnFocusRef.current = document.activeElement;
+    const getFocusable = () => [...dialog.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+      .filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+    const focusable = getFocusable();
+    (focusable[0] || dialog).focus();
+
+    const handleDialogKeys = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (showPhotoModal) { setShowPhotoModal(false); setSelectedPhoto(null); }
+        else if (showAIAssistant) { setShowAIAssistant(false); setAiResponse(""); setAiQuery(""); }
+        else if (showPriceEstimator) setShowPriceEstimator(false);
+        else if (showTreatmentPlanner) setShowTreatmentPlanner(false);
+        else if (selectedDentist) setSelectedDentist(null);
+        else if (showCompare) setShowCompare(false);
+        else if (showFavorites) setShowFavorites(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = getFocusable();
+      if (!items.length) { event.preventDefault(); dialog.focus(); return; }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
-    document.addEventListener("keydown", closeTopDialog);
-    return () => document.removeEventListener("keydown", closeTopDialog);
-  }, [showPhotoModal, showAIAssistant, showPriceEstimator, showTreatmentPlanner, selectedDentist, showCompare, showFavorites, showInsuranceHelp]);
+    document.addEventListener("keydown", handleDialogKeys);
+    return () => document.removeEventListener("keydown", handleDialogKeys);
+  }, [showPhotoModal, showAIAssistant, showPriceEstimator, showTreatmentPlanner, selectedDentist, showCompare, showFavorites]);
 
   useEffect(() => {
     try {
