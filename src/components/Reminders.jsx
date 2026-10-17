@@ -111,7 +111,40 @@ export default function Reminders() {
     dentistVisitReminders: "Dentist visit reminders",
     dentistVisitReminder: "Dentist Visit Reminder",
     remindersOn: "Reminders on",
-    remindersOff: "Reminders off"
+    remindersOff: "Reminders off",
+    storageWarning: "Reminder changes may not persist on this device. Check browser storage settings before leaving this page.",
+    iosEnableTitle: "Enable iPhone Notifications",
+    iosSetupIntro: "To get reminders on iPhone:",
+    iosStepShare: "Tap the Share button in Safari",
+    iosStepAdd: "Tap Add to Home Screen",
+    iosStepOpen: "Open SmileStreak from your home screen",
+    iosStepEnable: "Tap Enable Notifications below",
+    alignerSection: "Aligner Tray Swap Reminder",
+    noAligner: "No aligner treatment set up yet",
+    alignerSetupHint: "Set up your treatment on the Today page to enable swap reminders",
+    timeToSwap: "Time to swap your tray",
+    swapTomorrow: "Swap your tray tomorrow",
+    nextSwapInDays: "Next tray swap in {days} days",
+    every: "Every",
+    days: "days",
+    tray: "Tray",
+    of: "of",
+    runningBehind: "Running behind? Push all reminders back:",
+    upcomingSwaps: "Upcoming swaps",
+    todayShort: "Today!",
+    inDaysShort: "in {days}d",
+    dentistSection: "Dentist Visit Reminder",
+    noVisit: "No dentist visit logged yet",
+    logVisitHint: "Log a visit on the Today page to enable reminders",
+    dentistOverdue: "Dentist visit overdue",
+    visitInDays: "Visit in {days} days",
+    nextVisitInDays: "Next visit in {days} days",
+    lastVisit: "Last visit",
+    monthBefore: "1 month before",
+    weeksBeforeTwo: "2 weeks before",
+    weekBefore: "1 week before",
+    passed: "Passed",
+    dateUnavailable: "Date unavailable"
   };
 
   useEffect(() => {
@@ -334,9 +367,9 @@ export default function Reminders() {
     const visitDate = parseCalendarDate(nextDentistVisit);
     if (!Number.isFinite(visitDate.getTime())) { setScheduledDentistReminders([]); return; }
     const remindersToSchedule = [
-      { label: "1 month before", date: shiftCalendarDate(visitDate, -30), color: "bg-blue-50 border-blue-200 text-blue-700" },
-      { label: "2 weeks before", date: shiftCalendarDate(visitDate, -14), color: "bg-purple-50 border-purple-200 text-purple-700" },
-      { label: "1 week before",  date: shiftCalendarDate(visitDate, -7),  color: "bg-teal-50 border-teal-200 text-teal-700" },
+      { label: translatedText.monthBefore || translationKeys.monthBefore, date: shiftCalendarDate(visitDate, -30), color: "bg-blue-50 border-blue-200 text-blue-700" },
+      { label: translatedText.weeksBeforeTwo || translationKeys.weeksBeforeTwo, date: shiftCalendarDate(visitDate, -14), color: "bg-purple-50 border-purple-200 text-purple-700" },
+      { label: translatedText.weekBefore || translationKeys.weekBefore, date: shiftCalendarDate(visitDate, -7), color: "bg-teal-50 border-teal-200 text-teal-700" },
     ];
     setScheduledDentistReminders(remindersToSchedule.map((reminder) => {
       const daysUntil = calendarDayDifference(reminder.date);
@@ -347,7 +380,7 @@ export default function Reminders() {
         formattedDate: reminder.date.toLocaleDateString(currentLanguage, { month: "short", day: "numeric", year: "numeric" })
       };
     }));
-  }, [nextDentistVisit, currentLanguage]);
+  }, [nextDentistVisit, currentLanguage, translatedText]);
 
   const updateTime = (key, value) => setReminders((prev) => ({ ...prev, [key]: value }));
 
@@ -463,7 +496,7 @@ export default function Reminders() {
     const date = parseCalendarDate(iso);
     return Number.isFinite(date.getTime())
       ? date.toLocaleDateString(currentLanguage, { month: "long", day: "numeric", year: "numeric" })
-      : "Date unavailable";
+      : translatedText.dateUnavailable || translationKeys.dateUnavailable;
   };
 
   const getDaysUntilVisit = () => {
@@ -508,7 +541,7 @@ export default function Reminders() {
 
       {storageWarning && (
         <p className="reminder-storage-warning" role="alert">
-          Reminder changes may not persist on this device. Check browser storage settings before leaving this page.
+          {translatedText.storageWarning || translationKeys.storageWarning}
         </p>
       )}
 
@@ -541,13 +574,13 @@ export default function Reminders() {
           <div className="flex items-start gap-3">
             <Smartphone className="w-5 h-5 text-slate-600 flex-shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-bold text-gray-900 text-sm mb-1">Enable iPhone Notifications</p>
-              <p className="text-xs text-gray-600 leading-relaxed">To get reminders on iPhone:</p>
+              <p className="font-bold text-gray-900 text-sm mb-1">{translatedText.iosEnableTitle || translationKeys.iosEnableTitle}</p>
+              <p className="text-xs text-gray-600 leading-relaxed">{translatedText.iosSetupIntro || translationKeys.iosSetupIntro}</p>
               <ol className="text-xs text-gray-600 mt-2 space-y-1 list-decimal list-inside">
-                <li>Tap the <strong>Share</strong> button in Safari</li>
-                <li>Tap <strong>Add to Home Screen</strong></li>
-                <li>Open SmileStreak from your home screen</li>
-                <li>Tap Enable Notifications below</li>
+                <li>{translatedText.iosStepShare || translationKeys.iosStepShare}</li>
+                <li>{translatedText.iosStepAdd || translationKeys.iosStepAdd}</li>
+                <li>{translatedText.iosStepOpen || translationKeys.iosStepOpen}</li>
+                <li>{translatedText.iosStepEnable || translationKeys.iosStepEnable}</li>
               </ol>
             </div>
           </div>
@@ -604,13 +637,13 @@ export default function Reminders() {
       {/* ── ALIGNER TRAY SWAP REMINDER ── */}
       <section className="reminder-feature-section reminder-aligner-section space-y-4">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-bold text-gray-900">Aligner Tray Swap Reminder</h3>
+          <h3 className="font-bold text-gray-900">{translatedText.alignerSection || translationKeys.alignerSection}</h3>
         </div>
 
         {!alignerData ? (
           <div className="reminder-empty-state">
-            <p className="text-sm text-blue-600 font-medium">No aligner treatment set up yet</p>
-            <p className="text-xs text-blue-400 mt-1">Set up your treatment on the Today page to enable swap reminders</p>
+            <p className="text-sm text-blue-600 font-medium">{translatedText.noAligner || translationKeys.noAligner}</p>
+            <p className="text-xs text-blue-400 mt-1">{translatedText.alignerSetupHint || translationKeys.alignerSetupHint}</p>
           </div>
         ) : (
           <>
@@ -624,16 +657,18 @@ export default function Reminders() {
                 <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" aria-hidden="true" />
                 <div>
                   <p className="font-bold text-gray-900 text-sm">
-                    {daysUntilSwap !== null && daysUntilSwap <= 0
-                      ? "Time to swap your tray"
+                  {daysUntilSwap === null
+                      ? (translatedText.dateUnavailable || translationKeys.dateUnavailable)
+                      : daysUntilSwap <= 0
+                      ? (translatedText.timeToSwap || translationKeys.timeToSwap)
                       : daysUntilSwap === 1
-                      ? "Swap your tray tomorrow"
-                      : `Next tray swap in ${daysUntilSwap} days`}
+                      ? (translatedText.swapTomorrow || translationKeys.swapTomorrow)
+                      : (translatedText.nextSwapInDays || translationKeys.nextSwapInDays).replace("{days}", new Intl.NumberFormat(currentLanguage).format(daysUntilSwap))}
                   </p>
                   {traySwapDate && (
                     <p className="text-xs text-gray-600 mt-0.5">{formatVisitDate(traySwapDate.toISOString())}</p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">Every {customSwapDays} days · Tray {alignerData.tray} of {alignerData.totalTrays}</p>
+                  <p className="text-xs text-gray-400 mt-1">{translatedText.every || translationKeys.every} {customSwapDays} {translatedText.days || translationKeys.days} · {translatedText.tray || translationKeys.tray} {alignerData.tray} {translatedText.of || translationKeys.of} {alignerData.totalTrays}</p>
                 </div>
               </div>
             </div>
@@ -646,7 +681,7 @@ export default function Reminders() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Tray Swap Reminder</p>
-                  <p className="text-xs text-gray-500">{alignerReminderEnabled ? "Reminders on" : "Reminders off"}</p>
+                  <p className="text-xs text-gray-500">{alignerReminderEnabled ? (translatedText.remindersOn || translationKeys.remindersOn) : (translatedText.remindersOff || translationKeys.remindersOff)}</p>
                 </div>
               </div>
               <button
@@ -666,7 +701,7 @@ export default function Reminders() {
             {/* Push back buttons — the Harvard dentist's key suggestion */}
             {alignerReminderEnabled && (
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Running behind? Push all reminders back:</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{translatedText.runningBehind || translationKeys.runningBehind}</p>
                 <div className="grid grid-cols-4 gap-2">
                   {[1, 2, 3, 7].map(days => (
                     <button
@@ -684,7 +719,7 @@ export default function Reminders() {
             {/* Upcoming swap schedule */}
             {alignerReminderEnabled && traySwapDate && (
               <div className="reminder-schedule-list space-y-2">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Upcoming Swaps</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{translatedText.upcomingSwaps || translationKeys.upcomingSwaps}</p>
                 {[0, 1, 2].map(i => {
                   const swapD = new Date(traySwapDate);
                   swapD.setDate(swapD.getDate() + i * customSwapDays);
@@ -695,11 +730,11 @@ export default function Reminders() {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-slate-500" aria-hidden="true" />
                         <div>
-                          <p className="text-xs font-bold text-blue-700">Tray {trayNum}</p>
+                          <p className="text-xs font-bold text-blue-700">{translatedText.tray || translationKeys.tray} {trayNum}</p>
                           <p className="text-xs text-gray-500">{swapD.toLocaleDateString(currentLanguage, { month: "short", day: "numeric" })}</p>
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-blue-600">{dUntil <= 0 ? "Today!" : `in ${dUntil}d`}</span>
+                      <span className="text-xs font-bold text-blue-600">{dUntil <= 0 ? (translatedText.todayShort || translationKeys.todayShort) : (translatedText.inDaysShort || translationKeys.inDaysShort).replace("{days}", new Intl.NumberFormat(currentLanguage).format(dUntil))}</span>
                     </div>
                   );
                 })}
@@ -713,7 +748,7 @@ export default function Reminders() {
       <section className="reminder-feature-section reminder-dentist-section space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <Calendar className="w-5 h-5 text-teal-600" />
-          <h3 className="font-bold text-gray-900">Dentist Visit Reminder</h3>
+          <h3 className="font-bold text-gray-900">{translatedText.dentistSection || translationKeys.dentistSection}</h3>
         </div>
 
         {nextDentistVisit ? (
@@ -726,19 +761,20 @@ export default function Reminders() {
               <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" aria-hidden="true" />
               <div>
                 <p className="font-bold text-gray-900 text-sm">
-                  {daysUntilVisit !== null && daysUntilVisit <= 0 ? "Dentist visit overdue" :
-                   daysUntilVisit !== null && daysUntilVisit <= 7 ? `Visit in ${daysUntilVisit} days` :
-                   `Next visit in ${daysUntilVisit} days`}
+                  {daysUntilVisit === null ? (translatedText.dateUnavailable || translationKeys.dateUnavailable) :
+                   daysUntilVisit <= 0 ? (translatedText.dentistOverdue || translationKeys.dentistOverdue) :
+                   daysUntilVisit <= 7 ? (translatedText.visitInDays || translationKeys.visitInDays).replace("{days}", new Intl.NumberFormat(currentLanguage).format(daysUntilVisit)) :
+                   (translatedText.nextVisitInDays || translationKeys.nextVisitInDays).replace("{days}", new Intl.NumberFormat(currentLanguage).format(daysUntilVisit))}
                 </p>
                 <p className="text-xs text-gray-600 mt-0.5">{formatVisitDate(nextDentistVisit)}</p>
-                {lastDentistVisit && <p className="text-xs text-gray-400 mt-1">Last visit: {formatVisitDate(lastDentistVisit)}</p>}
+                {lastDentistVisit && <p className="text-xs text-gray-400 mt-1">{translatedText.lastVisit || translationKeys.lastVisit}: {formatVisitDate(lastDentistVisit)}</p>}
               </div>
             </div>
           </div>
         ) : (
           <div className="reminder-empty-state">
-            <p className="text-sm text-teal-600 font-medium">No dentist visit logged yet</p>
-            <p className="text-xs text-teal-500 mt-1">Log a visit on the Today page to enable reminders</p>
+            <p className="text-sm text-teal-600 font-medium">{translatedText.noVisit || translationKeys.noVisit}</p>
+            <p className="text-xs text-teal-500 mt-1">{translatedText.logVisitHint || translationKeys.logVisitHint}</p>
           </div>
         )}
 
@@ -779,7 +815,7 @@ export default function Reminders() {
                   </div>
                 </div>
                 <div className="text-right">
-                  {r.isPast ? <span className="text-xs font-semibold opacity-60">Passed</span> : <span className="text-xs font-bold">in {r.daysUntil}d</span>}
+                  {r.isPast ? <span className="text-xs font-semibold opacity-60">{translatedText.passed || translationKeys.passed}</span> : <span className="text-xs font-bold">{(translatedText.inDaysShort || translationKeys.inDaysShort).replace("{days}", new Intl.NumberFormat(currentLanguage).format(r.daysUntil))}</span>}
                 </div>
               </div>
             ))}
