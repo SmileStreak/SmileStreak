@@ -46,6 +46,25 @@ import "./motion-tokens.css";
 export const TranslationContext = createContext();
 export const ThemeContext = createContext();
 
+function handleMenuArrowKeys(event) {
+  const keySteps = { ArrowDown: 1, ArrowUp: -1 };
+  const items = [...event.currentTarget.querySelectorAll('[role="menuitem"]')]
+    .filter((item) => !item.disabled && item.getAttribute("aria-disabled") !== "true");
+  if (!items.length) return;
+  const current = items.indexOf(document.activeElement);
+  let nextIndex;
+  if (keySteps[event.key] !== undefined) {
+    nextIndex = current < 0
+      ? (event.key === "ArrowDown" ? 0 : items.length - 1)
+      : (current + keySteps[event.key] + items.length) % items.length;
+  }
+  else if (event.key === "Home") nextIndex = 0;
+  else if (event.key === "End") nextIndex = items.length - 1;
+  else return;
+  event.preventDefault();
+  items[nextIndex]?.focus();
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const navigateToTab = useCallback((tab) => {
@@ -164,6 +183,18 @@ export default function App() {
     document.addEventListener("keydown", closeMenusOnEscape);
     return () => document.removeEventListener("keydown", closeMenusOnEscape);
   }, [showAccountMenu, showLanguageMenu]);
+
+  useEffect(() => {
+    if (!showLanguageMenu) return undefined;
+    const frame = requestAnimationFrame(() => document.querySelector(`#language-menu [data-language-option="${currentLanguage}"]`)?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [showLanguageMenu, currentLanguage]);
+
+  useEffect(() => {
+    if (!showAccountMenu) return undefined;
+    const frame = requestAnimationFrame(() => document.querySelector("#account-menu [role='menuitem']")?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [showAccountMenu]);
 
   useEffect(() => {
     const titleId = showFeedback ? "feedback-dialog-title"
@@ -914,7 +945,7 @@ export default function App() {
 
                       <Presence open={showLanguageMenu}>
                       {showLanguageMenu && (
-                        <div id="language-menu" role="menu" data-origin="top-right" className={`app-header-menu t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 max-h-96 overflow-y-auto ${
+                        <div id="language-menu" role="menu" onKeyDown={handleMenuArrowKeys} data-origin="top-right" className={`app-header-menu t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 max-h-96 overflow-y-auto ${
                           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                         }`}>
                           <div className={`px-4 py-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
@@ -924,6 +955,7 @@ export default function App() {
                             <button
                               key={code}
                               role="menuitem"
+                              data-language-option={code}
                               onClick={() => changeLanguage(code)}
                               className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${
                                 darkMode
@@ -994,8 +1026,9 @@ export default function App() {
                               </div>
                             </div>
 
-                            <div className="py-1">
+                            <div className="py-1" onKeyDown={handleMenuArrowKeys}>
                               <button
+                                role="menuitem"
                                 onClick={() => { setShowProfileModal(true); setShowAccountMenu(false); }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
@@ -1006,6 +1039,7 @@ export default function App() {
                               </button>
 
                               <button
+                                role="menuitem"
                                 onClick={() => {
                                   setEditUsernameInput(username || "");
                                   setEditUsernameStatus(null);
@@ -1023,6 +1057,7 @@ export default function App() {
                               </button>
 
                               <button
+                                role="menuitem"
                                 onClick={() => { setActiveTab("progress"); setShowAccountMenu(false); }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
@@ -1036,6 +1071,7 @@ export default function App() {
                               <div className={`my-1 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`} />
 
                               <button
+                                role="menuitem"
                                 onClick={switchAccount}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
@@ -1046,6 +1082,7 @@ export default function App() {
                               </button>
 
                               <button
+                                role="menuitem"
                                 onClick={logout}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-red-50'
