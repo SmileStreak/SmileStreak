@@ -26,7 +26,7 @@ const DID_YOU_KNOW = [
 "Your tongue print is as unique as your fingerprint.",
 "People who drink 3 or more glasses of soda daily have 62% more tooth decay than those who don't.",
 "The first toothbrush with bristles was invented in China in 1498.",
-"Oral health is directly linked to heart health. Gum bacteria can enter the bloodstream and affect your heart.",
+"Gum disease and cardiovascular disease are associated. Bacteria can enter the bloodstream, but research has not confirmed that gum disease causes heart disease.",
 "Smiling releases endorphins, which naturally reduce stress and boost mood."
 ];
 
