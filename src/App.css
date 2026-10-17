@@ -137,6 +137,9 @@ html.dark header.sticky { background: #111820 !important; border-color: #303a45 
   background: var(--surface) !important; color: var(--ink-secondary) !important;
   box-shadow: none !important; transition: transform 180ms ease-out, color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out;
 }
+@media (hover: none) and (max-width: 640px) {
+  .app-header-control { min-height: 40px; }
+}
 .skip-to-content {
   position: fixed; z-index: 100; top: 8px; left: 8px; transform: translateY(calc(-100% - 16px));
   padding: 9px 13px; border: 1px solid var(--line-strong); border-radius: 6px;
