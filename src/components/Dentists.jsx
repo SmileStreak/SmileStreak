@@ -725,6 +725,7 @@ const askAIAssistant = async () => {
 </Presence>
 
       {/* IMPROVED: Cleaner Filters UI */}
+      <Presence open={showFilters && !locationError} duration={220}>
       {showFilters && !locationError && (
         <div id="dentist-filters" role="region" aria-labelledby="dentist-filter-title" className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
           <div className="flex items-center justify-between mb-4">
@@ -789,6 +790,7 @@ const askAIAssistant = async () => {
           </div>
         </div>
       )}
+      </Presence>
 
       {/* INSURANCE */}
       {!locationError && (
