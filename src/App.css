@@ -875,9 +875,6 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
   border: 1px solid var(--line);
   box-shadow: 0 1px 2px rgb(42 42 42 / 0.035) !important;
 }
-.app-page button:not(:disabled) { transition: background-color 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out; }
-.app-page button:not(:disabled):not([class*="text-link"]):not([class*="underline"]):hover { filter: brightness(0.975); box-shadow: 0 3px 10px rgb(42 42 42 / 0.035); }
-.app-page button:not(:disabled):active { transform: scale(0.98); filter: none; }
 .app-page button:focus-visible, .app-page a:focus-visible { outline-color: #52777b; outline-offset: 3px; }
 .app-page input, .app-page textarea, .app-page select {
   border-color: var(--line-strong);
