@@ -1429,16 +1429,41 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
   display: flex; width: 100%; align-items: center; justify-content: space-between;
   gap: 16px; padding: 14px 2px; border: 0; border-top: 1px solid var(--line);
   border-radius: 0; background: transparent; text-align: left; cursor: pointer;
+  transition: background-color 180ms ease-out;
 }
 .legal-data-action > div { min-width: 0; }
 .legal-data-action span { line-height: 1.45; }
 .legal-data-action:hover { background: var(--surface-quiet); }
 .legal-data-action--destructive:hover { background: #f5efed; }
+.legal-data-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.legal-data-error { margin: 12px 0 0; padding: 9px 11px; border-left: 2px solid #a56f69; color: #754641; background: #f7f2f1; font-size: 12px; line-height: 1.5; }
+.legal-delete-dialog {
+  width: min(100%, 32rem); padding: 23px; border: 1px solid var(--line);
+  color: var(--ink-secondary); background: var(--surface);
+  box-shadow: 0 10px 30px rgb(24 33 42 / .08);
+}
+.legal-delete-eyebrow { margin: 0 0 7px; color: var(--ink-muted); font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.legal-delete-dialog h3 { margin: 0; color: var(--ink); font: 500 26px/1.15 "Newsreader Variable", Georgia, serif; }
+.legal-delete-dialog > p:not(.legal-delete-eyebrow) { margin: 11px 0 0; color: var(--ink-muted); font-size: 13px; line-height: 1.6; }
+.legal-delete-dialog .legal-delete-error { padding: 10px 11px; border-left: 2px solid #a56f69; color: #754641; background: #f7f2f1; }
+.legal-delete-dialog .legal-delete-progress { color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
+.legal-delete-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+.legal-delete-actions button { min-height: 40px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 6px; color: var(--ink-secondary); background: var(--surface); font-size: 13px; font-weight: 600; transition: background-color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out; }
+.legal-delete-actions button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.legal-delete-actions button:disabled { opacity: .65; cursor: wait; }
+.legal-delete-actions .legal-delete-cancel[aria-disabled="true"] { opacity: .65; cursor: wait; }
+.legal-delete-actions .legal-delete-submit { border-color: #8f5a54; color: #fff; background: #855b58; }
+.legal-delete-actions .legal-delete-submit:disabled { background: #9c7774; }
+html.dark .legal-delete-dialog { border-color: #34404c; background: #1c2630; }
+html.dark .legal-delete-dialog h3 { color: #edf2f4; }
+html.dark .legal-delete-dialog > p:not(.legal-delete-eyebrow) { color: #bcc6ce; }
+html.dark .legal-delete-dialog .legal-delete-error { color: #efbbb5; background: #302627; }
+html.dark .legal-delete-actions .legal-delete-cancel { border-color: #47545f; color: #d9e0e4; background: #1c2630; }
 .legal-page > h2 { margin: 0; }
 .legal-terms-index { border-radius: 8px !important; box-shadow: none !important; }
 .legal-terms-index > div { border-color: var(--line) !important; }
 .legal-terms-index > div:last-child { border-bottom: 0; }
-.legal-terms-index button { min-height: 54px; }
+.legal-terms-index button { min-height: 54px; transition: background-color 180ms ease-out, transform 180ms ease-out; }
 .legal-terms-index button > div:first-child > div { display: flex; color: var(--brand); }
 .legal-terms-index button > span:last-child { min-width: 36px; text-align: right; }
 .legal-terms-index [id^="legal-section-"] { max-width: 74ch; padding-top: 0; color: var(--ink-secondary); }
@@ -1456,10 +1481,10 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .legal-support-success svg { width: 18px; height: 18px; margin: 0 !important; color: var(--brand) !important; }
 .legal-support-success p { color: var(--ink-secondary) !important; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .legal-terms-index button:hover { padding-left: 22px; }
+  .legal-terms-index button:hover { transform: translateX(2px); }
   .legal-primary-action:hover { filter: brightness(1.05); }
 }
-@media (prefers-reduced-motion: reduce) { .legal-terms-index button, .legal-primary-action { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .legal-terms-index button, .legal-data-action, .legal-primary-action { transition: none; } }
 .legal-export-toast {
   position: fixed; right: 24px; bottom: 24px; z-index: 30;
   display: flex; align-items: center; gap: 9px; padding: 12px 16px;
@@ -1468,6 +1493,7 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
   animation: consent-enter 180ms var(--motion-out) both;
 }
 html.dark .legal-data-action--destructive:hover { background: #332b2a; }
+html.dark .legal-data-error { color: #efbbb5; background: #302627; }
 html.dark .legal-export-toast { border-color: #46584b; background: #27352c; color: #b2c8b6; }
 @media (prefers-reduced-motion: reduce) {
   .legal-export-toast { animation: none; }

@@ -2,22 +2,31 @@ import {
   Shield, FileText, Lock, AlertTriangle,
   Download, Trash2, Database, CheckCircle
 } from "lucide-react";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { deleteUser, reauthenticateWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../firebase";
 import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 import { TranslationContext } from "../App";
 import { calculateStreaks } from "../utils/progress";
+import Presence from "./Presence";
 
 export default function Legal({ onAnalyticsChoice }) {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
   const [open, setOpen] = useState(null);
   const [exported, setExported] = useState(false);
+  const [exportError, setExportError] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
   const [sent, setSent] = useState(false);
   const [supportError, setSupportError] = useState(false);
   const [translatedText, setTranslatedText] = useState({});
+  const deleteTriggerRef = useRef(null);
+  const deleteCancelRef = useRef(null);
+  const deleteConfirmRef = useRef(null);
+  const deletePendingRef = useRef(false);
+  deletePendingRef.current = deletePending;
 
   // Translation keys
   const translationKeys = {
@@ -40,6 +49,10 @@ export default function Legal({ onAnalyticsChoice }) {
     yourDataControls: "Your Data Controls",
     exportReport: "Export browser habit and scan data",
     resetApp: "Delete SmileStreak data",
+    confirmTitle: "Delete SmileStreak data?",
+    cancel: "Cancel",
+    deleting: "Deleting…",
+    deleteFailure: "We couldn’t finish deleting your data. Some synced records may already have been removed. Try again, or contact support if the problem continues.",
     contactSupport: "Contact Support",
     messageSent: "Message sent successfully.",
     yourEmail: "Your email",
@@ -69,6 +82,7 @@ export default function Legal({ onAnalyticsChoice }) {
     // Confirmation messages
     confirmReset: "This permanently deletes your SmileStreak Firebase account and profile, removes saved notification tokens, clears this browser's SmileStreak data, and signs you out. It does not delete your Google Account or copies held by third-party providers or support services. Continue?",
     exportSuccess: "Report exported successfully!",
+    exportFailure: "SmileStreak couldn’t read your saved data for export. Your browser data has not been changed.",
     deleteSuccess: "SmileStreak data deleted. Refreshing...",
     
     // Data control descriptions
@@ -135,6 +149,34 @@ export default function Legal({ onAnalyticsChoice }) {
     loadTranslations();
   }, [currentLanguage, t]);
 
+  useEffect(() => {
+    if (!showDeleteConfirm) return undefined;
+    const previousFocus = document.activeElement;
+    deleteCancelRef.current?.focus();
+    const handleDialogKeyDown = (event) => {
+      if (event.key === "Escape" && !deletePendingRef.current) {
+        event.preventDefault();
+        setShowDeleteConfirm(false);
+      }
+      if (event.key !== "Tab") return;
+      const focusable = [deleteCancelRef.current, deleteConfirmRef.current].filter((element) => element && !element.disabled);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !focusable.includes(document.activeElement))) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleDialogKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleDialogKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [showDeleteConfirm]);
+
   const toggle = (section) => {
     setOpen(open === section ? null : section);
   };
@@ -143,8 +185,13 @@ export default function Legal({ onAnalyticsChoice }) {
      ADVANCED EXPORT
   --------------------------- */
   const exportData = () => {
+    setExportError(false);
+    try {
     const habits = JSON.parse(localStorage.getItem("habitData") || "{}");
     const scans = JSON.parse(localStorage.getItem("scanHistory") || "[]");
+    if (!habits || typeof habits !== "object" || Array.isArray(habits) || !Array.isArray(scans)) {
+      throw new TypeError("Saved export data has an unexpected shape");
+    }
     const { longestStreak } = calculateStreaks(habits);
 
     const report = {
@@ -175,18 +222,22 @@ export default function Legal({ onAnalyticsChoice }) {
     a.href = url;
     a.download = "smilestreak-report.json";
     a.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     setExported(true);
     setTimeout(() => setExported(false), 4000);
+    } catch (error) {
+      console.error("Could not export SmileStreak data:", error);
+      setExportError(true);
+    }
   };
 
   /* ---------------------------
      TRUE RESET
   --------------------------- */
   const deleteData = async () => {
-    if (!confirm(translatedText.confirmReset || "This will completely reset SmileStreak. Continue?")) return;
-
     setDeleteError(false);
+    setDeletePending(true);
     try {
       if (auth.currentUser) {
         localStorage.setItem("smilestreak-deleting-profile", "true");
@@ -204,11 +255,16 @@ export default function Legal({ onAnalyticsChoice }) {
         });
       }
       setDeleted(true);
+      setShowDeleteConfirm(false);
       setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
-      localStorage.removeItem("smilestreak-deleting-profile");
+      try { localStorage.removeItem("smilestreak-deleting-profile"); } catch (storageError) {
+        console.error("Could not clear the account-deletion marker:", storageError);
+      }
       console.error("Could not delete SmileStreak data:", error);
       setDeleteError(true);
+    } finally {
+      setDeletePending(false);
     }
   };
 
@@ -336,7 +392,12 @@ export default function Legal({ onAnalyticsChoice }) {
             {exported && <CheckCircle className="text-green-500 w-5 h-5" />}
           </button>
 
-          <button type="button" onClick={deleteData} className="legal-data-action legal-data-action--destructive">
+          <button
+            ref={deleteTriggerRef}
+            type="button"
+            onClick={() => { setDeleteError(false); setShowDeleteConfirm(true); }}
+            className="legal-data-action legal-data-action--destructive"
+          >
             <div className="flex items-center gap-3">
               <Trash2 className="w-5 h-5 text-slate-600" />
               <div className="text-left">
@@ -351,8 +412,8 @@ export default function Legal({ onAnalyticsChoice }) {
             {deleted && <CheckCircle className="text-green-500 w-5 h-5" />}
           </button>
         </div>
+        {exportError && <p className="legal-data-error" role="alert">{translatedText.exportFailure || "SmileStreak couldn’t read your saved data for export. Your browser data has not been changed."}</p>}
         <p className="mt-3 text-xs leading-5 text-slate-600">Deleting removes your SmileStreak Firebase account, synced profile, and data saved in this browser. It does not delete the Google Account used to sign in or messages already submitted to support.</p>
-        {deleteError && <p role="alert" className="mt-3 text-sm font-medium text-red-700">SmileStreak could not delete the synced profile. Check your connection and try again.</p>}
       </section>
 
       {/* SUPPORT FORM */}
@@ -406,6 +467,52 @@ export default function Legal({ onAnalyticsChoice }) {
           </form>
         )}
       </section>
+
+      <Presence open={showDeleteConfirm}>
+        {showDeleteConfirm && (
+          <div
+            className="t-modal-backdrop legal-delete-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+            onClick={(event) => {
+              if (event.target === event.currentTarget && !deletePending) setShowDeleteConfirm(false);
+            }}
+          >
+            <div
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="legal-delete-title"
+              aria-describedby="legal-delete-description"
+              className="legal-delete-dialog rounded-xl"
+            >
+              <p className="legal-delete-eyebrow">{translatedText.yourDataControls}</p>
+              <h3 id="legal-delete-title">{translatedText.confirmTitle || "Delete SmileStreak data?"}</h3>
+              <p id="legal-delete-description">{translatedText.confirmReset || "This permanently deletes your SmileStreak account and profile, saved notification tokens, and this browser’s SmileStreak data. It does not delete your Google Account or copies held by third parties."}</p>
+              {deletePending && <p className="legal-delete-progress" role="status">{translatedText.deleting || "Deleting…"}</p>}
+              {deleteError && <p className="legal-delete-error" role="alert">{translatedText.deleteFailure || "We couldn’t finish deleting your data. Some synced records may already have been removed. Try again, or contact support if the problem continues."}</p>}
+              <div className="legal-delete-actions">
+                <button
+                  ref={deleteCancelRef}
+                  type="button"
+                  aria-disabled={deletePending}
+                  onClick={() => { if (!deletePending) setShowDeleteConfirm(false); }}
+                  className="legal-delete-cancel"
+                >
+                  {translatedText.cancel || "Cancel"}
+                </button>
+                <button
+                  ref={deleteConfirmRef}
+                  type="button"
+                  disabled={deletePending}
+                  aria-busy={deletePending}
+                  onClick={deleteData}
+                  className="legal-delete-submit"
+                >
+                  {deletePending ? (translatedText.deleting || "Deleting…") : (translatedText.resetApp || "Delete data")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Presence>
 
       {/* EXPORT SUCCESS MESSAGE */}
       {exported && (
