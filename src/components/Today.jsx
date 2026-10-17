@@ -8,6 +8,7 @@ import {
 Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap
 } from "lucide-react";
 import { TranslationContext } from "../App";
+import Presence from "./Presence";
 
 const BRUSH_TIME = 120;
 const RECOVERY_KEY = "__lastRecoveryUsed";
@@ -263,10 +264,8 @@ setHabitData(prev => ({
 ...prev,
 [todayAlignerKey]: { seconds: todayAlignerWear.seconds + alignerSeconds, sessions: newSessions },
 }));
-track("aligner_removed", { seconds_worn: alignerSeconds });
 setAlignerSeconds(0);
 } else {
-track("aligner_inserted");
 }
 setAlignerRunning(p => !p);
 };
@@ -283,7 +282,6 @@ daysPerTray: parseInt(alignerDaysPerTrayInput) || 14,
 setupDate: new Date().toISOString(),
 },
 }));
-track("aligner_setup_saved", { tray: alignerTrayInput, totalTrays: alignerTotalTraysInput });
 setShowAlignerSetup(false);
 };
 
@@ -393,7 +391,6 @@ const formatTime = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,"0")
 
 const toggleTask = useCallback(async (task) => {
   const nextValue = !todayData[task];
-  track("task_toggled", { task, completed: nextValue });
   const updatedDay = { ...todayData, [task]: nextValue };
   const completedNow = ["morning","night","floss"].filter(k => updatedDay[k]).length;
   
@@ -412,7 +409,6 @@ const toggleTask = useCallback(async (task) => {
   
   if (completedNow === 3) {
     const { current } = calculateStreaks(habitData);
-    track("daily_routine_completed", { streak: current, recovery_day: isRecoveryDay });
     setShowCompletion(true);
     setTimeout(() => setShowCompletion(false), 2800);
   }
@@ -422,7 +418,6 @@ const saveMood = async (moodKey) => {
   setCurrentMood(moodKey);
   const updatedDay = { ...todayData, mood: moodKey };
   setHabitData(prev => ({ ...prev, [today]: updatedDay }));
-  track("mood_logged", { mood: moodKey });
   setShowMoodModal(false);
   
   // ── UPDATE LEADERBOARD POINTS ──
@@ -435,7 +430,6 @@ const saveMood = async (moodKey) => {
 const saveReflection = async () => {
   const updatedDay = { ...todayData, reflection: reflectionText };
   setHabitData(prev => ({ ...prev, [today]: updatedDay }));
-  track("reflection_saved", { length: reflectionText.length });
   setShowReflection(false);
   
   // ── UPDATE LEADERBOARD POINTS ──
@@ -470,7 +464,7 @@ return () => { if (timerIntervalRef.current) clearInterval(timerIntervalRef.curr
 
 const handleShare = async () => {
 const { current } = calculateStreaks(habitData);
-track("share_clicked", { streak: current });
+track("share_clicked");
 const alignerLine = alignerData ? `\n😁 Aligner wear: ${alignerWornHours.toFixed(1)}h today` : "";
 const shareText = `🦷 SmileStreak Update!\n\n🔥 ${current} day streak\n✅ ${completedCount}/3 tasks done today\n📊 ${consistencyScore}% consistency this week\n⚡ ${streakMultiplier}x streak multiplier${alignerLine}\n\nBuilding better dental habits one day at a time! 😁`;
 setShowShareModal(false);
@@ -518,10 +512,6 @@ const nextDate = new Date();
 nextDate.setMonth(nextDate.getMonth() + nextCustomMonths);
 updates.__nextDentistVisit = nextDate.toISOString();
 }
-track("dentist_visit_logged", {
-has_next_appointment: !!nextDateInput || !!nextCustomMonths,
-next_appointment_months: nextDateInput ? null : nextCustomMonths,
-});
 setHabitData(prev => ({ ...prev, ...updates }));
 setShowDentistModal(false);
 };
@@ -562,7 +552,7 @@ const daysUntilVisit = getDaysUntilNextVisit();
 if (translating || !txReady) {
 return (
 <section className="space-y-6 pb-8">
-<div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+<div className="page-heading-surface relative overflow-hidden">
 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
 <div className="relative z-10 animate-pulse flex items-center gap-3">
@@ -593,10 +583,11 @@ return (
     </div>
   )}
 
+<Presence open={showCompletion}>
 {showCompletion && (
-<div className="fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-center justify-center z-50" style={{animation:"fadeIn .22s ease"}}>
-<div className="bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100" style={{animation:"bounceIn .45s cubic-bezier(.22,1,.36,1)"}}>
-<div className="text-6xl mb-4">🎉</div>
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-center justify-center z-50">
+<div className="bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100">
+<div className="mb-4 flex justify-center"><CheckCircle2 className="h-10 w-10 text-blue-700" strokeWidth={1.5} /></div>
 <p className="text-2xl font-black text-gray-900 mb-2">{T("Day Complete!")}</p>
 <p className="text-sm text-gray-500 mb-3">{isRecoveryDay ? `🔄 ${T("Recovery streak saved!")}` : "✨ Perfect consistency!"}</p>
 {streakMultiplier > 1 && (
@@ -607,16 +598,16 @@ return (
 </div>
 </div>
 )}
+</Presence>
 
   <style>{`
     @keyframes fadeIn   { from{opacity:0}to{opacity:1} }
     @keyframes slideUp  { from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1} }
-    @keyframes bounceIn { 0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1} }
     @keyframes pulse-ring { 0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0} }
     .press { transition: transform .14s ease }
-    .press:active { transform: scale(.97) }
-    .hover-lift { transition: all .2s ease }
-    .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,.18) }
+    .press:active { transform: scale(.98) }
+    .hover-lift { transition: transform 180ms ease-out, border-color 180ms ease-out }
+    .hover-lift:hover { transform: translateY(-2px) }
     .aligner-pulse::before { content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid #06b6d4; animation:pulse-ring 1.5s ease-out infinite; }
   `}</style>
 
@@ -729,7 +720,7 @@ return (
 onClick={() => {
 if (isDone) toggleTask(task);
 else if (timerEnabled) {
-track("timer_started", { task });
+  track("timer_started");
 setActiveTimer(task);
 setTimeLeft(BRUSH_TIME);
 }
@@ -742,7 +733,7 @@ style={{transform:`scaleX(${fillPct/100})`,transition:"transform 1s linear"}} />
 )}
 <div className="relative flex items-center justify-between gap-3">
 <div className="flex items-center gap-3">
-<div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl ${ task === "morning" ? "bg-gradient-to-br from-yellow-100 to-orange-100" : "bg-gradient-to-br from-indigo-100 to-purple-100" }`}>
+<div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl ${ task === "morning" ? "bg-gradient-to-br from-yellow-100 to-orange-100" : "bg-slate-100" }`}>
 {task === "morning" ? "🪥" : "🌙"}
 </div>
 <div>
@@ -1021,7 +1012,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 
 {/* ── REFLECTION NOTE ── */}
 {reflectionText && (
-<div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-3xl p-5">
+<div className="bg-slate-50 border border-purple-200 rounded-3xl p-5">
 <div className="flex items-center justify-between mb-2">
 <div className="flex items-center gap-2">
 <Heart className="w-4 h-4 text-pink-500" />
@@ -1058,8 +1049,9 @@ className="press hover-lift w-full py-4 rounded-2xl text-sm font-black text-whit
 </button>
 
 {/* ── MODALS ── */}
+<Presence open={showReflection}>
 {showReflection && (
-<div className="fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
 style={{animation:"fadeIn .22s ease"}} onClick={() => setShowReflection(false)}>
 <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl"
 style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)",boxShadow:"0 -8px 40px rgba(59,130,246,.15)"}}
@@ -1086,9 +1078,11 @@ className="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-2xl text-sm font-bold
 </div>
 </div>
 )}
+</Presence>
 
+<Presence open={showMoodModal}>
 {showMoodModal && (
-<div className="fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
 style={{animation:"fadeIn .22s ease"}} onClick={() => setShowMoodModal(false)}>
 <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl"
 style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
@@ -1111,9 +1105,11 @@ className="w-full mt-4 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl p
 </div>
 </div>
 )}
+</Presence>
 
+<Presence open={showShareModal}>
 {showShareModal && (
-<div className="fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
 style={{animation:"fadeIn .22s ease"}} onClick={() => setShowShareModal(false)}>
 <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl"
 style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
@@ -1135,10 +1131,12 @@ className="w-full mt-2.5 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl
 </div>
 </div>
 )}
+</Presence>
 
 {/* ── DENTIST VISIT MODAL ── */}
+<Presence open={showDentistModal}>
 {showDentistModal && (
-<div className="fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
 style={{animation:"fadeIn .22s ease"}} onClick={() => setShowDentistModal(false)}>
 <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
 style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
@@ -1197,10 +1195,12 @@ onClick={e => e.stopPropagation()}>
 </div>
 </div>
 )}
+</Presence>
 
 {/* ── ALIGNER SETUP MODAL ── */}
+<Presence open={showAlignerSetup}>
 {showAlignerSetup && (
-<div className="fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
 style={{animation:"fadeIn .22s ease"}} onClick={() => setShowAlignerSetup(false)}>
 <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
 style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
@@ -1258,6 +1258,7 @@ onClick={e => e.stopPropagation()}>
 </div>
 </div>
 )}
+</Presence>
 
 </section>
 );

@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics, isSupported } from "firebase/analytics";
 import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
@@ -33,13 +32,31 @@ try {
 export { messaging };
 
 export let analytics = null;
+const ANALYTICS_CONSENT_KEY = "smilestreak-analytics-consent";
+let analyticsConsentRevision = 0;
 
-if (typeof window !== "undefined") {
-  isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-    }
-  });
+export async function setAnalyticsConsent(allowed) {
+  if (typeof window === "undefined") return;
+  const revision = ++analyticsConsentRevision;
+  localStorage.setItem(ANALYTICS_CONSENT_KEY, allowed ? "granted" : "denied");
+
+  if (!allowed) {
+    if (!analytics) return;
+    const { setAnalyticsCollectionEnabled } = await import("firebase/analytics");
+    if (revision === analyticsConsentRevision) setAnalyticsCollectionEnabled(analytics, false);
+    return;
+  }
+
+  const { isSupported, getAnalytics, setAnalyticsCollectionEnabled } = await import("firebase/analytics");
+  if (revision !== analyticsConsentRevision || localStorage.getItem(ANALYTICS_CONSENT_KEY) !== "granted") return;
+  if (!(await isSupported())) return;
+  if (revision !== analyticsConsentRevision || localStorage.getItem(ANALYTICS_CONSENT_KEY) !== "granted") return;
+  analytics = getAnalytics(app);
+  setAnalyticsCollectionEnabled(analytics, true);
+}
+
+if (typeof window !== "undefined" && localStorage.getItem(ANALYTICS_CONSENT_KEY) === "granted") {
+  setAnalyticsConsent(true).catch((error) => console.warn("Analytics could not be enabled:", error));
 }
 
 export default app;

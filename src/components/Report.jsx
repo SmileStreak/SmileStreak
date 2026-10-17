@@ -304,7 +304,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
   if (translating || Object.keys(translatedText).length === 0) {
     return (
       <div className="space-y-6 pb-8">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+        <div className="page-heading-surface">
           <div className="animate-pulse flex items-center gap-2">
             <BarChart3 className="w-6 h-6" />
             <h2 className="text-2xl font-black">Loading...</h2>
@@ -317,7 +317,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         
@@ -437,7 +437,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
       </div>
 
       {/* Insights */}
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
+      <div className="bg-slate-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
         <div className="flex items-center gap-2 mb-4">
           <Zap className="w-6 h-6 text-purple-600" />
           <h3 className="font-black text-gray-900">{translatedText.personalizedInsights}</h3>

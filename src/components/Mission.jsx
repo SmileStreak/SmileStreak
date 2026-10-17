@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState, useContext, useEffect } from "react";
 import { TranslationContext } from "../App";
+import Presence from "./Presence";
 
 // Fallback components for icons not in your lucide-react version
 const Apple = ({ className }) => <span className={className} role="img" aria-label="Apple">🍎</span>;
@@ -169,7 +170,7 @@ export default function Mission() {
   if (translating || Object.keys(translatedText).length === 0) {
     return (
       <div className="space-y-6 pb-8">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+        <div className="page-heading-surface">
           <div className="animate-pulse flex items-center gap-2">
             <Heart className="w-6 h-6" />
             <h2 className="text-2xl font-black">Loading...</h2>
@@ -182,7 +183,7 @@ export default function Mission() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         
@@ -290,7 +291,7 @@ export default function Mission() {
       </div>
 
       {/* Research-Informed */}
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
+      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
         <div className="flex items-start gap-3 mb-4">
           <div className="w-12 h-12 bg-purple-500 rounded-2xl flex items-center justify-center flex-shrink-0">
             <Microscope className="w-6 h-6 text-white" />
@@ -402,8 +403,9 @@ export default function Mission() {
       </div>
 
       {/* Feedback Modal - FIXED with clean UI */}
-      {showFeedback && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <Presence open={showFeedback}>
+{showFeedback && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -524,6 +526,7 @@ export default function Mission() {
           </div>
         </div>
       )}
+</Presence>
 
       {/* Disclaimer */}
       <div className="bg-yellow-50 p-6 rounded-3xl border-2 border-yellow-200 shadow-lg">

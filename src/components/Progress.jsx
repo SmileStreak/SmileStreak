@@ -5,6 +5,7 @@ import { getDateKey } from "../utils/date";
 import { Trophy, Flame, Calendar, TrendingUp, Award, Lock, Sparkles } from "lucide-react";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { TranslationContext } from "../App";
+import Presence from "./Presence";
 
 export default function Progress({ habitData }) {
   const { t, currentLanguage } = useContext(TranslationContext);
@@ -141,7 +142,7 @@ export default function Progress({ habitData }) {
   return (
     <section className="space-y-6 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         <div className="relative z-10">
@@ -252,9 +253,10 @@ export default function Progress({ habitData }) {
       </div>
 
       {/* Tooltip — pinned modal on mobile tap */}
-      {tooltip && tooltip.pinned && (
+      <Presence open={tooltip && tooltip.pinned}>
+{tooltip && tooltip.pinned && (
         <div
-          className="fixed inset-0 bg-black/20 z-50 flex items-end justify-center pb-8"
+          className="t-modal-backdrop fixed inset-0 bg-black/20 z-50 flex items-end justify-center pb-8"
           onClick={() => setTooltip(null)}
         >
           <div
@@ -284,6 +286,7 @@ export default function Progress({ habitData }) {
           </div>
         </div>
       )}
+</Presence>
 
       {/* Tooltip — hover on desktop */}
       {tooltip && !tooltip.pinned && (
@@ -349,11 +352,11 @@ export default function Progress({ habitData }) {
 
       {/* Next Achievement Tracker */}
       {nextAchievement && (
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-5">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-purple-600" />
+                <Sparkles className="w-4 h-4 text-slate-700" />
                 <p className="font-bold text-gray-900">{texts.nextAchievement || "Next Achievement"}</p>
               </div>
               <p className="text-2xl mb-1">{nextAchievement.icon}</p>
@@ -361,12 +364,12 @@ export default function Progress({ habitData }) {
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-500">{texts.daysNeeded || "Days needed"}</p>
-              <p className="text-3xl font-black text-purple-600">{daysUntilNext}</p>
+              <p className="text-3xl font-black text-slate-700">{daysUntilNext}</p>
             </div>
           </div>
           <div className="relative w-full h-3 bg-purple-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+              className="h-full bg-blue-600 transition-all duration-500"
               style={{ width: `${(completedDays / nextAchievement.requirement) * 100}%` }}
             />
           </div>
@@ -431,9 +434,10 @@ export default function Progress({ habitData }) {
       </div>
 
       {/* Achievement Detail Modal */}
-      {selectedAchievement && (
+      <Presence open={selectedAchievement}>
+{selectedAchievement && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-[fadeIn_0.2s_ease-out]"
+          className="t-modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-[fadeIn_0.2s_ease-out]"
           onClick={() => setSelectedAchievement(null)}
         >
           <div
@@ -461,6 +465,7 @@ export default function Progress({ habitData }) {
           </div>
         </div>
       )}
+</Presence>
 
       {/* Motivational Footer */}
       {completedDays > 0 && (
@@ -486,16 +491,16 @@ export default function Progress({ habitData }) {
 
 function StatCard({ icon, label, value, color, subtitle }) {
   const colorClasses = {
-    blue: "from-blue-500 to-cyan-500",
-    orange: "from-orange-500 to-red-500",
-    yellow: "from-yellow-500 to-orange-500",
-    purple: "from-purple-500 to-pink-500",
+    blue: "bg-slate-100",
+    orange: "bg-slate-100",
+    yellow: "bg-slate-100",
+    purple: "bg-slate-100",
   };
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
       <div className="flex items-center gap-2 mb-3">
-        <div className={`w-8 h-8 bg-gradient-to-br ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
+        <div className={`w-8 h-8 ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
           {icon}
         </div>
       </div>

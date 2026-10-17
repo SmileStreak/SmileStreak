@@ -1,20 +1,37 @@
-import { useEffect, useState, createContext, useCallback, useRef } from "react";
+import { useEffect, useState, createContext, useCallback, useRef, lazy, Suspense } from "react";
+import { flushSync } from "react-dom";
+import "@fontsource-variable/source-sans-3";
+import "@fontsource-variable/newsreader";
 import NavTabs from "./components/NavTabs";
-import Home from "./components/Home";
-import Today from "./components/Today";
-import Progress from "./components/Progress";
-import Tips from "./components/Tips";
-import Reminders from "./components/Reminders";
-import Scan from "./components/Scan";
-import Dentists from "./components/Dentists";
-import Report from "./components/Report";
-import Insights from "./components/Insights";
-import Mission from "./components/Mission";
-import Legal from "./components/Legal";
-import Leaderboard from "./components/Leaderboard";
+import Presence from "./components/Presence";
+const pageLoaders = {
+  home: () => import("./components/Home"),
+  today: () => import("./components/Today"),
+  progress: () => import("./components/Progress"),
+  tips: () => import("./components/Tips"),
+  reminders: () => import("./components/Reminders"),
+  scan: () => import("./components/Scan"),
+  dentists: () => import("./components/Dentists"),
+  report: () => import("./components/Report"),
+  insights: () => import("./components/Insights"),
+  mission: () => import("./components/Mission"),
+  legal: () => import("./components/Legal"),
+};
+const Home = lazy(pageLoaders.home);
+const Today = lazy(pageLoaders.today);
+const Progress = lazy(pageLoaders.progress);
+const Tips = lazy(pageLoaders.tips);
+const Reminders = lazy(pageLoaders.reminders);
+const Scan = lazy(pageLoaders.scan);
+const Dentists = lazy(pageLoaders.dentists);
+const Report = lazy(pageLoaders.report);
+const Insights = lazy(pageLoaders.insights);
+const Mission = lazy(pageLoaders.mission);
+const Legal = lazy(pageLoaders.legal);
+const Leaderboard = lazy(() => import("./components/Leaderboard"));
 import { storage } from "./utils/storage";
 import { scheduleDailyNotifications } from "./utils/scheduleNotifications";
-import { auth, provider, db } from "./firebase";
+import { auth, provider, db, setAnalyticsConsent } from "./firebase";
 import { setupFCMToken, onForegroundMessage } from "./utils/notifications";
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, onSnapshot, collection, query, where, getDocs } from "firebase/firestore";
@@ -24,17 +41,28 @@ import { calculateStreaks, isDayComplete } from "./utils/progress";
 import { ACHIEVEMENTS } from "./data/achievements";
 import { subscribeToLeaderboard } from "./services/leaderboardService";
 import "./App.css";
+import "./motion-tokens.css";
 
 export const TranslationContext = createContext();
 export const ThemeContext = createContext();
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
+  const navigateToTab = useCallback((tab) => {
+    const update = () => flushSync(() => setActiveTab(tab));
+    const transition = () => {
+      if (document.startViewTransition) document.startViewTransition(update);
+      else setActiveTab(tab);
+    };
+    if (pageLoaders[tab]) pageLoaders[tab]().then(transition, transition);
+    else transition();
+  }, []);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [analyticsChoice, setAnalyticsChoice] = useState(() => localStorage.getItem("smilestreak-analytics-consent"));
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -81,6 +109,18 @@ export default function App() {
   const [leagueGroup, setLeagueGroup] = useState(null);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 
+  useEffect(() => {
+    if (!showAccountMenu && !showLanguageMenu) return undefined;
+    const closeMenusOnEscape = (event) => {
+      if (event.key !== "Escape") return;
+      setShowAccountMenu(false);
+      setShowLanguageMenu(false);
+      document.getElementById(showAccountMenu ? "account-menu-trigger" : "language-menu-trigger")?.focus();
+    };
+    document.addEventListener("keydown", closeMenusOnEscape);
+    return () => document.removeEventListener("keydown", closeMenusOnEscape);
+  }, [showAccountMenu, showLanguageMenu]);
+
   const isRemoteUpdate = useRef(false);
   const currentLanguageRef = useRef(currentLanguage);
   const habitDataRef = useRef(habitData);
@@ -110,6 +150,11 @@ export default function App() {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  const chooseAnalytics = async (allowed) => {
+    await setAnalyticsConsent(allowed);
+    setAnalyticsChoice(allowed ? "granted" : "denied");
   };
 
   // SAVE LOCALLY
@@ -173,6 +218,7 @@ export default function App() {
           setDoc(ref, { joinedDate: joined }, { merge: true });
         }
       } else {
+        if (localStorage.getItem("smilestreak-deleting-profile") === "true") return;
         console.log("No user document found, creating new one");
         const joined = new Date().toISOString();
         setJoinedDate(joined);
@@ -585,8 +631,6 @@ export default function App() {
     return null;
   };
 
-  console.log("RENDER - authLoading:", authLoading, "usernameLoaded:", usernameLoaded, "username:", username, "showModal:", showUsernameModal, "hasUser:", !!user);
-
   // ── Don't render anything until auth is done loading ──
   if (authLoading) {
     return null;
@@ -655,7 +699,11 @@ export default function App() {
 
                     <div className="relative">
                       <button
+                        id="language-menu-trigger"
                         onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+                        aria-haspopup="menu"
+                        aria-expanded={showLanguageMenu}
+                        aria-controls="language-menu"
                         className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                           darkMode
                             ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
@@ -668,8 +716,9 @@ export default function App() {
                         <span className="text-xs">{currentLanguage.toUpperCase()}</span>
                       </button>
 
+                      <Presence open={showLanguageMenu}>
                       {showLanguageMenu && (
-                        <div className={`absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 max-h-96 overflow-y-auto ${
+                        <div id="language-menu" role="menu" data-origin="top-right" className={`t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 max-h-96 overflow-y-auto ${
                           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                         }`}>
                           <div className={`px-4 py-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
@@ -678,6 +727,7 @@ export default function App() {
                           {Object.entries(LANGUAGES).map(([code, lang]) => (
                             <button
                               key={code}
+                              role="menuitem"
                               onClick={() => changeLanguage(code)}
                               className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${
                                 darkMode
@@ -699,12 +749,17 @@ export default function App() {
                           ))}
                         </div>
                       )}
+                      </Presence>
                     </div>
 
                     {user ? (
                       <div className="relative">
                         <button
+                          id="account-menu-trigger"
                           onClick={() => setShowAccountMenu(!showAccountMenu)}
+                          aria-haspopup="menu"
+                          aria-expanded={showAccountMenu}
+                          aria-controls="account-menu"
                           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                         >
                           <div className="hidden sm:block text-right">
@@ -720,8 +775,9 @@ export default function App() {
                           />
                         </button>
 
+                        <Presence open={showAccountMenu}>
                         {showAccountMenu && (
-                          <div className={`absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 ${
+                          <div id="account-menu" role="menu" data-origin="top-right" className={`t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 ${
                             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                           }`}>
                             <div className={`px-4 py-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
@@ -804,6 +860,7 @@ export default function App() {
                             </div>
                           </div>
                         )}
+                        </Presence>
                       </div>
                     ) : (
                       <button
@@ -827,19 +884,21 @@ export default function App() {
                   </div>
                 </div>
 
-                <NavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                <NavTabs activeTab={activeTab} setActiveTab={navigateToTab} />
               </div>
             </header>
 
+            <Presence open={showAccountMenu || showLanguageMenu} duration={150}>
             {(showAccountMenu || showLanguageMenu) && (
               <div
-                className="fixed inset-0 z-40"
+                className="t-modal-backdrop fixed inset-0 z-40"
                 onClick={() => {
                   setShowAccountMenu(false);
                   setShowLanguageMenu(false);
                 }}
               />
             )}
+            </Presence>
 
             {translating && (
               <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2">
@@ -850,45 +909,69 @@ export default function App() {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10">
               {/* ── LEADERBOARD ── */}
+              <Presence open={showLeaderboard && !!user}>
               {showLeaderboard && user && (
-                <Leaderboard
-                  user={user}
-                  username={username}
-                  habitData={habitData}
-                  darkMode={darkMode}
-                />
+                <Suspense fallback={null}>
+                  <Leaderboard user={user} username={username} habitData={habitData} darkMode={darkMode} />
+                </Suspense>
               )}
+              </Presence>
 
-              {activeTab === "home" && <Home setActiveTab={setActiveTab} user={user} habitData={habitData} />}
-              {activeTab === "today" && <Today habitData={habitData} setHabitData={setHabitData} user={user} />}
-              {activeTab === "progress" && <Progress habitData={habitData} />}
-              {activeTab === "tips" && <Tips />}
-              {activeTab === "reminders" && <Reminders />}
-              {activeTab === "scan" && <Scan habitData={habitData} setHabitData={setHabitData} />}
-              {activeTab === "dentists" && <Dentists />}
-              {activeTab === "report" && <Report habitData={habitData} />}
-              {activeTab === "insights" && <Insights habitData={habitData} />}
-              {activeTab === "mission" && <Mission />}
-              {activeTab === "legal" && <Legal />}
+              <div className={`app-page app-page--${activeTab}`} style={{ viewTransitionName: "page-content" }}>
+                <Suspense fallback={<div className="page-loading" role="status">Loading page…</div>}>
+                  {activeTab === "home" && <Home setActiveTab={navigateToTab} user={user} habitData={habitData} />}
+                  {activeTab === "today" && <Today habitData={habitData} setHabitData={setHabitData} user={user} />}
+                  {activeTab === "progress" && <Progress habitData={habitData} />}
+                  {activeTab === "tips" && <Tips />}
+                  {activeTab === "reminders" && <Reminders />}
+                  {activeTab === "scan" && <Scan habitData={habitData} setHabitData={setHabitData} />}
+                  {activeTab === "dentists" && <Dentists />}
+                  {activeTab === "report" && <Report habitData={habitData} />}
+                  {activeTab === "insights" && <Insights habitData={habitData} />}
+                  {activeTab === "mission" && <Mission />}
+                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} />}
+                </Suspense>
+              </div>
             </main>
 
             <footer className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 border-t flex items-center justify-between text-xs ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
               <span>SmileStreak</span>
-              <button onClick={() => setShowFeedback(true)} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
-                <MessageCircle className="w-4 h-4" />
-                <span>Send feedback</span>
-              </button>
+              <div className="flex items-center gap-4">
+                <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">Privacy & terms</button>
+                <button onClick={() => { setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">Privacy settings</button>
+                <button onClick={() => setShowFeedback(true)} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Send feedback</span>
+                </button>
+              </div>
             </footer>
 
+            <Presence open={analyticsChoice === null} duration={180}>
+            {analyticsChoice === null && (
+              <aside aria-label="Analytics preference" className={`analytics-consent fixed inset-x-0 bottom-0 z-40 border-t px-4 py-4 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] ${darkMode ? "bg-gray-900 border-gray-700 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}>
+                <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="max-w-3xl text-sm leading-relaxed">
+                    SmileStreak uses local storage for app preferences and progress. Optional Firebase Analytics helps us understand app use. Your choice is saved on this device; you can change it in Privacy settings.
+                  </p>
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" onClick={() => chooseAnalytics(false)} className={`rounded-md border px-3 py-2 text-sm font-medium ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>No thanks</button>
+                    <button type="button" onClick={() => chooseAnalytics(true)} className="rounded-md bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">Allow analytics</button>
+                  </div>
+                </div>
+              </aside>
+            )}
+            </Presence>
+
+            <Presence open={showFeedback}>
             {showFeedback && (
-              <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                <div className={`rounded-3xl max-w-lg w-full p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+              <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                <div role="dialog" aria-modal="true" aria-labelledby="feedback-dialog-title" className={`rounded-3xl max-w-lg w-full p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <MessageCircle className={`w-6 h-6 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-                      <h3 className={`text-xl font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Share Your Feedback</h3>
+                      <h3 id="feedback-dialog-title" className={`text-xl font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Share Your Feedback</h3>
                     </div>
-                    <button onClick={() => setShowFeedback(false)} className={`transition-colors ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+                    <button onClick={() => setShowFeedback(false)} aria-label="Close feedback dialog" className={`transition-colors ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
                       <X className="w-5 h-5" />
                     </button>
                   </div>
@@ -920,20 +1003,25 @@ export default function App() {
                     className="space-y-4"
                   >
                     <div>
-                      <label className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Name (optional)</label>
-                      <input type="text" name="name" placeholder="Your name"
+                      <label htmlFor="feedback-name" className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Name (optional)</label>
+                      <input id="feedback-name" type="text" name="name" placeholder="Your name"
                         className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400 focus:border-blue-500' : 'bg-white border-gray-200 focus:border-blue-400'}`} />
                     </div>
                     <div>
-                      <label className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email (optional)</label>
-                      <input type="email" name="email" placeholder="your@email.com"
+                      <label htmlFor="feedback-email" className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email (optional)</label>
+                      <input id="feedback-email" type="email" name="email" placeholder="your@email.com"
                         className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400 focus:border-blue-500' : 'bg-white border-gray-200 focus:border-blue-400'}`} />
                     </div>
                     <div>
-                      <label className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Your Feedback <span className="text-red-500">*</span></label>
-                      <textarea name="feedback" required rows={5} placeholder="What do you like? What should we improve? Any bugs?"
+                      <label htmlFor="feedback-message" className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Your Feedback <span className="text-red-500">*</span></label>
+                      <textarea id="feedback-message" name="feedback" required rows={5} placeholder="What do you like? What should we improve? Any bugs?"
                         className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none resize-none ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400 focus:border-blue-500' : 'bg-white border-gray-200 focus:border-blue-400'}`} />
                     </div>
+                    <p className={`text-xs leading-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Your name, email, feedback, and selected rating are sent to Formspree and SmileStreak support. Please do not include dental or other sensitive health details.</p>
+                    <label className={`flex items-start gap-2 text-xs leading-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <input type="checkbox" name="feedbackConsent" value="yes" required className="mt-1" />
+                      <span>I agree to send this feedback and contact information for SmileStreak support to respond.</span>
+                    </label>
                     <div>
                       <label className={`block text-sm font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>How useful is SmileStreak?</label>
                       <div className="flex gap-2">
@@ -956,10 +1044,12 @@ export default function App() {
                 </div>
               </div>
             )}
+            </Presence>
 
             {/* ── USERNAME MODAL ── */}
+            <Presence open={usernameLoaded && showUsernameModal && !!user}>
             {usernameLoaded && showUsernameModal && user && (
-              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+              <div className="t-modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                 <div className={`rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
                   <div className="text-center mb-6">
                     <img src={user.photoURL} alt={user.displayName} className="w-16 h-16 rounded-full border-4 border-blue-200 mx-auto mb-3 shadow-lg" />
@@ -1033,10 +1123,12 @@ export default function App() {
                 </div>
               </div>
             )}
+            </Presence>
 
             {/* ── EDIT USERNAME MODAL ── */}
+            <Presence open={showEditUsername && !!user}>
             {showEditUsername && user && (
-              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditUsername(false)}>
+              <div className="t-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditUsername(false)}>
                 <div className={`rounded-3xl w-full max-w-sm p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
                   <div className="flex items-center justify-between mb-5">
                     <h2 className={`text-lg font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Edit Username</h2>
@@ -1108,12 +1200,14 @@ export default function App() {
                 </div>
               </div>
             )}
+            </Presence>
 
             {/* ── PROFILE MODAL ── */}
+            <Presence open={showProfileModal && !!user}>
             {showProfileModal && user && (() => {
               const { currentStreak, longestStreak, perfectDays, completionRate, unlockedAchievements } = getProfileStats();
               return (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowProfileModal(false)}>
+                <div className="t-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowProfileModal(false)}>
                   <div
                     className={`rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm shadow-2xl overflow-y-auto max-h-[90vh] ${darkMode ? 'bg-gray-800' : 'bg-white'}`}
                     onClick={e => e.stopPropagation()}
@@ -1181,6 +1275,7 @@ export default function App() {
                 </div>
               );
             })()}
+            </Presence>
 
           </div>
         </div>

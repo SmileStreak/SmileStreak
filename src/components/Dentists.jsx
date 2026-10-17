@@ -9,6 +9,7 @@ import {
   Thermometer, Plane, GraduationCap, MessageCircle
 } from "lucide-react";
 import { TranslationContext } from "../App";
+import Presence from "./Presence";
 
 const Wheelchair = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -30,64 +31,14 @@ function getDistanceMiles(lat1, lon1, lat2, lon2) {
   return (2 * R * Math.asin(Math.sqrt(a))).toFixed(1);
 }
 
-const getInsuranceEstimate = (dentistName, dentistAddress, selectedInsurance) => {
-  const name = dentistName.toLowerCase();
-  const address = dentistAddress.toLowerCase();
-  
-  // IMPROVED: More flexible detection for Royse City Dental Care
-  if (name.includes('royse') && (name.includes('city') || name.includes('dental'))) {
-    return {
-      accepts: true,
-      confidence: 'high',
-      reason: `✓ Verified Provider - ${dentistName} accepts all major insurance including ${selectedInsurance}. Medicaid & Ortho Provider. Call to Confirm.`,
-      verified: true
-    };
-  }
-  
-  const corporateChains = ['aspen', 'western', 'comfort', 'gentle', 'bright now', 'heartland'];
-  if (corporateChains.some(chain => name.includes(chain))) {
-    return { accepts: true, confidence: 'high', reason: 'Corporate dental chain typically accepts all major insurance plans' };
-  }
-  
-  if (name.includes('community') || name.includes('health center')) {
-    return {
-      accepts: selectedInsurance === 'Medicaid' || selectedInsurance === 'Medicare',
-      confidence: 'high',
-      reason: selectedInsurance === 'Medicaid' || selectedInsurance === 'Medicare' 
-        ? 'Community health centers prioritize government insurance'
-        : 'Limited private insurance - call to verify'
-    };
-  }
-  
-  if (name.includes('university') || name.includes('college') || name.includes('school')) {
-    return { accepts: true, confidence: 'high', reason: 'Dental schools accept most insurance and offer discounted care' };
-  }
-  
-  return { accepts: Math.random() > 0.35, confidence: 'medium', reason: 'Private practice - call to confirm insurance acceptance' };
-};
+const getInsuranceEstimate = () => ({
+  reason: "SmileStreak cannot verify plan-level coverage. Contact your insurer and the dental office to confirm benefits."
+});
 
-// Price estimates for common procedures
-const procedurePriceEstimates = {
-  cleaning: { min: 75, max: 200, unit: "$" },
-  filling: { min: 150, max: 400, unit: "$" },
-  crown: { min: 800, max: 2500, unit: "$" },
-  rootCanal: { min: 700, max: 1500, unit: "$" },
-  extraction: { min: 75, max: 400, unit: "$" },
-  implant: { min: 3000, max: 6000, unit: "$" },
-  whitening: { min: 300, max: 1000, unit: "$" }
-};
+const procedures = ["cleaning", "filling", "crown", "rootCanal", "extraction", "implant", "whitening"];
 
 // Procedure recommendations based on symptoms
-const symptomToProcedure = {
-  "toothache": ["rootCanal", "filling", "extraction"],
-  "sensitive teeth": ["cleaning", "filling", "whitening"],
-  "cracked tooth": ["crown", "extraction", "implant"],
-  "missing tooth": ["implant", "bridge", "denture"],
-  "yellow teeth": ["whitening", "cleaning"],
-  "bleeding gums": ["cleaning", "deep cleaning"],
-  "bad breath": ["cleaning", "deep cleaning"],
-  "jaw pain": ["rootCanal", "extraction", "tmj treatment"]
-};
+const discussionTopics = ["Tooth pain", "Sensitivity", "Chipped tooth", "Missing tooth", "Tooth color", "Bleeding gums", "Bad breath", "Jaw discomfort"];
 
 export default function Dentists() {
   const { t, currentLanguage } = useContext(TranslationContext);
@@ -104,6 +55,7 @@ export default function Dentists() {
   const [translatedText, setTranslatedText] = useState({});
   const [locationError, setLocationError] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedPhotoAttributions, setSelectedPhotoAttributions] = useState([]);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [searchRadius, setSearchRadius] = useState(31);
   const [showFilters, setShowFilters] = useState(false);
@@ -139,8 +91,8 @@ export default function Dentists() {
   const [aiLoading, setAiLoading] = useState(false);
 
   const translationKeys = {
-    title: "Find Dentists", subtitle: "Find a dentist and check your insurance.",
-    yourInsurance: "Your Insurance", selectInsurance: "Select your insurance",
+    title: "Find Dentists", subtitle: "Find nearby dental offices and confirm plan coverage directly.",
+    yourInsurance: "Insurance plan (optional)", selectInsurance: "Select your plan",
     recommended: "Recommended", bestRated: "Best Rated", closest: "Closest",
     loading: "Finding dentists near you...", noDentists: "No dentists found nearby",
     expandSearch: "Try expanding your search radius", openNow: "Open now", closed: "Closed",
@@ -164,7 +116,9 @@ export default function Dentists() {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('favoriteDentists') || '[]');
-    setFavorites(saved);
+    const placeIds = saved.map((item) => typeof item === "string" ? item : item?.id).filter(Boolean);
+    setFavorites(placeIds);
+    localStorage.setItem('favoriteDentists', JSON.stringify(placeIds));
   }, []);
 
   useEffect(() => {
@@ -187,7 +141,7 @@ export default function Dentists() {
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": import.meta.env.VITE_GOOGLE_MAPS_KEY,
-          "X-Goog-FieldMask": "photos,reviews,internationalPhoneNumber,websiteUri,regularOpeningHours,paymentOptions,parkingOptions,accessibilityOptions,businessStatus"
+          "X-Goog-FieldMask": "id,displayName,formattedAddress,location,rating,userRatingCount,currentOpeningHours,photos,photos.authorAttributions,internationalPhoneNumber,websiteUri,regularOpeningHours,paymentOptions,parkingOptions,accessibilityOptions,businessStatus"
         }
       });
       if (!response.ok) throw new Error("Failed to fetch details");
@@ -200,14 +154,21 @@ export default function Dentists() {
     }
   };
 
+  useEffect(() => {
+    if (!showFavorites) return;
+    favorites.forEach((id) => {
+      if (!dentists.some((dentist) => dentist.id === id)) fetchPlaceDetails(id);
+    });
+  }, [showFavorites, favorites, dentists]);
+
   const toggleFavorite = (dentist) => {
-    const isFavorited = favorites.some(f => f.id === dentist.id);
-    let updated = isFavorited ? favorites.filter(f => f.id !== dentist.id) : [...favorites, dentist];
+    const isFavorited = favorites.includes(dentist.id);
+    const updated = isFavorited ? favorites.filter((id) => id !== dentist.id) : [...favorites, dentist.id];
     setFavorites(updated);
     localStorage.setItem('favoriteDentists', JSON.stringify(updated));
   };
 
-  const isFavorite = (dentistId) => favorites.some(f => f.id === dentistId);
+  const isFavorite = (dentistId) => favorites.includes(dentistId);
 
   const toggleCompare = (dentist) => {
     if (selectedForCompare.some(d => d.id === dentist.id)) {
@@ -249,7 +210,7 @@ const askAIAssistant = async () => {
   // NEW: Handle symptom selection for treatment planner
   const handleSymptomChange = (selectedSymptom) => {
     setSymptom(selectedSymptom);
-    setRecommendedProcedures(symptomToProcedure[selectedSymptom] || []);
+    setRecommendedProcedures([]);
   };
 
   // NEW: Filter dentists by accessibility features
@@ -270,501 +231,98 @@ const askAIAssistant = async () => {
     return matches;
   };
 
-  // FETCH UP TO 60 DENTISTS with multiple API calls
+  // Use live Google Places results only; do not replace failures with invented listings or reviews.
   const fetchDentists = async (radius) => {
     setLoading(true);
     setLocationError(false);
-    
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setUserLocation({ latitude, longitude });
-
-        try {
-          const radiusInMeters = Math.min(radius * 1609.34, 50000);
-          let allResults = [];
-          
-          // Fetch in 3 batches to get up to 60 results
-          for (let i = 0; i < 3; i++) {
-            const res = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Goog-Api-Key": import.meta.env.VITE_GOOGLE_MAPS_KEY,
-                "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.currentOpeningHours,places.nationalPhoneNumber,places.websiteUri,places.priceLevel,places.photos,places.businessStatus,places.accessibilityOptions,places.paymentOptions,places.parkingOptions,places.regularOpeningHours"
-              },
-              body: JSON.stringify({
-                includedTypes: ["dentist"],
-                maxResultCount: 20,
-                locationRestriction: {
-                  circle: { center: { latitude, longitude }, radius: radiusInMeters }
-                }
-              })
-            });
-
-            if (!res.ok) throw new Error(`API Error: ${res.status}`);
-            const json = await res.json();
-            const data = json.places || [];
-            if (data.length === 0) break;
-            allResults = [...allResults, ...data];
-            if (data.length < 20) break;
-          }
-
-          const uniqueResults = Array.from(new Map(allResults.map(item => [item.id, item])).values());
-
-          const enriched = uniqueResults.map((d) => {
-            const lat = d.location?.latitude;
-            const lng = d.location?.longitude;
-            const distance = lat && lng ? getDistanceMiles(latitude, longitude, lat, lng) : null;
-            const nameLower = d.displayName?.text?.toLowerCase() || "";
-            
-            const isRoyseCity = 
-              nameLower.includes("royse") && 
-              (nameLower.includes("city") || 
-               nameLower.includes("dental") || 
-               nameLower.includes("dentist") ||
-               nameLower.includes("family") ||
-               nameLower.includes("care"));
-
-            // Extract accessibility options
-            const accessibility = {};
-            if (d.accessibilityOptions) {
-              accessibility.wheelchairEntrance = d.accessibilityOptions.wheelchairAccessibleEntrance || false;
-              accessibility.wheelchairParking = d.accessibilityOptions.wheelchairAccessibleParking || false;
-              accessibility.wheelchairRestroom = d.accessibilityOptions.wheelchairAccessibleRestroom || false;
-              accessibility.wheelchairSeating = d.accessibilityOptions.wheelchairAccessibleSeating || false;
-            }
-
-            // Extract payment options
-            const paymentOptions = {};
-            if (d.paymentOptions) {
-              paymentOptions.creditCards = d.paymentOptions.acceptsCreditCards || false;
-              paymentOptions.debitCards = d.paymentOptions.acceptsDebitCards || false;
-              paymentOptions.nfcMobilePayments = d.paymentOptions.acceptsNfc || false;
-              paymentOptions.cash = d.paymentOptions.acceptsCash || false;
-              paymentOptions.insurance = d.paymentOptions.acceptsInsurance || false;
-            }
-
-            // Extract hours
-            const hours = {};
-            if (d.regularOpeningHours?.weekdayDescriptions) {
-              d.regularOpeningHours.weekdayDescriptions.forEach(desc => {
-                const [day, time] = desc.split(': ');
-                hours[day] = time || 'Closed';
-              });
-            }
-
-            // Generate photo URLs
-            const photos = d.photos?.map(photo => ({
-              name: photo.name,
-              url: `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=400&maxWidthPx=400&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`
-            })) || [];
-
-            return {
-              id: d.id, 
-              name: d.displayName?.text || "Unknown",
-              address: d.formattedAddress || "No address",
-              rating: d.rating, 
-              review_count: d.userRatingCount || 0,
-              lat, lng, 
-              openNow: d.currentOpeningHours?.openNow,
-              phone: d.nationalPhoneNumber, 
-              website: d.websiteUri,
-              mapsLink: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(d.displayName?.text || '')}&destination_place_id=${d.id}`,
-              distance: distance ? parseFloat(distance) : null,
-              priceLevel: d.priceLevel || null, 
-              photos: photos,
-              businessStatus: d.businessStatus, 
-              isRoyseCity,
-              accessibility,
-              paymentOptions,
-              hours,
-              // NEW: Enhanced dentist profile fields
-              dentists: [
-                { name: "Dr. John Smith", specialty: "General Dentistry", yearsExperience: 15, languages: ["English", "Spanish"] },
-                { name: "Dr. Sarah Johnson", specialty: "Orthodontics", yearsExperience: 10, languages: ["English"] }
-              ], // Placeholder - would come from API/database
-              languages: ["English", "Spanish"], // Placeholder
-              sedationOptions: ["Nitrous Oxide", "Oral Sedation"],
-              pediatricSpecialty: Math.random() > 0.5,
-              anxietyFriendly: Math.random() > 0.5,
-              travelFriendly: Math.random() > 0.5,
-              // Add default empty objects for other fields to prevent undefined errors
-              offerings: {},
-              amenities: {},
-              planning: {},
-              insuranceAccepted: {},
-              specialDesignations: {},
-              providerInfo: {},
-              knowBeforeYouGo: []
-            };
-          });
-
-          // MANUALLY ADD ROYSE CITY DENTAL CARE WITH ALL DETAILS FROM SCREENSHOTS
-          
-          // Calculate accurate distance if we have user location
-          let royseCityDistance = null;
-          if (userLocation) {
-            // Exact coordinates for Royse City Dental Care from the address
-            // 522 TX-66, Royse City, TX 75189
-            royseCityDistance = getDistanceMiles(
-              userLocation.latitude, 
-              userLocation.longitude, 
-              32.9751, // Approximate latitude for Royse City
-              -96.3327 // Approximate longitude for Royse City
-            );
-          }
-
-          // Sample reviews from screenshots
-          const royseCityReviews = [
-            {
-              author: "Francisco Arellano",
-              rating: 5,
-              text: "I've been coming to this dental office for about 3 years now, and I've always had a great experience. The staff is really nice, welcoming, and genuinely helpful. They make you feel comfortable and explain everything thoroughly.",
-              time: "3 weeks ago",
-              isLocalGuide: true
-            },
-            {
-              author: "Keyri Marquez",
-              rating: 5,
-              text: "Amazing experience! The team is professional and caring. They got me in quickly for an urgent issue and took great care of me.",
-              time: "a month ago",
-              isLocalGuide: false
-            }
-          ];
-
-          const royseCityDental = {
-            id: "royse-city-dental-care-premier",
-            name: "Royse City Dental Care",
-            address: "522 TX-66, Royse City, TX 75189",
-            rating: 4.9,
-            review_count: 1103,
-            distance: royseCityDistance ? parseFloat(royseCityDistance) : 15.5,
-            openNow: true,
-            phone: "(972) 636-2417",
-            website: "https://roysecitydentalcare.com",
-            mapsLink: `https://www.google.com/maps/dir/?api=1&destination=Royse+City+Dental+Care&destination_place_id=ChIJ_royse_city_placeholder`,
-            isRoyseCity: true,
-            photos: [], // No photos
-            businessStatus: "OPERATIONAL",
-            priceLevel: 2, // $$ moderate
-            lat: 32.9751,
-            lng: -96.3327,
-            
-            // COMPREHENSIVE DETAILS FROM SCREENSHOTS
-            hours: {
-              Monday: "7 AM–7 PM",
-              Tuesday: "7 AM–7 PM",
-              Wednesday: "7 AM–5 PM",
-              Thursday: "7 AM–7 PM",
-              Friday: "7 AM–2 PM",
-              Saturday: "Closed",
-              Sunday: "Closed"
-            },
-            
-            // Service options
-            serviceOptions: {
-              onsiteServices: true,
-              telehealth: false
-            },
-            
-            // Accessibility features
-            accessibility: {
-              wheelchairEntrance: true,
-              wheelchairParking: true,
-              wheelchairRestroom: true,
-              wheelchairSeating: true
-            },
-            
-            // Offerings
-            offerings: {
-              cosmeticDentistry: true,
-              pediatricCare: true,
-              sedationDentistry: true,
-              teethWhitening: true,
-              cleanings: true,
-              sealants: true,
-              comprehensiveDentalCare: true,
-              emergencyDentalCare: true,
-              orthodontics: true,
-              dentalImplants: true,
-              crowns: true,
-              bridges: true,
-              rootCanal: true,
-              dentures: true,
-              oralSurgery: true,
-              periodontics: true,
-              endodontics: true
-            },
-            
-            // Amenities
-            amenities: {
-              restroom: true,
-              wifi: false,
-              coffee: false,
-              parking: true,
-              freeParking: true,
-              streetParking: false
-            },
-            
-            // Planning
-            planning: {
-              appointmentRequired: true,
-              appointmentsRecommended: true,
-              acceptsWalkIns: false,
-              onlineAppointments: true
-            },
-            
-            // Payments
-            paymentOptions: {
-              creditCards: true,
-              debitCards: true,
-              nfcMobilePayments: true, // Apple Pay, Google Pay
-              paymentPlans: true,
-              insurance: true,
-              cash: true,
-              check: false,
-              careCredit: true
-            },
-            
-            // Insurance specifics
-            insuranceAccepted: {
-              deltaDental: true,
-              aetna: true,
-              cigna: true,
-              metLife: true,
-              unitedHealthcare: true,
-              medicaid: true,
-              medicare: true,
-              blueCrossBlueShield: true,
-              guardian: true,
-              humana: true
-            },
-            
-            // Special designations
-            specialDesignations: {
-              medicaidProvider: true,
-              orthoProvider: true,
-              emergencyProvider: true
-            },
-            
-            // Languages
-            languages: ["English", "Spanish"],
-            
-            // Provider info
-            providerInfo: {
-              acceptingNewPatients: true,
-              emergencyAppointments: true,
-              walkInFriendly: false,
-              virtualConsultations: false
-            },
-            
-            // Know before you go (from screenshots)
-            knowBeforeYouGo: [
-              "They work with cash pay clients and offer many options",
-              "People say they can get you in quickly for urgent issues",
-              "Medicaid and Ortho Provider",
-              "Friendly and caring staff (419 mentions)",
-              "Caring staff (69 mentions)",
-              "New patients welcome"
-            ],
-            
-            // Reviews array
-            reviews: royseCityReviews,
-            
-            // NEW: Enhanced fields for Royse City
-            dentists: [
-              { name: "Dr. Smith", specialty: "General Dentistry", yearsExperience: 20, languages: ["English", "Spanish"] },
-              { name: "Dr. Rodriguez", specialty: "Orthodontics", yearsExperience: 15, languages: ["English", "Spanish"] }
-            ],
-            sedationOptions: ["Nitrous Oxide", "Oral Sedation"],
-            pediatricSpecialty: true,
-            anxietyFriendly: true,
-            travelFriendly: true
-          };
-
-          // Combine and ensure Royse City is at the beginning
-          const otherDentists = enriched.filter(d => !d.isRoyseCity);
-          setDentists([royseCityDental, ...otherDentists]);
-
-        } catch (err) {
-          console.error("Fetch error:", err);
-          // Even if API fails, still show Royse City with all details
-          const royseCityDental = {
-            id: "royse-city-dental-care-premier",
-            name: "Royse City Dental Care",
-            address: "522 TX-66, Royse City, TX 75189",
-            rating: 4.9,
-            review_count: 1103,
-            distance: 15.5,
-            openNow: true,
-            phone: "(972) 636-2417",
-            website: "https://roysecitydentalcare.com",
-            mapsLink: `https://www.google.com/maps/dir/?api=1&destination=Royse+City+Dental+Care&destination_place_id=ChIJ_royse_city_placeholder`,
-            isRoyseCity: true,
-            photos: [],
-            businessStatus: "OPERATIONAL",
-            priceLevel: 2,
-            lat: 32.9751,
-            lng: -96.3327,
-            hours: {
-              Monday: "7 AM–7 PM",
-              Tuesday: "7 AM–7 PM",
-              Wednesday: "7 AM–5 PM",
-              Thursday: "7 AM–7 PM",
-              Friday: "7 AM–2 PM",
-              Saturday: "Closed",
-              Sunday: "Closed"
-            },
-            serviceOptions: { onsiteServices: true },
-            accessibility: {
-              wheelchairEntrance: true,
-              wheelchairParking: true,
-              wheelchairRestroom: true
-            },
-            offerings: {
-              cosmeticDentistry: true,
-              pediatricCare: true,
-              sedationDentistry: true,
-              teethWhitening: true,
-              cleanings: true,
-              sealants: true
-            },
-            amenities: { restroom: true, parking: true, freeParking: true },
-            planning: { appointmentRequired: true, appointmentsRecommended: true },
-            paymentOptions: {
-              creditCards: true,
-              debitCards: true,
-              nfcMobilePayments: true,
-              paymentPlans: true,
-              insurance: true,
-              cash: true
-            },
-            insuranceAccepted: {
-              medicaid: true,
-              medicare: true
-            },
-            specialDesignations: {
-              medicaidProvider: true,
-              orthoProvider: true,
-              emergencyProvider: true
-            },
-            languages: ["English", "Spanish"],
-            providerInfo: {
-              acceptingNewPatients: true,
-              emergencyAppointments: true
-            },
-            knowBeforeYouGo: [
-              "They work with cash pay clients and offer many options",
-              "People say they can get you in quickly for urgent issues",
-              "Medicaid and Ortho Provider"
-            ],
-            dentists: [
-              { name: "Dr. Smith", specialty: "General Dentistry", yearsExperience: 20, languages: ["English", "Spanish"] }
-            ],
-            sedationOptions: ["Nitrous Oxide"],
-            pediatricSpecialty: true,
-            anxietyFriendly: true,
-            travelFriendly: true
-          };
-          setDentists([royseCityDental]);
-        } finally {
-          setLoading(false);
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+      const { latitude, longitude } = position.coords;
+      setUserLocation({ latitude, longitude });
+      const response = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": import.meta.env.VITE_GOOGLE_MAPS_KEY,
+          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.currentOpeningHours,places.nationalPhoneNumber,places.websiteUri,places.priceLevel,places.photos,places.photos.authorAttributions,places.businessStatus,places.accessibilityOptions,places.paymentOptions,places.parkingOptions,places.regularOpeningHours"
+        },
+        body: JSON.stringify({
+          includedTypes: ["dentist"],
+          maxResultCount: 20,
+          locationRestriction: { circle: { center: { latitude, longitude }, radius: Math.min(radius * 1609.34, 50000) } }
+        })
+      });
+      if (!response.ok) throw new Error(`Google Places API error: ${response.status}`);
+      const result = await response.json();
+      const places = result.places || [];
+      const dentists = places.map((place) => {
+        const lat = place.location?.latitude;
+        const lng = place.location?.longitude;
+        const accessibility = {};
+        if (place.accessibilityOptions) {
+          accessibility.wheelchairEntrance = place.accessibilityOptions.wheelchairAccessibleEntrance || false;
+          accessibility.wheelchairParking = place.accessibilityOptions.wheelchairAccessibleParking || false;
+          accessibility.wheelchairRestroom = place.accessibilityOptions.wheelchairAccessibleRestroom || false;
+          accessibility.wheelchairSeating = place.accessibilityOptions.wheelchairAccessibleSeating || false;
         }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        // Even with location error, show Royse City with all details
-        const royseCityDental = {
-          id: "royse-city-dental-care-premier",
-          name: "Royse City Dental Care",
-          address: "522 TX-66, Royse City, TX 75189",
-          rating: 4.9,
-          review_count: 1103,
-          distance: 15.5,
-          openNow: true,
-          phone: "(972) 636-2417",
-          website: "https://roysecitydentalcare.com",
-          mapsLink: `https://www.google.com/maps/dir/?api=1&destination=Royse+City+Dental+Care&destination_place_id=ChIJ_royse_city_placeholder`,
-          isRoyseCity: true,
-          photos: [],
-          businessStatus: "OPERATIONAL",
-          priceLevel: 2,
-          lat: 32.9751,
-          lng: -96.3327,
-          hours: {
-            Monday: "7 AM–7 PM",
-            Tuesday: "7 AM–7 PM",
-            Wednesday: "7 AM–5 PM",
-            Thursday: "7 AM–7 PM",
-            Friday: "7 AM–2 PM",
-            Saturday: "Closed",
-            Sunday: "Closed"
-          },
-          serviceOptions: { onsiteServices: true },
-          accessibility: {
-            wheelchairEntrance: true,
-            wheelchairParking: true,
-            wheelchairRestroom: true
-          },
-          offerings: {
-            cosmeticDentistry: true,
-            pediatricCare: true,
-            sedationDentistry: true,
-            teethWhitening: true,
-            cleanings: true,
-            sealants: true
-          },
-          amenities: { restroom: true, parking: true, freeParking: true },
-          planning: { appointmentRequired: true, appointmentsRecommended: true },
-          paymentOptions: {
-            creditCards: true,
-            debitCards: true,
-            nfcMobilePayments: true,
-            paymentPlans: true,
-            insurance: true,
-            cash: true
-          },
-          insuranceAccepted: {
-            medicaid: true,
-            medicare: true
-          },
-          specialDesignations: {
-            medicaidProvider: true,
-            orthoProvider: true,
-            emergencyProvider: true
-          },
-          languages: ["English", "Spanish"],
-          providerInfo: {
-            acceptingNewPatients: true,
-            emergencyAppointments: true
-          },
-          knowBeforeYouGo: [
-            "They work with cash pay clients and offer many options",
-            "People say they can get you in quickly for urgent issues",
-            "Medicaid and Ortho Provider"
-          ],
-          reviews: [
-            {
-              author: "Francisco Arellano",
-              rating: 5,
-              text: "I've been coming to this dental office for about 3 years now, and I've always had a great experience.",
-              time: "3 weeks ago"
-            }
-          ],
-          dentists: [
-            { name: "Dr. Smith", specialty: "General Dentistry", yearsExperience: 20, languages: ["English", "Spanish"] }
-          ],
-          sedationOptions: ["Nitrous Oxide"],
-          pediatricSpecialty: true,
-          anxietyFriendly: true,
-          travelFriendly: true
+        const paymentOptions = {};
+        if (place.paymentOptions) {
+          paymentOptions.creditCards = place.paymentOptions.acceptsCreditCards || false;
+          paymentOptions.debitCards = place.paymentOptions.acceptsDebitCards || false;
+          paymentOptions.nfcMobilePayments = place.paymentOptions.acceptsNfc || false;
+          paymentOptions.cash = place.paymentOptions.acceptsCash || false;
+          paymentOptions.insurance = place.paymentOptions.acceptsInsurance || false;
+        }
+        const hours = {};
+        place.regularOpeningHours?.weekdayDescriptions?.forEach((description) => {
+          const [day, time] = description.split(": ");
+          hours[day] = time || "Closed";
+        });
+        const photos = place.photos?.map((photo) => ({
+          name: photo.name,
+          url: `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=400&maxWidthPx=400&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`,
+          authorAttributions: photo.authorAttributions || []
+        })) || [];
+        const name = place.displayName?.text || "Unknown";
+        return {
+          id: place.id,
+          name,
+          address: place.formattedAddress || "No address",
+          rating: place.rating,
+          review_count: place.userRatingCount || 0,
+          lat,
+          lng,
+          openNow: place.currentOpeningHours?.openNow,
+          phone: place.nationalPhoneNumber,
+          website: place.websiteUri,
+          mapsLink: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(name)}&destination_place_id=${place.id}`,
+          distance: lat && lng ? Number(getDistanceMiles(latitude, longitude, lat, lng)) : null,
+          priceLevel: place.priceLevel || null,
+          photos,
+          businessStatus: place.businessStatus,
+          isRoyseCity: name.toLowerCase().includes("royse"),
+          accessibility,
+          paymentOptions,
+          hours,
+          offerings: {},
+          amenities: {},
+          planning: {},
+          insuranceAccepted: {},
+          specialDesignations: {},
+          providerInfo: {},
+          knowBeforeYouGo: []
         };
-        setDentists([royseCityDental]);
-        setLocationError(true);
-        setLoading(false);
-      }
-    );
+      });
+      setDentists(dentists);
+    } catch (error) {
+      console.error("Unable to load nearby dentists:", error);
+      setDentists([]);
+      if (error?.code) setLocationError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -821,9 +379,6 @@ const askAIAssistant = async () => {
   const sortedDentists = getSortedDentists();
 
   const getBadge = (dentist) => {
-    if (dentist.isRoyseCity) {
-      return { text: "⭐ #1 Recommended", color: "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg" };
-    }
     if (dentist.rating >= 4.8 && dentist.review_count >= 50) {
       return { text: "🏆 Highly Rated", color: "bg-blue-100 text-blue-700" };
     }
@@ -843,19 +398,10 @@ const askAIAssistant = async () => {
     return null;
   };
 
-  const getConfidenceColor = (confidence) => {
-    switch(confidence) {
-      case 'high': return 'text-emerald-600 bg-emerald-50';
-      case 'medium': return 'text-amber-600 bg-amber-50';
-      case 'low': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-500 bg-gray-50';
-    }
-  };
-
   if (Object.keys(translatedText).length === 0) {
     return (
       <section className="space-y-6 pb-8">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-[2.5rem] p-8 shadow-xl">
+        <div className="page-heading-surface page-heading-large">
           <div className="animate-pulse flex items-center gap-3">
             <MapPin className="w-7 h-7" />
             <h2 className="text-3xl font-black">Loading...</h2>
@@ -868,7 +414,7 @@ const askAIAssistant = async () => {
   return (
     <section className="space-y-6 pb-8">
       {/* HEADER */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface page-heading-large relative overflow-hidden">
         <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16" />
         <div className="relative z-10">
@@ -893,14 +439,14 @@ const askAIAssistant = async () => {
                 <button
                   onClick={() => setShowPriceEstimator(!showPriceEstimator)}
                   className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105"
-                  title="Price Estimator"
+                  title="Treatment cost questions"
                 >
                   <DollarSign className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setShowTreatmentPlanner(!showTreatmentPlanner)}
                   className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105"
-                  title="Treatment Planner"
+                  title="Dental visit prep"
                 >
                   <Calendar className="w-5 h-5" />
                 </button>
@@ -923,15 +469,17 @@ const askAIAssistant = async () => {
             </div>
           </div>
           <div className="relative">
+            <label htmlFor="dentist-search" className="sr-only">Search dentists by name</label>
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by name..." className="w-full pl-14 pr-5 py-4 bg-white/20 backdrop-blur-sm rounded-2xl text-white placeholder-white/60 focus:outline-none focus:bg-white/30 transition-all text-base" />
+            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by name..." className="w-full pl-14 pr-5 py-4 bg-white/20 backdrop-blur-sm rounded-2xl text-white placeholder-white/60 focus:outline-none focus:bg-white/30 transition-all text-base" />
           </div>
         </div>
       </div>
 
       {/* NEW: AI Assistant Modal */}
-      {showAIAssistant && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+      <Presence open={showAIAssistant}>
+{showAIAssistant && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -973,15 +521,17 @@ const askAIAssistant = async () => {
           </div>
         </div>
       )}
+</Presence>
 
       {/* NEW: Price Estimator Modal */}
-      {showPriceEstimator && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+      <Presence open={showPriceEstimator}>
+{showPriceEstimator && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <DollarSign className="w-6 h-6 text-blue-600" />
-                <h3 className="text-2xl font-black text-gray-900">Price Estimator</h3>
+                <h3 className="text-2xl font-black text-gray-900">Treatment cost questions</h3>
               </div>
               <button onClick={() => setShowPriceEstimator(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
@@ -995,7 +545,7 @@ const askAIAssistant = async () => {
                   onChange={(e) => setSelectedProcedure(e.target.value)}
                   className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none"
                 >
-                  {Object.keys(procedurePriceEstimates).map(proc => (
+                  {procedures.map(proc => (
                     <option key={proc} value={proc}>
                       {proc.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                     </option>
@@ -1004,36 +554,34 @@ const askAIAssistant = async () => {
               </div>
               {selectedProcedure && (
                 <div className="bg-blue-50 p-6 rounded-xl">
-                  <p className="text-sm text-gray-600 mb-2">Estimated Price Range</p>
-                  <p className="text-3xl font-black text-blue-600">
-                    ${procedurePriceEstimates[selectedProcedure].min} - ${procedurePriceEstimates[selectedProcedure].max}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">*Prices vary by location and dentist. Contact office for exact pricing.</p>
+                  <p className="text-sm text-gray-700">Prices depend on the office, your care plan, and insurance benefits. Call the dental office for a written estimate.</p>
                 </div>
               )}
               <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
                 <p className="text-xs font-bold text-amber-800 mb-1">💡 Tip</p>
-                <p className="text-xs text-amber-700">Dental schools often offer discounted procedures. Check the "Dental Schools" filter!</p>
+                <p className="text-xs text-amber-700">Ask the dental office about costs, insurance, and available payment options before booking.</p>
               </div>
             </div>
           </div>
         </div>
       )}
+</Presence>
 
       {/* NEW: Treatment Planner Modal */}
-      {showTreatmentPlanner && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+      <Presence open={showTreatmentPlanner}>
+{showTreatmentPlanner && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Calendar className="w-6 h-6 text-blue-600" />
-                <h3 className="text-2xl font-black text-gray-900">Treatment Planner</h3>
+                <h3 className="text-2xl font-black text-gray-900">Dental visit prep</h3>
               </div>
               <button onClick={() => setShowTreatmentPlanner(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <p className="text-sm text-gray-600 mb-4">What symptoms are you experiencing?</p>
+            <p className="text-sm text-gray-600 mb-4">Choose a topic you may want to discuss with a dental professional.</p>
             <div className="space-y-4">
               <select
                 value={symptom}
@@ -1041,33 +589,22 @@ const askAIAssistant = async () => {
                 className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none"
               >
                 <option value="">Select a symptom...</option>
-                {Object.keys(symptomToProcedure).map(sym => (
+                {discussionTopics.map(sym => (
                   <option key={sym} value={sym}>
                     {sym.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                   </option>
                 ))}
               </select>
-              {recommendedProcedures.length > 0 && (
-                <div className="bg-blue-50 p-6 rounded-xl">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Recommended Procedures:</p>
-                  <div className="space-y-2">
-                    {recommendedProcedures.map(proc => (
-                      <div key={proc} className="flex items-center justify-between p-2 bg-white rounded-lg">
-                        <span className="font-medium text-gray-900">
-                          {proc.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                        </span>
-                        <span className="text-sm text-blue-600">
-                          ${procedurePriceEstimates[proc]?.min} - ${procedurePriceEstimates[proc]?.max}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              {symptom && (
+                <div role="status" className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+                  SmileStreak cannot determine a diagnosis or recommend treatment from a symptom. Contact a licensed dental professional for advice; if you are experiencing a severe or urgent problem, seek prompt care.
                 </div>
               )}
             </div>
           </div>
         </div>
       )}
+</Presence>
 
       {/* IMPROVED: Cleaner Filters UI */}
       {showFilters && !locationError && (
@@ -1241,6 +778,7 @@ const askAIAssistant = async () => {
       {/* DENTIST CARDS */}
       {!locationError && (
         <div className="space-y-4">
+          <p className="px-1 text-xs leading-5 text-slate-600">Business listings, ratings, and photos provided by <span className="font-semibold">Google Maps</span>. Ratings and availability can change; confirm details with the dental office. Google checks for and removes fake reviews when identified, but does not verify every review. <a href="https://support.google.com/contributionpolicy/answer/7422880?hl=en" target="_blank" rel="noreferrer" className="underline underline-offset-2">Google Maps review policy</a>.</p>
           {sortedDentists.map((d) => {
             const estimate = insuranceEstimates[d.id];
             const badge = getBadge(d);
@@ -1254,7 +792,7 @@ const askAIAssistant = async () => {
                       {d.photos.slice(0, 4).map((photo, idx) => {
                         const photoUrl = getPhotoUrl(photo);
                         return photoUrl ? (
-                          <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setShowPhotoModal(true); }} className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden hover:scale-105 transition-transform">
+                          <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setShowPhotoModal(true); }} className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden hover:scale-105 transition-transform">
                             <img src={photoUrl} alt={`${d.name} photo ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" 
                               onError={(e) => {
                                 e.target.onerror = null;
@@ -1345,9 +883,9 @@ const askAIAssistant = async () => {
                         <Zap className="w-3 h-3" /> NFC Payments
                       </span>
                     )}
-                    {d.paymentOptions?.insurance && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">
-                        <Shield className="w-3 h-3" /> Insurance Accepted
+                      {d.paymentOptions?.insurance && (
+                      <span title="Google Maps lists insurance payments; ask the office whether your specific plan is accepted." className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">
+                        <Shield className="w-3 h-3" /> Insurance payment listed
                       </span>
                     )}
                     {/* NEW: Additional amenity icons */}
@@ -1390,12 +928,11 @@ const askAIAssistant = async () => {
                 )}
                 
                 {insurance && estimate && (
-                  <div className={`flex items-start gap-3 p-4 rounded-xl mb-4 ${estimate.accepts ? 'bg-emerald-50 border-2 border-emerald-200' : 'bg-amber-50'}`}>
-                    {estimate.accepts ? <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> : <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />}
+                  <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-700" />
                     <div className="flex-1">
-                      <p className={`text-sm font-bold ${estimate.accepts ? 'text-emerald-700' : 'text-amber-700'}`}>{estimate.accepts ? `✓ ${translatedText.likelyAccepts} ${insurance}` : `${translatedText.mayNotAccept} ${insurance}`}</p>
+                      <p className="text-sm font-bold text-amber-800">Plan coverage is unverified</p>
                       <p className="text-xs text-gray-700 mt-1">{estimate.reason}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${getConfidenceColor(estimate.confidence)} inline-block mt-2`}>{estimate.confidence} confidence</span>
                     </div>
                   </div>
                 )}
@@ -1411,16 +948,27 @@ const askAIAssistant = async () => {
       )}
 
       {/* PHOTO MODAL */}
-      {showPhotoModal && selectedPhoto && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}>
-          <button className="absolute top-4 right-4 text-white hover:text-gray-300" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}><X className="w-8 h-8" /></button>
-          <img src={selectedPhoto} alt="Dentist office" className="max-w-full max-h-[90vh] rounded-2xl" />
+      <Presence open={showPhotoModal && selectedPhoto}>
+{showPhotoModal && selectedPhoto && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center gap-3 p-4" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}>
+          <button aria-label="Close photo" className="absolute top-4 right-4 text-white hover:text-gray-300" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}><X className="w-8 h-8" /></button>
+          <img onClick={(event) => event.stopPropagation()} src={selectedPhoto} alt="Dental office photo from Google Maps" className="max-w-full max-h-[82vh] rounded-xl" />
+          <p className="max-w-full text-center text-sm text-white">
+            {selectedPhotoAttributions.length ? selectedPhotoAttributions.map((author, index) => (
+              <React.Fragment key={`${author.displayName}-${index}`}>
+                {index > 0 ? ", " : "Photo by "}
+                {author.uri ? <a href={author.uri} target="_blank" rel="noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a> : author.displayName}
+              </React.Fragment>
+            )) : ""} · Google Maps
+          </p>
         </div>
       )}
+</Presence>
 
       {/* DETAILS MODAL */}
-      {selectedDentist && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <Presence open={selectedDentist}>
+{selectedDentist && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-black text-gray-900">{selectedDentist.name}</h3>
@@ -1591,7 +1139,7 @@ const askAIAssistant = async () => {
                     {selectedDentist.photos.slice(0, 6).map((photo, idx) => {
                       const photoUrl = getPhotoUrl(photo);
                       return photoUrl ? (
-                        <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setShowPhotoModal(true); }} className="aspect-square rounded-xl overflow-hidden hover:scale-105 transition-transform">
+                        <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setShowPhotoModal(true); }} className="aspect-square rounded-xl overflow-hidden hover:scale-105 transition-transform">
                           <img src={photoUrl} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" 
                             onError={(e) => {
                               e.target.onerror = null;
@@ -1610,10 +1158,12 @@ const askAIAssistant = async () => {
           </div>
         </div>
       )}
+</Presence>
 
       {/* FAVORITES MODAL */}
-      {showFavorites && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <Presence open={showFavorites}>
+{showFavorites && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-black text-gray-900">{translatedText.savedDentists}</h3>
@@ -1623,25 +1173,32 @@ const askAIAssistant = async () => {
               <p className="text-gray-500 text-center py-8">No saved dentists yet</p>
             ) : (
               <div className="space-y-3">
-                {favorites.map(d => (
-                  <div key={d.id} className="p-4 bg-gray-50 rounded-xl flex justify-between items-start">
+                {favorites.map(id => {
+                  const dentist = dentists.find((item) => item.id === id);
+                  const details = placeDetails[id];
+                  const name = dentist?.name || details?.displayName?.text || "Saved dental office";
+                  const address = dentist?.address || details?.formattedAddress || "Current listing details load when nearby search returns this office.";
+                  return (
+                  <div key={id} className="p-4 bg-gray-50 rounded-xl flex justify-between items-start">
                     <div>
-                      <p className="font-bold text-gray-900">{d.name}</p>
-                      <p className="text-sm text-gray-600">{d.address}</p>
-                      {d.distance && <p className="text-xs text-blue-600 mt-1">{d.distance} miles away</p>}
+                      <p className="font-bold text-gray-900">{name}</p>
+                      <p className="text-sm text-gray-600">{address}</p>
+                      {dentist?.distance && <p className="text-xs text-blue-600 mt-1">{dentist.distance} miles away</p>}
                     </div>
-                    <button onClick={() => toggleFavorite(d)} className="text-red-500 hover:text-red-600"><X className="w-5 h-5" /></button>
+                    <button aria-label={`Remove ${name} from saved dentists`} onClick={() => toggleFavorite({ id })} className="text-red-500 hover:text-red-600"><X className="w-5 h-5" /></button>
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </div>
         </div>
       )}
+</Presence>
 
       {/* COMPARE MODAL */}
-      {showCompare && selectedForCompare.length > 0 && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <Presence open={showCompare && selectedForCompare.length > 0}>
+{showCompare && selectedForCompare.length > 0 && (
+        <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] max-w-4xl w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-black text-gray-900">Compare Dentists</h3>
@@ -1671,6 +1228,7 @@ const askAIAssistant = async () => {
           </div>
         </div>
       )}
+</Presence>
     </section>
   );
 }

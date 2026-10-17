@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import Presence from "./Presence";
+import { ChevronDown } from "lucide-react";
 
 const primaryTabs = ["Home", "Today", "Progress", "Reminders"];
 const moreTabs = ["Tips", "Scan", "Dentists", "Insights", "Report", "Mission", "Legal"];
@@ -20,8 +22,20 @@ export default function NavTabs({ activeTab, setActiveTab }) {
        setShowMore(false);
      }
    };
-   if (showMore) document.addEventListener("mousedown", handleClickOutside);
-   return () => document.removeEventListener("mousedown", handleClickOutside);
+   const handleEscape = (e) => {
+     if (e.key === "Escape") {
+       setShowMore(false);
+       moreRef.current?.querySelector("#more-tabs-trigger")?.focus();
+     }
+   };
+   if (showMore) {
+     document.addEventListener("mousedown", handleClickOutside);
+     document.addEventListener("keydown", handleEscape);
+   }
+   return () => {
+     document.removeEventListener("mousedown", handleClickOutside);
+     document.removeEventListener("keydown", handleEscape);
+   };
  }, [showMore]);
 
  return (
@@ -48,9 +62,13 @@ export default function NavTabs({ activeTab, setActiveTab }) {
 
        <div ref={moreRef} className="relative">
          <button
+           id="more-tabs-trigger"
            onClick={() => setShowMore((prev) => !prev)}
+           aria-haspopup="menu"
+           aria-expanded={showMore}
+           aria-controls="more-tabs-menu"
            className={`
-             px-1 py-3 text-sm font-medium whitespace-nowrap
+             inline-flex items-center gap-1 px-1 py-3 text-sm font-medium whitespace-nowrap
              transition-colors duration-200 border-b-2
              ${isMoreActive || showMore
                ? "text-blue-700 border-blue-700"
@@ -59,12 +77,16 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          >
            {isMoreActive
              ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-             : "More ▾"}
+             : <><span>More</span><ChevronDown aria-hidden="true" size={14} /></>}
          </button>
 
+         <Presence open={showMore}>
          {showMore && (
            <div
-             className="fixed z-[9999] bg-white rounded-lg border border-gray-200 p-2 flex flex-col gap-1 min-w-[160px]"
+            id="more-tabs-menu"
+            role="menu"
+            data-origin="bottom-left"
+            className="t-dropdown fixed z-[9999] bg-white rounded-lg border border-gray-200 p-2 flex flex-col gap-1 min-w-[160px]"
              style={{
                top: moreRef.current
                  ? moreRef.current.getBoundingClientRect().bottom + 8
@@ -80,6 +102,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                  <button
                    key={tab}
                    onClick={() => handleTab(tab)}
+                   role="menuitem"
                    className={`
                      px-3 py-2.5 rounded-md text-sm font-medium text-left
                      transition-colors duration-200
@@ -94,6 +117,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
              })}
            </div>
          )}
+         </Presence>
        </div>
      </div>
    </div>

@@ -14,7 +14,7 @@ export default function Insights({ habitData }) {
   // Translation keys
   const translationKeys = {
     title: "Smart Insights",
-    subtitle: "AI-powered analysis of your habits",
+    subtitle: "Patterns in your daily care routine",
     noDataTitle: "No Data Yet",
     noDataDesc: "Start tracking your dental habits to see personalized insights and analytics!",
     healthScore: "Health Score",
@@ -70,7 +70,7 @@ export default function Insights({ habitData }) {
   if (!habitData || Object.keys(habitData).length === 0) {
     return (
       <div className="space-y-6 pb-8">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+        <div className="page-heading-surface relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
           
@@ -277,7 +277,7 @@ export default function Insights({ habitData }) {
   if (translating || Object.keys(translatedText).length === 0) {
     return (
       <div className="space-y-6 pb-8">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+        <div className="page-heading-surface">
           <div className="animate-pulse flex items-center gap-2">
             <Brain className="w-6 h-6" />
             <h2 className="text-2xl font-black">Loading...</h2>
@@ -290,7 +290,7 @@ export default function Insights({ habitData }) {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         
@@ -441,7 +441,7 @@ export default function Insights({ habitData }) {
             </div>
             <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-indigo-400 to-indigo-500"
+                className="h-full bg-blue-600"
                 style={{ width: `${timePatterns.nightRate}%` }}
               />
             </div>

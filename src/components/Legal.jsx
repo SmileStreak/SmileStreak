@@ -3,16 +3,20 @@ import {
   Download, Trash2, Database, CheckCircle
 } from "lucide-react";
 import { useState, useContext, useEffect } from "react";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { deleteUser, reauthenticateWithPopup, signOut } from "firebase/auth";
+import { auth, db, provider } from "../firebase";
+import { deleteDoc, doc } from "firebase/firestore";
 import { TranslationContext } from "../App";
+import { calculateStreaks } from "../utils/progress";
 
-export default function Legal() {
+export default function Legal({ onAnalyticsChoice }) {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
   const [open, setOpen] = useState(null);
   const [exported, setExported] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
   const [sent, setSent] = useState(false);
+  const [supportError, setSupportError] = useState(false);
   const [translatedText, setTranslatedText] = useState({});
 
   // Translation keys
@@ -24,14 +28,18 @@ export default function Legal() {
     userResponsibility: "User Responsibility",
     userResponsibilityContent: "You are responsible for your health decisions. Always consult a licensed dental professional for medical concerns.",
     imageProcessing: "Image & Scan Processing",
-    imageProcessingContent: "Images uploaded for scans are processed only to generate feedback. SmileStreak does not sell or share scan images.",
+    imageProcessingContent: "Scan photos are sent to Google's Gemini service to generate educational feedback and are also kept in your browser's scan history until you remove them or clear local app data. Do not upload an image you do not have permission to share.",
     privacyData: "Privacy & Data Use",
-    privacyDataContent: "We collect only minimal usage data needed for the app to function. This data improves your experience and app stability.",
-    liability: "Liability Limitation",
-    liabilityContent: "SmileStreak is not responsible for medical or dental outcomes. Use of this software is voluntary.",
+    privacyDataContent: "Habit progress is stored in this browser and, when you sign in, synced to Firebase Firestore with your profile details. Optional Firebase Analytics is off unless you choose Allow analytics. You can change this choice below.",
+    liability: "Using SmileStreak",
+    liabilityContent: "SmileStreak provides habit tracking and general educational information. It is not a dental exam, diagnosis, or treatment plan. Contact a licensed dental professional about symptoms or concerns.",
+    termsOfUse: "Terms of Use",
+    termsOfUseContent: "Use SmileStreak for personal dental-habit tracking and general educational information. Do not rely on the app for diagnosis, treatment decisions, or emergency care. Directory listings, ratings, and opening details can change; verify them directly with the provider. The current app has no paid subscription or checkout flow. Google Maps Platform terms apply to Places data in the directory and are incorporated by reference; Google, Firebase, Gemini, and Formspree services are also subject to their own terms.",
+    cookiePolicy: "Cookies & Browser Storage",
+    cookiePolicyContent: "Necessary browser storage supports app settings, saved progress, sign-in, and reminders. Optional Firebase Analytics is off unless you opt in and may use analytics identifiers or cookies. The current app does not use advertising cookies. Use the controls below to allow or disable optional analytics; your choice is stored on this device.",
     yourDataControls: "Your Data Controls",
-    exportReport: "Export My Full Report",
-    resetApp: "Reset SmileStreak Completely",
+    exportReport: "Export browser habit and scan data",
+    resetApp: "Delete SmileStreak data",
     contactSupport: "Contact Support",
     messageSent: "Message sent successfully.",
     yourEmail: "Your email",
@@ -47,7 +55,7 @@ export default function Legal() {
     exportedAt: "Exported at",
     app: "App",
     summary: "Summary",
-    habitsTracked: "Habits Tracked",
+    habitsTracked: "Days with saved habit data",
     longestStreak: "Longest Streak",
     averageStreak: "Average Streak",
     scansUploaded: "Scans Uploaded",
@@ -59,13 +67,13 @@ export default function Legal() {
     rawData: "Raw Data",
     
     // Confirmation messages
-    confirmReset: "This will completely reset SmileStreak. Continue?",
+    confirmReset: "This deletes the signed-in SmileStreak Firebase account and synced profile, if present, clears this browser's app data, and signs you out. Your Google Account is not deleted. Continue?",
     exportSuccess: "Report exported successfully!",
-    deleteSuccess: "Data deleted successfully! Refreshing...",
+    deleteSuccess: "SmileStreak data deleted. Refreshing...",
     
     // Data control descriptions
-    exportDesc: "Download a complete JSON report of all your data",
-    resetDesc: "Permanently delete all local data and sign out"
+    exportDesc: "Download habit progress and scan history saved in this browser",
+    resetDesc: "If signed in, delete your SmileStreak profile and synced data. Also clears this browser's app data; your Google Account remains."
   };
 
   // Sections data with translation keys
@@ -99,6 +107,18 @@ export default function Legal() {
       titleKey: "liability",
       contentKey: "liabilityContent",
       icon: <Shield className="w-5 h-5" />
+    },
+    {
+      id: 6,
+      titleKey: "termsOfUse",
+      contentKey: "termsOfUseContent",
+      icon: <FileText className="w-5 h-5" />
+    },
+    {
+      id: 7,
+      titleKey: "cookiePolicy",
+      contentKey: "cookiePolicyContent",
+      icon: <Lock className="w-5 h-5" />
     }
   ];
 
@@ -123,15 +143,9 @@ export default function Legal() {
      ADVANCED EXPORT
   --------------------------- */
   const exportData = () => {
-    const habits = JSON.parse(localStorage.getItem("habits") || "[]");
-    const streaks = JSON.parse(localStorage.getItem("streaks") || "[]");
-    const scans = JSON.parse(localStorage.getItem("scans") || "[]");
-
-    const longestStreak = Math.max(0, ...streaks.map(s => s.length || 0));
-    const avgStreak =
-      streaks.length === 0
-        ? 0
-        : streaks.reduce((a, b) => a + (b.length || 0), 0) / streaks.length;
+    const habits = JSON.parse(localStorage.getItem("habitData") || "{}");
+    const scans = JSON.parse(localStorage.getItem("scanHistory") || "[]");
+    const { longestStreak } = calculateStreaks(habits);
 
     const report = {
       profile: {
@@ -139,9 +153,8 @@ export default function Legal() {
         app: "SmileStreak"
       },
       summary: {
-        habitsTracked: habits.length,
+        daysTracked: Object.keys(habits).filter((key) => !key.startsWith("__")).length,
         longestStreak,
-        averageStreak: Math.round(avgStreak * 10) / 10,
         scansUploaded: scans.length
       },
       insights: {
@@ -150,7 +163,7 @@ export default function Legal() {
           : longestStreak > 5 ? translatedText.moderate || "Moderate"
           : translatedText.developing || "Developing"
       },
-      rawData: { habits, streaks, scans }
+      rawData: { habits, scans }
     };
 
     const blob = new Blob([JSON.stringify(report, null, 2)], {
@@ -173,16 +186,29 @@ export default function Legal() {
   const deleteData = async () => {
     if (!confirm(translatedText.confirmReset || "This will completely reset SmileStreak. Continue?")) return;
 
-    localStorage.clear();
-
-    indexedDB.databases?.().then(dbs => {
-      dbs.forEach(db => indexedDB.deleteDatabase(db.name));
-    });
-
-    try { await signOut(auth); } catch {}
-
-    setDeleted(true);
-    setTimeout(() => window.location.reload(), 1500);
+    setDeleteError(false);
+    try {
+      if (auth.currentUser) {
+        localStorage.setItem("smilestreak-deleting-profile", "true");
+        await reauthenticateWithPopup(auth.currentUser, provider);
+        await deleteDoc(doc(db, "users", auth.currentUser.uid));
+        await deleteUser(auth.currentUser);
+      }
+      localStorage.clear();
+      if (indexedDB.databases) {
+        const databases = await indexedDB.databases();
+        databases.forEach((database) => {
+          if (database.name) indexedDB.deleteDatabase(database.name);
+        });
+      }
+      setDeleted(true);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      localStorage.removeItem("smilestreak-deleting-profile");
+      try { await signOut(auth); } catch {}
+      console.error("Could not delete SmileStreak data:", error);
+      setDeleteError(true);
+    }
   };
 
   /* ---------------------------
@@ -191,22 +217,26 @@ export default function Legal() {
   const submitForm = async (e) => {
     e.preventDefault();
     const data = new FormData(e.target);
-
-    await fetch("https://formspree.io/f/mqedoavq", {
-      method: "POST",
-      body: data,
-      headers: { Accept: "application/json" }
-    });
-
-    setSent(true);
-    e.target.reset();
+    setSupportError(false);
+    try {
+      const response = await fetch("https://formspree.io/f/mqedoavq", {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" }
+      });
+      if (!response.ok) throw new Error("Support request failed");
+      setSent(true);
+      e.target.reset();
+    } catch {
+      setSupportError(true);
+    }
   };
 
   // Show loading state while translating
   if (translating || Object.keys(translatedText).length === 0) {
     return (
       <div className="space-y-6 pb-10">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+        <div className="page-heading-surface">
           <div className="animate-pulse flex items-center gap-2">
             <Shield className="w-6 h-6" />
             <h2 className="text-2xl font-black">Loading...</h2>
@@ -220,7 +250,7 @@ export default function Legal() {
     <div className="space-y-6 pb-10">
 
       {/* HERO */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         
@@ -241,6 +271,8 @@ export default function Legal() {
           <div key={s.id} className="border-b last:border-none border-gray-100">
             <button
               onClick={() => toggle(s.id)}
+              aria-expanded={open === s.id}
+              aria-controls={`legal-section-${s.id}`}
               className="w-full flex items-center justify-between p-5 hover:bg-blue-50 transition-colors"
             >
               <div className="flex items-center gap-3 text-left">
@@ -255,13 +287,34 @@ export default function Legal() {
             </button>
 
             {open === s.id && (
-              <div className="px-5 pb-5 text-sm text-gray-700 leading-relaxed">
+              <div id={`legal-section-${s.id}`} className="px-5 pb-5 text-sm text-gray-700 leading-relaxed">
                 {translatedText[s.contentKey]}
               </div>
             )}
           </div>
         ))}
       </div>
+
+      <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="privacy-details-title">
+        <h3 id="privacy-details-title" className="text-lg font-semibold text-slate-900">What the app uses</h3>
+        <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700">
+          <p><strong>Account and synced data.</strong> Google sign-in provides your account identity. SmileStreak stores your email, display name, profile photo URL, username, language, theme, habit progress (which can include mood selections, reflections, aligner schedules, and dentist visit dates), leaderboard values, and notification token in Firebase services.</p>
+          <p><strong>On this device.</strong> The app uses browser local storage for preferences, habit records, dentist favorites, reminders, and scan history (including scan images and generated feedback). Clearing site data removes this browser copy and signs you out; it does not delete your Google account or the synced Firebase profile.</p>
+          <p><strong>Scans and AI questions.</strong> When you request a scan, the selected image is sent to Google's Gemini service to generate educational feedback and is also kept in your browser's scan history until you remove it or clear local app data. Questions entered in the dentist AI assistant are also sent to Gemini. Avoid entering identifying or sensitive health information.</p>
+          <p><strong>Location and directory listings.</strong> When you search for nearby dentists, the browser shares your location with Google Places after you grant location permission. Business details and ratings shown in the directory come from Google Maps and may be incomplete or outdated; confirm information with the office.</p>
+          <p><strong>Cookies and local storage.</strong> SmileStreak uses browser storage for settings, reminders, progress, and scan history. Firebase Analytics is disabled until you choose “Allow analytics”; its app events cover Today screen visits and duration plus basic timer and sharing interactions. Habit check-ins, mood selections, reflections, aligner details, and dentist visit dates are not sent in those custom events. When enabled, Analytics may use analytics identifiers or cookies. This app does not currently run ad-cookie or advertising systems. You can change the analytics choice here at any time.</p>
+          <p><strong>Notifications.</strong> If you enable browser notifications, Firebase Cloud Messaging creates a notification token that is saved with your profile so reminders can be delivered.</p>
+          <p><strong>Feedback.</strong> Messages sent through the feedback or support forms are submitted to Formspree and routed to SmileStreak support. Include only information needed to describe the issue; do not send health records or sensitive dental details.</p>
+          <p><strong>Payments and younger visitors.</strong> This version has no in-app checkout or subscription flow. Before the interactive app loads, SmileStreak asks for a date of birth and uses it only in memory to choose an experience; the date is not saved. Visitors under 13 see general brushing tips only. This view has no account, saved progress, scans, location search, reminders, or support submission. Verified parental consent is not currently available, so those interactive features are not offered to under-13 visitors.</p>
+          <p><strong>Contact and provider policies.</strong> Support messages can be sent using the form below. Data handled by third-party providers is also subject to their policies: <a className="underline" href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Privacy Policy</a>, <a className="underline" href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noreferrer">Google Maps Platform Terms</a>, and <a className="underline" href="https://formspree.io/legal/privacy-policy/" target="_blank" rel="noreferrer">Formspree Privacy Policy</a>.</p>
+          <p className="text-xs text-slate-500">This page describes behavior visible in the current app code. It does not establish legal compliance or specify provider retention periods. Last updated October 16, 2026.</p>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+          <span className="text-sm text-slate-700">Optional analytics:</span>
+          <button type="button" onClick={() => onAnalyticsChoice?.(true)} className="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">Allow analytics</button>
+          <button type="button" onClick={() => onAnalyticsChoice?.(false)} className="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">Turn analytics off</button>
+        </div>
+      </section>
 
       {/* DATA CONTROLS */}
       <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
@@ -288,7 +341,7 @@ export default function Legal() {
                 </span>
               </div>
             </div>
-            {exported && <CheckCircle className="text-green-500 w-5 h-5 animate-bounce" />}
+            {exported && <CheckCircle className="text-green-500 w-5 h-5" />}
           </button>
 
           <button 
@@ -308,9 +361,11 @@ export default function Legal() {
                 </span>
               </div>
             </div>
-            {deleted && <CheckCircle className="text-green-500 w-5 h-5 animate-bounce" />}
+            {deleted && <CheckCircle className="text-green-500 w-5 h-5" />}
           </button>
         </div>
+        <p className="mt-3 text-xs leading-5 text-slate-600">Deleting removes your SmileStreak Firebase account, synced profile, and data saved in this browser. It does not delete the Google Account used to sign in or messages already submitted to support.</p>
+        {deleteError && <p role="alert" className="mt-3 text-sm font-medium text-red-700">SmileStreak could not delete the synced profile. Check your connection and try again.</p>}
       </div>
 
       {/* SUPPORT FORM */}
@@ -329,7 +384,10 @@ export default function Legal() {
           </div>
         ) : (
           <form onSubmit={submitForm} className="space-y-3">
-            <input 
+            <p className="text-sm text-slate-600">Your message and email are sent to Formspree and SmileStreak support. Please do not include dental or other sensitive health details.</p>
+            <label htmlFor="support-email" className="sr-only">{translatedText.yourEmail}</label>
+            <input
+              id="support-email"
               type="email" 
               name="email" 
               placeholder={translatedText.yourEmail} 
@@ -337,7 +395,9 @@ export default function Legal() {
               className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none transition-colors" 
             />
 
-            <textarea 
+            <label htmlFor="support-message" className="sr-only">{translatedText.describeIssue}</label>
+            <textarea
+              id="support-message"
               name="message" 
               placeholder={translatedText.describeIssue} 
               required 
@@ -345,12 +405,18 @@ export default function Legal() {
               className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none resize-none transition-colors" 
             />
 
+            <label className="flex items-start gap-2 text-xs leading-5 text-slate-600">
+              <input type="checkbox" required className="mt-1" />
+              <span>I understand my email and message will be sent to Formspree and SmileStreak support to respond to this request.</span>
+            </label>
+
             <button 
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 rounded-xl font-bold hover:shadow-lg hover:scale-[1.02] transition-all"
             >
               {translatedText.sendMessage}
             </button>
+            {supportError && <p role="alert" className="text-sm font-medium text-red-700">Your message could not be sent. Please try again.</p>}
           </form>
         )}
       </div>

@@ -9,6 +9,7 @@ Users, Globe, Lock, Eye, EyeOff, Bell, RefreshCw,
 BookOpen
 } from "lucide-react";
 import { TranslationContext } from "../App";
+import Presence from "./Presence";
 
 export default function Scan() {
 const { t, currentLanguage, translating } = useContext(TranslationContext);
@@ -400,7 +401,7 @@ setShareNotes('');
 if (translating || Object.keys(translatedText).length === 0) {
 return (
 <div className="space-y-6 pb-8">
-<div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+<div className="page-heading-surface">
 <div className="animate-pulse flex items-center gap-2">
 <Sparkles className="w-6 h-6" />
 <h2 className="text-2xl font-black">Loading…</h2>
@@ -413,7 +414,7 @@ return (
 return (
 <div className="space-y-6 pb-8">
 {/* Header */}
-<div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+<div className="page-heading-surface relative overflow-hidden">
 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
 
@@ -440,8 +441,9 @@ return (
   </div>
 
   {/* Scan History Modal - Shows real user data */}
-  {showHistory && (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
+  <Presence open={showHistory}>
+{showHistory && (
+    <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
       <div className="bg-white rounded-3xl max-w-lg w-full max-h-[80vh] overflow-hidden animate-[scaleBounce_0.3s_ease-out]">
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -499,10 +501,12 @@ return (
       </div>
     </div>
   )}
+</Presence>
 
   {/* Share Modal */}
-  {showShareModal && (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <Presence open={showShareModal}>
+{showShareModal && (
+    <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-black text-gray-900">{translatedText.shareTitle}</h3>
@@ -547,10 +551,12 @@ return (
       </div>
     </div>
   )}
+</Presence>
 
   {/* Export Options Modal */}
-  {showExportOptions && (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <Presence open={showExportOptions}>
+{showExportOptions && (
+    <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-black text-gray-900">{translatedText.exportTitle}</h3>
@@ -592,6 +598,7 @@ return (
       </div>
     </div>
   )}
+</Presence>
 
   {/* Comparison View - Based on real scan data */}
   {showComparison && selectedScanForComparison && mode === 'results' && (
@@ -716,7 +723,7 @@ return (
       </div>
 
       {/* Tips - Educational, not fake data */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-5">
+      <div className="bg-slate-50 border border-purple-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <Zap className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>
@@ -967,7 +974,7 @@ return (
       )}
 
       {/* Improvement Tips - Educational content only */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-5">
+      <div className="bg-slate-50 border border-purple-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <TrendingUp className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>

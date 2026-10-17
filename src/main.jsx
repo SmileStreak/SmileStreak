@@ -1,40 +1,98 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import "./App.css";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import "@fontsource-variable/source-sans-3";
+import "./entry.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const App = lazy(() => import("./App.jsx"));
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js");
-  });
+function ageOnDate(date, today = new Date()) {
+  let age = today.getFullYear() - date.getFullYear();
+  const beforeBirthday = today.getMonth() < date.getMonth() ||
+    (today.getMonth() === date.getMonth() && today.getDate() < date.getDate());
+  if (beforeBirthday) age -= 1;
+  return age;
 }
 
-// Request notification permission (must be user-triggered)
-export async function requestNotificationPermission() {
-  if (!("Notification" in window)) return;
+function AgeGate({ onSubmit }) {
+  const [birthDate, setBirthDate] = useState("");
+  const [error, setError] = useState("");
+  const now = new Date();
+  const maxDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-  const permission = await Notification.requestPermission();
-  console.log("Notification permission:", permission);
-  return permission;
-}
-
-// Send a notification request to the service worker
-export async function triggerNotification(title, body) {
-  if (!("serviceWorker" in navigator)) return;
-
-  const reg = await navigator.serviceWorker.ready;
-
-  if (reg.active) {
-    reg.active.postMessage({
-      type: "SHOW_NOTIFICATION",
-      title,
-      body,
-    });
+  function submit(event) {
+    event.preventDefault();
+    if (!birthDate) return setError("Enter your date of birth to continue.");
+    const date = new Date(`${birthDate}T12:00:00`);
+    if (Number.isNaN(date.getTime()) || birthDate > maxDate) {
+      return setError("Enter a valid date of birth.");
+    }
+    setError("");
+    onSubmit(ageOnDate(date) >= 13 ? "adult" : "younger");
   }
+
+  return (
+    <main className="entry-page" style={styles.page}>
+      <section style={styles.panel} aria-labelledby="gate-title">
+        <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
+        <h1 id="gate-title" style={styles.title}>Before we begin</h1>
+        <p style={styles.copy}>Enter your date of birth so we can show the right experience. Your date is used for this check only and is not saved.</p>
+        <form onSubmit={submit}>
+          <label htmlFor="birth-date" style={styles.label}>Date of birth</label>
+          <input className="entry-input" id="birth-date" type="date" max={maxDate} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required style={styles.input} />
+          {error && <p role="alert" style={styles.error}>{error}</p>}
+          <button className="entry-button" type="submit" style={styles.button}>Continue</button>
+        </form>
+        <p style={styles.note}>This check is not a substitute for verified parental consent.</p>
+      </section>
+    </main>
+  );
 }
+
+function YoungerTips() {
+  return (
+    <main className="entry-page" style={styles.page}>
+      <section style={styles.panel} aria-labelledby="tips-title">
+        <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
+        <h1 id="tips-title" style={styles.title}>A few good habits</h1>
+        <ul style={styles.list}>
+          <li>Brush gently for two minutes, morning and night.</li>
+          <li>Use a soft-bristled toothbrush and fluoride toothpaste.</li>
+          <li>Ask a parent or caregiver if you have questions about your teeth.</li>
+        </ul>
+        <p style={styles.note}>This tips page does not save or send anything. SmileStreak’s interactive features aren’t available in this view.</p>
+      </section>
+    </main>
+  );
+}
+
+function Root() {
+  const [audience, setAudience] = useState(null);
+
+  useEffect(() => {
+    if (audience !== "adult" || !("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch((error) => {
+      console.warn("Service worker registration failed:", error);
+    });
+  }, [audience]);
+
+  if (audience === "younger") return <YoungerTips />;
+  if (audience !== "adult") return <AgeGate onSubmit={setAudience} />;
+  return <Suspense fallback={<main style={styles.loading}>Loading SmileStreak…</main>}><App /></Suspense>;
+}
+
+const styles = {
+  page: { minHeight: "100vh", boxSizing: "border-box", display: "grid", placeItems: "center", padding: "32px 20px", background: "#f7f8f6", color: "#2a2a2a", fontFamily: '"Source Sans 3", ui-sans-serif, system-ui, sans-serif' },
+  panel: { width: "100%", maxWidth: 440, boxSizing: "border-box", padding: "36px 32px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12 },
+  brand: { margin: "0 0 32px", color: "#2a2a2a", fontFamily: '"Avenir Next", Avenir, sans-serif', fontSize: 20, fontWeight: 650, letterSpacing: "-0.055em" },
+  title: { margin: "0 0 12px", fontFamily: "Georgia, serif", fontSize: 30, lineHeight: 1.15, letterSpacing: "-.025em", fontWeight: 500 },
+  copy: { margin: "0 0 24px", color: "#555", fontSize: 16, lineHeight: 1.55 },
+  label: { display: "block", marginBottom: 7, fontSize: 14, fontWeight: 600 },
+  input: { boxSizing: "border-box", width: "100%", minHeight: 46, padding: "10px 12px", border: "1px solid #cbd5df", borderRadius: 7, color: "#2a2a2a", background: "#fff", fontSize: 16 },
+  button: { width: "100%", minHeight: 46, marginTop: 16, border: 0, borderRadius: 7, background: "#16803c", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer" },
+  error: { margin: "8px 0 0", color: "#855b58", fontSize: 14 },
+  note: { margin: "18px 0 0", color: "#6a6a6a", fontSize: 13, lineHeight: 1.5 },
+  list: { paddingLeft: 22, color: "#3c3c3c", fontSize: 16, lineHeight: 1.65 },
+  loading: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f7f8f6", color: "#6a6a6a", fontFamily: "sans-serif" },
+};
+
+createRoot(document.getElementById("root")).render(<Root />);

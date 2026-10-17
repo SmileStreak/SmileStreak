@@ -19,14 +19,6 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
     Champion: "👑"
   };
 
-  const LEAGUE_COLORS = {
-    Bronze: "from-amber-600 to-amber-800",
-    Silver: "from-gray-400 to-gray-600",
-    Gold: "from-yellow-400 to-yellow-600",
-    Diamond: "from-cyan-400 to-blue-600",
-    Champion: "from-purple-500 to-pink-600"
-  };
-
   // ── TIME REMAINING CALCULATION ──
   useEffect(() => {
     const calculateTimeRemaining = () => {
@@ -212,7 +204,7 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
               <span className="text-3xl">{LEAGUE_EMOJIS[currentUser.league] || "🏆"}</span>
               <div>
                 <p className={`text-xs font-bold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Your League</p>
-                <h3 className={`text-xl font-black bg-gradient-to-r ${LEAGUE_COLORS[currentUser.league] || 'from-gray-400 to-gray-600'} bg-clip-text text-transparent`}>
+                <h3 className="text-xl font-semibold text-slate-700">
                   {currentUser.league || "Bronze"}
                 </h3>
               </div>

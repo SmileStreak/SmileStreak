@@ -1,4 +1,7 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import {
   Calendar, MapPin, TrendingUp, Clock, Heart, Activity,
   Coffee, Moon, Sun, Check, ChevronRight, Droplets, Brush,
@@ -7,6 +10,8 @@ import {
 import { getCurrentStreak, getLongestStreak, getWeeklyActivity } from "../utils/streak";
 import { TranslationContext, ThemeContext } from "../App";
 import { storage } from "../utils/storage";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 export default function Home({ setActiveTab, user, habitData }) {
   const [streak, setStreak] = useState(0);
@@ -21,6 +26,38 @@ export default function Home({ setActiveTab, user, habitData }) {
   const [lastScanDate, setLastScanDate] = useState(null);
   const [totalScans, setTotalScans] = useState(0);
   const [weeklyActivity, setWeeklyActivity] = useState([]);
+  const weeklyChartRef = useRef(null);
+
+  useGSAP(() => {
+    const media = gsap.matchMedia();
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      const bars = gsap.utils.toArray(
+        ".home-week-bar-track span:not(.is-empty)",
+        weeklyChartRef.current
+      );
+      if (!bars.length) return;
+
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: weeklyChartRef.current,
+          start: "top 88%",
+          once: true,
+          refreshPriority: -1,
+        },
+      }).from(bars, {
+        scaleY: 0.12,
+        transformOrigin: "bottom",
+        duration: 0.55,
+        ease: "power2.out",
+        stagger: 0.035,
+      });
+    });
+    return () => media.revert();
+  }, {
+    scope: weeklyChartRef,
+    dependencies: [weeklyActivity.length],
+    revertOnUpdate: true,
+  });
 
   const dailyTips = [
     { id: 1, title: "Perfect Brushing Time", tip: "Brush for a full 2 minutes, spending 30 seconds in each quadrant of your mouth.", icon: <Clock className="w-4 h-4" /> },
@@ -94,7 +131,7 @@ export default function Home({ setActiveTab, user, habitData }) {
         streaks: await t("Streaks"),
         trackHabits: await t("Track daily habits"),
         findDentists: await t("Find Dentists"),
-        nearbyCare: await t("Nearby care + insurance"),
+        nearbyCare: await t("Nearby dental offices"),
         progress: await t("Progress"),
         reviewImprovements: await t("Review improvements"),
         longestStreak: await t("Longest Streak"),
@@ -199,7 +236,7 @@ export default function Home({ setActiveTab, user, habitData }) {
               </div>
             </section>
 
-            <section className="home-week-section">
+            <section className="home-week-section" ref={weeklyChartRef}>
               <div className="home-section-heading">
                 <div><p className="home-eyebrow">{texts.lastSevenDays || "Last seven days"}</p><h3>{texts.consistency || "Consistency"}</h3></div>
                 <span className="home-muted-label">{texts.dailyHabits || "Daily habits completed"}</span>
@@ -257,7 +294,7 @@ export default function Home({ setActiveTab, user, habitData }) {
               <p className="home-eyebrow">{texts.quickAccess || "Quick access"}</p>
               {[
                 { tab: "scan", icon: <Camera size={17} />, label: texts.scanTeeth || "Scan teeth", detail: texts.aiFeedback || "Brushing feedback" },
-                { tab: "dentists", icon: <MapPin size={17} />, label: texts.findDentists || "Find dentists", detail: texts.nearbyCare || "Nearby care and insurance" },
+                { tab: "dentists", icon: <MapPin size={17} />, label: texts.findDentists || "Find dentists", detail: texts.nearbyCare || "Nearby dental offices" },
                 { tab: "progress", icon: <TrendingUp size={17} />, label: texts.progress || "Progress", detail: texts.reviewImprovements || "Review your habits" },
               ].map((action) => (
                 <button key={action.tab} onClick={() => go(action.tab)} className="home-shortcut-row">

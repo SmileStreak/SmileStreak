@@ -40,7 +40,7 @@ url: "https://medium.com/@eddiecherianj"
 },
 {
 title: "AI in Dentistry: How SmileStreak is Bringing Intelligent Oral Care to Your Phone",
-description: "Artificial intelligence is transforming healthcare. Here's how SmileStreak uses AI-powered smile scanning and a dental chatbot to make better oral care accessible to everyone.",
+description: "What SmileStreak’s brushing feedback can tell you, what it cannot, and when to ask a dental professional.",
 tag: "Health Tech",
 tagColor: "#10b981",
 emoji: "🤖",
@@ -124,7 +124,7 @@ const visibleMyths = translatedMyths.slice(0, visibleMythCount);
 return (
 <div className="space-y-6 pb-8">
 {/* Header */}
-<div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+<div className="page-heading-surface relative overflow-hidden">
 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
 <div className="relative z-10">
@@ -164,9 +164,9 @@ return (
   </div>
 
   {/* MYTH BUSTERS */}
-  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
+  <div className="bg-slate-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
     <div className="flex items-center gap-2 mb-4">
-      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+      <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
         <Sparkles className="w-5 h-5 text-white" />
       </div>
       <div>

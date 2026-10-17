@@ -374,7 +374,7 @@ export default function Reminders() {
   if (translating || Object.keys(translatedText).length === 0) {
     return (
       <section className="space-y-6 pb-8">
-        <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl">
+        <div className="page-heading-surface">
           <div className="animate-pulse flex items-center gap-2">
             <Bell className="w-6 h-6" />
             <h2 className="text-2xl font-black">Loading...</h2>
@@ -388,7 +388,7 @@ export default function Reminders() {
     <section className="space-y-6 pb-8">
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div className="page-heading-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         <div className="relative z-10">
@@ -458,7 +458,7 @@ export default function Reminders() {
             <p className="text-xs font-semibold text-gray-700">{translatedText.morning}</p>
             <p className="text-xs text-gray-500">8:00 AM</p>
           </button>
-          <button onClick={quickSetNight} className="group p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all">
+          <button onClick={quickSetNight} className="group p-4 rounded-xl bg-slate-50 border border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all">
             <Moon className="w-6 h-6 text-indigo-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
             <p className="text-xs font-semibold text-gray-700">{translatedText.night}</p>
             <p className="text-xs text-gray-500">9:00 PM</p>
@@ -701,7 +701,7 @@ export default function Reminders() {
       )}
 
       {/* Tips */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-5">
+      <div className="bg-slate-50 border border-purple-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>
