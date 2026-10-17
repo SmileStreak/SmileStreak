@@ -9,7 +9,7 @@ const moreTabs = ["Tips", "Scan", "Dentists", "Insights", "Report", "Mission", "
 
 export default function NavTabs({ activeTab, setActiveTab }) {
  const [showMore, setShowMore] = useState(false);
- const [moreMenuPosition, setMoreMenuPosition] = useState({ top: 0, left: 0 });
+ const [moreMenuPosition, setMoreMenuPosition] = useState({ top: 0, left: 0, maxHeight: 420 });
  const [labels, setLabels] = useState({});
  const { currentLanguage } = useContext(TranslationContext);
  const moreRef = useRef(null);
@@ -62,7 +62,12 @@ export default function NavTabs({ activeTab, setActiveTab }) {
    let frame = 0;
    const updatePosition = () => {
      const rect = moreRef.current?.querySelector("#more-tabs-trigger")?.getBoundingClientRect();
-     if (rect) setMoreMenuPosition({ top: rect.bottom + 8, left: rect.left });
+     if (!rect) return;
+     const top = rect.bottom + 8;
+     const menuWidth = document.getElementById("more-tabs-menu")?.getBoundingClientRect().width || 180;
+     const left = Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8));
+     const maxHeight = Math.max(96, Math.min(420, window.innerHeight * 0.7, window.innerHeight - top - 8));
+     setMoreMenuPosition({ top, left, maxHeight });
    };
    const schedulePositionUpdate = () => {
      if (frame) return;
@@ -124,7 +129,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
            <div
             id="more-tabs-menu"
             data-origin="bottom-left"
-             className="t-dropdown fixed z-[9999] max-h-[min(70dvh,420px)] min-w-[160px] overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-white p-2 flex flex-col gap-1"
+             className="t-dropdown fixed z-[9999] min-w-[160px] max-w-[calc(100vw-16px)] overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-white p-2 flex flex-col gap-1"
              style={moreMenuPosition}
            >
              {moreTabs.map((tab) => {
