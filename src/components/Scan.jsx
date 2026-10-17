@@ -141,7 +141,11 @@ exportDesc: "Download or share your scan results",
 tapCapture: "Tap to take photo",
 historySaveFailed: "Your browser could not save this scan. The feedback is still available until you leave this page.",
 historyNotSaved: "This photo and feedback were not saved to this browser.",
-privacyNote: "You can get feedback without saving it here. Optional copies stay in this browser until you delete them or clear site data. Google processes submitted photos under its Gemini API terms. Don’t send sensitive, confidential, or identifying photos."
+privacyNote: "You can get feedback without saving it here. Optional copies stay in this browser until you delete them or clear site data. Google processes submitted photos under its Gemini API terms. Don’t send sensitive, confidential, or identifying photos.",
+closeHistory: "Close scan history",
+closeShareDialog: "Close share dialog",
+closeExportOptions: "Close export options",
+closeComparison: "Close scan comparison"
 };
 
 // Camera guidance steps
@@ -651,7 +655,7 @@ return (
             <History className="w-5 h-5 text-blue-600" />
             <h3 id="scan-history-title" className="font-black text-gray-900">{translatedText.scanHistory}</h3>
           </div>
-          <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-600" aria-label="Close scan history">
+          <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-600" aria-label={translatedText.closeHistory || "Close scan history"}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -717,7 +721,7 @@ return (
       <div role="dialog" aria-modal="true" aria-labelledby="scan-share-title" className="scan-dialog bg-white rounded-3xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 id="scan-share-title" className="text-xl font-black text-gray-900">{translatedText.shareTitle}</h3>
-          <button onClick={() => { setShowShareModal(false); setShareEmailError(""); }} className="text-gray-400 hover:text-gray-600" aria-label="Close share dialog">
+          <button onClick={() => { setShowShareModal(false); setShareEmailError(""); }} className="text-gray-400 hover:text-gray-600" aria-label={translatedText.closeShareDialog || "Close share dialog"}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -773,7 +777,7 @@ return (
       <div role="dialog" aria-modal="true" aria-labelledby="scan-export-title" className="scan-dialog bg-white rounded-3xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 id="scan-export-title" className="text-xl font-black text-gray-900">{translatedText.exportTitle}</h3>
-          <button onClick={() => setShowExportOptions(false)} className="text-gray-400 hover:text-gray-600" aria-label="Close export options">
+          <button onClick={() => setShowExportOptions(false)} className="text-gray-400 hover:text-gray-600" aria-label={translatedText.closeExportOptions || "Close export options"}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -824,7 +828,7 @@ return (
         <button
           onClick={() => setShowComparison(false)}
           className="text-gray-400 hover:text-gray-600"
-          aria-label="Close scan comparison"
+          aria-label={translatedText.closeComparison || "Close scan comparison"}
         >
           <X className="w-5 h-5" />
         </button>
@@ -836,13 +840,13 @@ return (
         <div>
           <p className="text-xs text-gray-500 mb-1">{translatedText.currentScan}</p>
           <div className="aspect-square rounded-xl overflow-hidden bg-gray-100">
-            <img src={image} alt="Current" className="w-full h-full object-cover" />
+            <img src={image} alt={translatedText.currentScan || "Current Scan"} className="w-full h-full object-cover" />
           </div>
         </div>
         <div>
           <p className="text-xs text-gray-500 mb-1">{translatedText.previousScan}</p>
           <div className="aspect-square rounded-xl overflow-hidden bg-gray-100">
-            <img src={selectedScanForComparison.image} alt="Previous" className="w-full h-full object-cover" />
+            <img src={selectedScanForComparison.image} alt={translatedText.previousScan || "Previous Scan"} className="w-full h-full object-cover" />
           </div>
         </div>
       </div>
@@ -1021,7 +1025,7 @@ return (
         ) : (
           <button
             onClick={capturePhoto}
-            aria-label="Take photo"
+            aria-label={translatedText.takePhoto || "Take photo"}
             className="scan-capture-action"
           >
             <span aria-hidden="true" />
