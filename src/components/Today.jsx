@@ -1151,7 +1151,7 @@ onClick={e => e.stopPropagation()}>
 <div className="grid grid-cols-3 gap-3">
 {translatedMoods.map(m => (
 <button key={m.labelKey} aria-pressed={currentMood === m.labelKey} onClick={() => saveMood(m.labelKey)}
-className={`p-4 rounded-2xl border-2 text-center press transition-all hover-lift ${ currentMood === m.labelKey ? "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-400" : "bg-gradient-to-br from-gray-50 to-blue-50 border-gray-200 hover:border-blue-300" }`}>
+className={`today-mood-option p-4 rounded-2xl border-2 text-center press transition-all hover-lift ${ currentMood === m.labelKey ? "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-400" : "bg-gradient-to-br from-gray-50 to-blue-50 border-gray-200 hover:border-blue-300"}`}>
 <div className="text-2xl mb-1.5">{m.emoji}</div>
 <div className="text-xs text-gray-600 font-bold">{m.label}</div>
 </button>

@@ -2307,6 +2307,8 @@ html.dark .today-aligner-panel > div:first-child p:first-child { color: var(--in
 }
 .today-dialog :is(input, textarea, select) { border-color: var(--line-strong) !important; border-radius: 7px !important; }
 .today-dialog :is(input, textarea, select):focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; box-shadow: none !important; }
+.today-dialog .today-mood-option { border: 1px solid var(--line-strong) !important; border-radius: 8px !important; background: var(--surface) !important; color: var(--ink-secondary); }
+.today-dialog .today-mood-option[aria-pressed="true"] { border-color: var(--brand) !important; background: var(--surface-quiet) !important; color: var(--brand); }
 .today-dialog button[class*="bg-gradient-to-r"] { min-height: 42px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
 .today-dialog button[class*="bg-gradient-to-r"]:hover { background: var(--brand-hover) !important; }
 .today-dialog > button:not([class*="bg-gradient-to-r"]) { border-radius: 7px !important; }
