@@ -245,7 +245,7 @@ export default function Report({ habitData }) {
   const reportText = `
 ${translatedText.reportTitle || translationKeys.reportTitle}
 ${timeframe === "7days" ? translatedText.reportLast7Days || translationKeys.reportLast7Days : timeframe === "30days" ? translatedText.reportLast30Days || translationKeys.reportLast30Days : translatedText.reportAllTime || translationKeys.reportAllTime}
-${translatedText.generated || translationKeys.generated}: ${new Date().toLocaleDateString()}
+${translatedText.generated || translationKeys.generated}: ${new Date().toLocaleDateString(currentLanguage)}
 
 ═══════════════════════════════════════
 

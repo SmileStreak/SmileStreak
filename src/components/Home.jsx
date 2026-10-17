@@ -329,7 +329,7 @@ export default function Home({ setActiveTab, user, habitData }) {
               <section className="home-appointments-section">
                 <div className="home-section-heading"><div><h3>{texts.upcomingAppointments || "Upcoming appointments"}</h3></div></div>
                 {upcomingAppointments.map((appointment, i) => (
-                  <div key={i} className="home-appointment-row"><div><strong>{appointment.dentist}</strong><small>{new Date(appointment.date).toLocaleDateString()}</small></div><Calendar size={16} /></div>
+                  <div key={i} className="home-appointment-row"><div><strong>{appointment.dentist}</strong><small>{formatVisitDate(appointment.date)}</small></div><Calendar size={16} /></div>
                 ))}
               </section>
             )}

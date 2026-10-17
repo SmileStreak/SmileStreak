@@ -298,19 +298,19 @@ export default function Reminders() {
       checkAndNotify(
         shiftCalendarDate(visitDate, -30),
         "Dentist visit in 1 month",
-        `Your appointment is on ${visitDate.toLocaleDateString()}`,
+        `Your appointment is on ${visitDate.toLocaleDateString(currentLanguage)}`,
         'dentist-1month'
       );
       checkAndNotify(
         shiftCalendarDate(visitDate, -14),
         "Dentist visit in 2 weeks",
-        `Your appointment is on ${visitDate.toLocaleDateString()}`,
+        `Your appointment is on ${visitDate.toLocaleDateString(currentLanguage)}`,
         'dentist-2weeks'
       );
       checkAndNotify(
         shiftCalendarDate(visitDate, -7),
         "Dentist visit in 1 week",
-        `Your appointment is on ${visitDate.toLocaleDateString()}`,
+        `Your appointment is on ${visitDate.toLocaleDateString(currentLanguage)}`,
         'dentist-1week'
       );
     };
@@ -319,7 +319,7 @@ export default function Reminders() {
       console.error("Could not schedule dentist reminders:", error);
       showMessage("Dentist reminder details couldn’t be scheduled. Check the visit date and try again.", "error", 0);
     });
-  }, [dentistReminderEnabled, nextDentistVisit]);
+  }, [dentistReminderEnabled, nextDentistVisit, currentLanguage]);
 
   // ── DENTIST SCHEDULED REMINDERS DISPLAY ──
   useEffect(() => {

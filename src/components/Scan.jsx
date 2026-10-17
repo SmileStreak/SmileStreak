@@ -44,6 +44,13 @@ const streamRef = useRef(null);
 const mountedRef = useRef(true);
 const undoScanButtonRef = useRef(null);
 
+const formatScanTimestamp = (scan) => {
+const date = new Date(scan.date || scan.timestamp);
+return Number.isFinite(date.getTime())
+  ? date.toLocaleString(currentLanguage, { dateStyle: "medium", timeStyle: "short" })
+  : scan.timestamp || "";
+};
+
 // Translation keys - only what's actually used
 const translationKeys = {
 title: "Photo observations",
@@ -499,7 +506,7 @@ return;
 
 const subject = encodeURIComponent('Dental Scan Results from Smile Streak');
 const body = encodeURIComponent(
-  `Scan Results:\n\n${feedback}\n\nDate: ${new Date().toLocaleDateString()}\n\n${shareNotes ? `Notes: ${shareNotes}\n\n` : ''}`
+  `Scan Results:\n\n${feedback}\n\nDate: ${new Date().toLocaleDateString(currentLanguage)}\n\n${shareNotes ? `Notes: ${shareNotes}\n\n` : ''}`
 );
 window.location.href = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
 
@@ -593,7 +600,7 @@ return (
                   className="w-20 h-20 rounded-lg object-cover"
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{scan.timestamp}</p>
+                  <p className="text-sm font-semibold text-gray-900">{formatScanTimestamp(scan)}</p>
                   <p className="text-xs text-gray-600 line-clamp-2 mt-1">{scan.feedback}</p>
                   <div className="flex gap-2 mt-2">
                     <button
