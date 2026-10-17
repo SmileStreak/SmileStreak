@@ -926,7 +926,7 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   transition: transform 180ms var(--motion-out), opacity 180ms ease-out;
 }
 .analytics-consent > div > div:last-child { align-items: stretch; }
-.analytics-consent button { min-height: 40px; border-radius: 6px; }
+.analytics-consent button, .legal-consent-choice { min-height: 44px; border-radius: 6px; }
 .analytics-consent-choice { border-color: var(--line-strong) !important; }
 .legal-consent-choice { border-color: var(--line-strong) !important; font-weight: 500 !important; }
 @media (max-width: 480px) {
