@@ -101,6 +101,7 @@ export default function App() {
     updatingLanguage: "Updating language…",
     loadingPage: "Loading page…",
     privacyTerms: "Privacy & terms",
+    skipToContent: "Skip to main content",
     sendFeedback: "Send feedback",
     giveFeedback: "Give Feedback",
     saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
@@ -257,6 +258,7 @@ export default function App() {
       updatingLanguage: "Updating language…",
       loadingPage: "Loading page…",
       privacyTerms: "Privacy & terms",
+      skipToContent: "Skip to main content",
       sendFeedback: "Send feedback",
       giveFeedback: "Give Feedback",
       saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
@@ -810,6 +812,7 @@ export default function App() {
       <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
           <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-slate-50'}`}>
+            <a className="skip-to-content" href="#main-content">{analyticsConsentCopy.skipToContent}</a>
             <header className={`sticky top-0 z-50 transition-colors duration-300 ${
               darkMode
                 ? 'bg-gray-800 border-b border-gray-700'
@@ -1088,7 +1091,7 @@ export default function App() {
               </div>
             )}
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10">
+            <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10">
               {/* ── LEADERBOARD ── */}
               <Presence open={showLeaderboard && !!user}>
               {showLeaderboard && user && (

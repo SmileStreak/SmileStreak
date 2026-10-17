@@ -137,6 +137,14 @@ html.dark header.sticky { background: #111820 !important; border-color: #303a45 
   background: var(--surface) !important; color: var(--ink-secondary) !important;
   box-shadow: none !important; transition: transform 180ms ease-out, color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out;
 }
+.skip-to-content {
+  position: fixed; z-index: 100; top: 8px; left: 8px; transform: translateY(calc(-100% - 16px));
+  padding: 9px 13px; border: 1px solid var(--line-strong); border-radius: 6px;
+  color: var(--ink); background: var(--surface); font-size: 14px; font-weight: 600;
+  box-shadow: 0 2px 8px rgb(42 42 42 / .04); transition: transform 160ms ease-out;
+}
+.skip-to-content:focus { transform: translateY(0); outline: 2px solid var(--brand); outline-offset: 2px; }
+#main-content:focus { outline: none; }
 .app-header-control:disabled { cursor: wait; opacity: .72; }
 .auth-signin-error { margin: -4px 0 10px auto; max-width: 34rem; color: #9a3c32; font-size: 12px; line-height: 1.45; text-align: right; }
 html.dark .auth-signin-error { color: #f0a39a; }
