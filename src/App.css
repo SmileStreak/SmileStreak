@@ -2243,6 +2243,12 @@ html.dark .account-username-modal button[class*="bg-blue-50"], html.dark .accoun
 }
 .today-dentist-history { padding: 16px 12px !important; background: transparent !important; border-inline: 0 !important; border-bottom: 0 !important; }
 .today-dentist-history :is(.bg-orange-50, .bg-amber-50) { background: var(--surface-quiet) !important; }
+.today-history-icon, .today-dialog-icon { display: grid; flex: none; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-quiet); color: var(--brand); }
+.today-history-icon { width: 32px; height: 32px; }
+.today-history-icon svg { width: 16px; height: 16px; stroke-width: 1.7; }
+.today-dialog-icon { width: 34px; height: 34px; }
+.today-dialog-icon svg { width: 18px; height: 18px; stroke-width: 1.7; }
+.today-dentist-history p[class*="text-orange-600"], .today-dentist-history p[class*="text-amber-600"], .today-dentist-history p[class*="text-blue-600"] { color: var(--ink-secondary) !important; }
 .today-milestone { padding: 16px 0 !important; border-inline: 0 !important; border-top: 1px solid var(--line) !important; background: transparent !important; }
 .today-milestone-track { border: 0 !important; background: var(--line) !important; }
 .today-milestone-track > div { background: var(--brand) !important; }
@@ -2309,6 +2315,7 @@ html.dark .today-aligner-panel > div:first-child p:first-child { color: var(--in
 .today-completion-toast .today-completion-dialog h2 { margin: 0 !important; font-size: 20px; }
 .today-completion-toast .today-completion-dialog p { margin: 0 !important; color: var(--ink-muted); font-size: 12px; }
 .today-completion-toast .today-completion-dialog > span { grid-column: 2; margin-top: 3px; }
+.today-completion-toast .today-completion-dialog > span { width: fit-content; padding: 3px 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-quiet) !important; color: var(--ink-secondary) !important; font-size: 11px; font-weight: 600; }
 html.dark .today-task-progress > div span { color: var(--brand) !important; }
 html.dark .today-dialog, html.dark .today-completion-dialog { background: var(--surface) !important; color: var(--ink); }
 @media (max-width: 640px) {

@@ -6,7 +6,7 @@ import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
 Clock, CheckCircle2, Circle, Share2, Heart, BookOpen, Zap, Sun, Moon, Brush,
-ShieldCheck, Crown, Trophy, Sparkles, Star
+ShieldCheck, Crown, Trophy, Sparkles, Star, CalendarDays, Calendar, Smile
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -155,7 +155,7 @@ const UI_STRINGS = [
 "Today's Note", "Edit", "Achievements",
 "Share Your Progress", "Share with Friends",
 "Daily Reflection", "Jot down a thought about your routine today.",
-"How did brushing feel today? Anything to improve?…", "Save", "Cancel", "Close",
+"How did brushing feel today? Anything to improve?…", "Save", "Save Visit", "Save Treatment", "Perfect consistency!", "Cancel", "Close",
 "Let's start your day right!", "Great start — keep going!",
 "Almost there, one more to go!", "All done — you're unstoppable!",
 "tasks remaining", "task remaining", "All tasks complete today",
@@ -644,15 +644,15 @@ const tip = translatedTips[tipIndex];
 const alignerTrayProgress = getAlignerTrayProgress();
 
 const motivations = [
-{ emoji: "🌅", textKey: "Let's start your day right!" },
-{ emoji: "⚡", textKey: "Great start — keep going!" },
-{ emoji: "🎯", textKey: "Almost there, one more to go!" },
-{ emoji: "🏆", textKey: "All done — you're unstoppable!" },
+{ textKey: "Let's start your day right!" },
+{ textKey: "Great start — keep going!" },
+{ textKey: "Almost there, one more to go!" },
+{ textKey: "All done — you're unstoppable!" },
 ];
 const mot = motivations[completedCount];
 const remainingText = completedCount < 3
 ? `${3 - completedCount} ${T(3 - completedCount !== 1 ? "tasks remaining" : "task remaining")}`
-: `${T("All tasks complete today")} 🎊`;
+: T("All tasks complete today");
 
 const currentMoodOption = MOOD_OPTIONS.find(m => m.labelKey === currentMood);
 const currentMoodTranslated = translatedMoods.find(m => m.labelKey === currentMood);
@@ -698,10 +698,10 @@ return (
 <div className="today-completion-dialog bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100" role="status" aria-live="polite" aria-labelledby="today-completion-title">
 <div className="mb-4 flex justify-center"><CheckCircle2 className="h-10 w-10 text-blue-700" strokeWidth={1.5} /></div>
 <h2 id="today-completion-title" className="text-2xl font-black text-gray-900 mb-2">{T("Day Complete!")}</h2>
-<p className="text-sm text-gray-500 mb-3">{isRecoveryDay ? `🔄 ${T("Recovery streak saved!")}` : "✨ Perfect consistency!"}</p>
+<p className="text-sm text-gray-500 mb-3">{isRecoveryDay ? T("Recovery streak saved!") : T("Perfect consistency!")}</p>
 {streakMultiplier > 1 && (
 <span className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-full border border-blue-100">
-⚡ {streakMultiplier}x {T("Multiplier Active")}
+{streakMultiplier}x {T("Multiplier Active")}
 </span>
 )}
 </div>
@@ -974,7 +974,7 @@ Log Dentist Visit
 <div className={`today-dentist-history rounded-3xl p-5 shadow-md border ${ nextDentistVisit && daysUntilVisit !== null && daysUntilVisit <= 0 ? "bg-orange-50 border-orange-200" : nextDentistVisit && daysUntilVisit !== null && daysUntilVisit <= 14 ? "bg-amber-50 border-amber-200" : "bg-white border-blue-100" }`}>
 {nextDentistVisit && daysUntilVisit !== null && (
 <div className="flex items-center gap-3 mb-3">
-<div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl flex-shrink-0 ${ daysUntilVisit <= 0 ? "bg-orange-100" : daysUntilVisit <= 14 ? "bg-amber-100" : "bg-blue-50" }`}>🦷</div>
+<div className="today-history-icon"><CalendarDays aria-hidden="true" /></div>
 <div className="min-w-0 flex-1">
 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Next Appointment</p>
 {daysUntilVisit > 0 ? (
@@ -986,7 +986,7 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 </>
 ) : (
 <>
-<p className="font-black text-base text-orange-600">⚠️ Overdue</p>
+<p className="font-black text-base text-orange-600">Overdue</p>
 <p className="text-xs text-gray-500 truncate">Was due {formatVisitDate(nextDentistVisit)}</p>
 </>
 )}
@@ -998,7 +998,7 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 )}
 {lastDentistVisit && (
 <div className="flex items-center gap-3">
-<div className="w-11 h-11 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-xl flex-shrink-0">📅</div>
+<div className="today-history-icon"><Calendar aria-hidden="true" /></div>
 <div className="min-w-0 flex-1">
 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Last Visit</p>
 <p className="font-semibold text-sm text-gray-700 truncate">{formatVisitDate(lastDentistVisit)}</p>
@@ -1105,7 +1105,7 @@ return (
 <button onClick={handleShare}
 className="press hover-lift w-full py-4 rounded-2xl text-sm font-black text-white flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg shadow-blue-200">
 <Share2 className="w-4 h-4" />
-📤 {T("Share Your Progress")}
+{T("Share Your Progress")}
 </button>
 
 {/* ── MODALS ── */}
@@ -1199,7 +1199,7 @@ onClick={() => setShowDentistModal(false)}>
 onClick={e => e.stopPropagation()}>
 <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
     <div className="flex items-center gap-3 mb-5">
-      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🦷</div>
+      <div className="today-dialog-icon"><CalendarDays aria-hidden="true" /></div>
       <div className="min-w-0">
         <h3 id="today-visit-title" className="text-lg font-black text-gray-900">Log Dentist Visit</h3>
         <p className="text-xs text-gray-500">Record your last visit and schedule the next one</p>
@@ -1242,7 +1242,7 @@ onClick={e => e.stopPropagation()}>
     </div>
     <button onClick={saveDentistModal}
       className="press hover-lift w-full py-4 rounded-2xl text-sm font-black text-white bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg shadow-blue-200 mb-2">
-      💾 Save Visit
+      {T("Save Visit")}
     </button>
     <button onClick={() => setShowDentistModal(false)}
       className="w-full py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl press font-semibold">
@@ -1262,7 +1262,7 @@ onClick={() => setShowAlignerSetup(false)}>
 onClick={e => e.stopPropagation()}>
   <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
   <div className="flex items-center gap-3 mb-5">
-    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">😁</div>
+    <div className="today-dialog-icon"><Smile aria-hidden="true" /></div>
     <div>
       <h3 id="today-aligner-title" className="text-lg font-black text-gray-900">Aligner Setup</h3>
       <p className="text-xs text-gray-500">Works with Invisalign, ClearCorrect & more</p>
@@ -1305,7 +1305,7 @@ onClick={e => e.stopPropagation()}>
   </div>
   <button onClick={saveAlignerSetup}
     className="press hover-lift w-full py-4 rounded-2xl text-sm font-black text-white bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg shadow-blue-200 mt-5 mb-2">
-    💾 Save Treatment
+    {T("Save Treatment")}
   </button>
   <button onClick={() => setShowAlignerSetup(false)}
     className="w-full py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl press font-semibold">
