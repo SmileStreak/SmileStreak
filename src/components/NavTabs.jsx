@@ -128,7 +128,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          {showMore && (
            <div
             id="more-tabs-menu"
-            data-origin="bottom-left"
+            data-origin="top-left"
              className="t-dropdown fixed z-[9999] min-w-[160px] max-w-[calc(100vw-16px)] overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-white p-2 flex flex-col gap-1"
              style={moreMenuPosition}
            >
