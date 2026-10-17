@@ -1478,11 +1478,13 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .mission-faq-trigger { border-radius: 0 !important; }
 .mission-faq-answer-panel {
   display: grid; grid-template-rows: 0fr;
-  transition: grid-template-rows 250ms var(--motion-out);
+  --faq-motion-duration: var(--acc-collapse);
+  transition: grid-template-rows var(--faq-motion-duration) var(--acc-ease);
 }
-.mission-faq-answer-panel.is-open { grid-template-rows: 1fr; }
+.mission-faq-answer-panel.is-open { grid-template-rows: 1fr; --faq-motion-duration: var(--acc-expand); }
 .mission-faq-answer-inner { min-height: 0; overflow: hidden; }
 .mission-faq-answer { max-width: 68ch; padding: 0 34px 16px 2px; color: var(--ink-muted); line-height: 1.65; }
+.mission-faq-trigger > svg { transition: transform var(--acc-chevron) var(--acc-ease); }
 .mission-feedback-dialog { max-height: min(88vh, 760px); overflow-y: auto; border: 1px solid var(--line); border-radius: 10px !important; box-shadow: 0 8px 24px rgb(0 0 0 / .04) !important; }
 .mission-feedback-dialog h3 { font-family: "Newsreader Variable", Georgia, serif; font-weight: 500; }
 .feedback-rating-options label { border-radius: 7px; }
@@ -1554,8 +1556,8 @@ html.dark .legal-delete-actions .legal-delete-cancel { border-color: #47545f; co
 .legal-terms-index button { min-height: 54px; transition: background-color 180ms ease-out, transform 180ms ease-out; }
 .legal-terms-index button > div:first-child > div { display: flex; color: var(--brand); }
 .legal-terms-index button > span:last-child { min-width: 36px; text-align: right; }
-.legal-terms-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 250ms var(--motion-out); }
-.legal-terms-panel.is-open { grid-template-rows: 1fr; }
+.legal-terms-panel { display: grid; grid-template-rows: 0fr; --terms-motion-duration: var(--acc-collapse); transition: grid-template-rows var(--terms-motion-duration) var(--acc-ease); }
+.legal-terms-panel.is-open { grid-template-rows: 1fr; --terms-motion-duration: var(--acc-expand); }
 .legal-terms-panel__inner { min-height: 0; overflow: hidden; }
 .legal-terms-panel [class*="text-sm"] { max-width: 74ch; padding-top: 0; color: var(--ink-secondary); }
 .legal-details-panel { border-radius: 8px !important; box-shadow: none !important; }
