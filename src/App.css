@@ -926,6 +926,37 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
 @keyframes consent-enter { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .analytics-consent.is-open { animation: none !important; } }
 
+.app-language-progress {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 72px);
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  transform: translateX(-50%);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgb(42 42 42 / .04);
+  animation: consent-enter 180ms var(--motion-out) both;
+}
+.app-language-progress__indicator {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--brand);
+  animation: language-progress-pulse 900ms ease-in-out infinite alternate;
+}
+@keyframes language-progress-pulse { to { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  .app-language-progress, .app-language-progress__indicator { animation: none !important; }
+}
+
 @media (max-width: 640px) {
   main { padding-top: 22px !important; }
   .app-page :is([class*="grid-cols-3"], [class*="grid-cols-4"]) { gap: 8px; }

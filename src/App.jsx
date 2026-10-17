@@ -35,7 +35,7 @@ import { auth, provider, db, setAnalyticsConsent } from "./firebase";
 import { setupFCMToken, onForegroundMessage } from "./utils/notifications";
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, onSnapshot, collection, query, where, getDocs } from "firebase/firestore";
-import { LogOut, RefreshCw, MessageCircle, X, Globe, Check, Languages, Moon, Sun, User, Edit3, BarChart2, Award, Trophy } from "lucide-react";
+import { LogOut, RefreshCw, MessageCircle, X, Globe, Check, Moon, Sun, User, Edit3, BarChart2, Award, Trophy } from "lucide-react";
 import { LANGUAGES, getStoredLanguage, saveLanguagePreference, detectBrowserLanguage, translateText, translateBatch } from "./utils/translate";
 import { calculateStreaks, isDayComplete } from "./utils/progress";
 import { ACHIEVEMENTS } from "./data/achievements";
@@ -86,6 +86,7 @@ export default function App() {
     statusAllowed: "Allowed",
     statusOff: "Off",
     statusUnknown: "Not enabled",
+    updatingLanguage: "Updating language…",
     privacyTerms: "Privacy & terms",
     sendFeedback: "Send feedback",
     giveFeedback: "Give Feedback",
@@ -228,6 +229,7 @@ export default function App() {
       statusAllowed: "Allowed",
       statusOff: "Off",
       statusUnknown: "Not enabled",
+      updatingLanguage: "Updating language…",
       privacyTerms: "Privacy & terms",
       sendFeedback: "Send feedback",
       giveFeedback: "Give Feedback",
@@ -1054,9 +1056,9 @@ export default function App() {
             </Presence>
 
             {translating && (
-              <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2">
-                <Languages className="w-5 h-5 animate-spin" />
-                <span className="font-semibold">Translating...</span>
+              <div className="app-language-progress" role="status" aria-live="polite">
+                <span className="app-language-progress__indicator" aria-hidden="true" />
+                <span>{analyticsConsentCopy.updatingLanguage}</span>
               </div>
             )}
 
