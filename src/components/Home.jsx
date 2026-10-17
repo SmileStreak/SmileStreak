@@ -17,7 +17,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 const dailyTips = [
   { id: 1, title: "Perfect Brushing Time", tip: "Brush for a full 2 minutes, spending 30 seconds in each quadrant of your mouth." },
   { id: 2, title: "Clean between teeth daily", tip: "The ADA recommends cleaning between your teeth once a day. Choose a time that fits your routine; flossing can happen before or after brushing." },
-  { id: 3, title: "Mouthwash Matters", tip: "Use mouthwash after brushing and flossing to rinse away loosened debris and freshen breath." },
+  { id: 3, title: "Use mouthrinse as directed", tip: "Mouthrinse may complement brushing and flossing for some people. Follow the product label; it does not replace either habit." },
   { id: 4, title: "Replace Your Toothbrush", tip: "Change your toothbrush every 3-4 months or sooner if bristles are frayed." },
   { id: 5, title: "Healthy Diet, Healthy Teeth", tip: "Limit sugary snacks and drinks. Crunchy fruits and veggies like apples and carrots help clean teeth naturally." },
   { id: 6, title: "Don't Brush Too Hard", tip: "Aggressive brushing can damage gums and enamel. Use gentle, circular motions." },
