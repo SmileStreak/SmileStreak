@@ -43,6 +43,7 @@ const canvasRef = useRef(null);
 const streamRef = useRef(null);
 const mountedRef = useRef(true);
 const undoScanButtonRef = useRef(null);
+const scanDialogReturnFocusRef = useRef(null);
 
 const formatScanTimestamp = (scan) => {
 const date = new Date(scan.date || scan.timestamp);
@@ -485,6 +486,48 @@ try {
 useEffect(() => {
 if (deletedScan) undoScanButtonRef.current?.focus();
 }, [deletedScan]);
+
+useEffect(() => {
+const titleId = showHistory ? "scan-history-title" : showShareModal ? "scan-share-title" : showExportOptions ? "scan-export-title" : null;
+const dialog = titleId ? document.getElementById(titleId)?.closest('[role="dialog"]') : null;
+
+if (!dialog) {
+  if (scanDialogReturnFocusRef.current?.isConnected) scanDialogReturnFocusRef.current.focus();
+  scanDialogReturnFocusRef.current = null;
+  return undefined;
+}
+
+if (!scanDialogReturnFocusRef.current) scanDialogReturnFocusRef.current = document.activeElement;
+const getFocusable = () => [...dialog.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+  .filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+const focusable = getFocusable();
+(focusable[0] || dialog).focus();
+
+const handleDialogKeys = (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    if (showHistory) setShowHistory(false);
+    else if (showShareModal) { setShowShareModal(false); setShareEmailError(""); }
+    else if (showExportOptions) setShowExportOptions(false);
+    return;
+  }
+  if (event.key !== "Tab") return;
+  const items = getFocusable();
+  if (!items.length) { event.preventDefault(); dialog.focus(); return; }
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+    event.preventDefault();
+    first.focus();
+  }
+};
+
+document.addEventListener("keydown", handleDialogKeys);
+return () => document.removeEventListener("keydown", handleDialogKeys);
+}, [showHistory, showShareModal, showExportOptions]);
 
 // Export results as text (real export)
 const exportAsText = () => {
