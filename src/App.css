@@ -2024,7 +2024,8 @@ html.dark .reminder-feedback--success p { color: #c3d6c8 !important; }
 .app-page--dentists .dentist-result__photos button,
 .app-page--dentists .t-modal-backdrop button { border-radius: 7px !important; }
 .app-page--dentists .t-modal-backdrop > div[class*="rounded-"] {
-  max-height: min(86vh, 900px); overflow-y: auto; border: 1px solid var(--line);
+  max-height: min(88vh, 860px); max-height: min(88dvh, 860px);
+  overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line);
   border-radius: 10px !important; box-shadow: 0 8px 24px rgb(0 0 0 / .04) !important;
 }
 .app-page--dentists .t-modal-backdrop > div[class*="rounded-"] h3 { font-family: "Newsreader Variable", Georgia, serif; font-size: 27px; font-weight: 500; }
