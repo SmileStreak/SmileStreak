@@ -525,7 +525,7 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
       {/* FOOTER */}
       <div className="border-t border-slate-200 pt-4 text-center">
         <p className="text-xs text-slate-600">
-          {translatedText.version} • {translatedText.lastUpdated} {new Date().toLocaleDateString()}
+          {translatedText.version} • {translatedText.lastUpdated} {new Date().toLocaleDateString(currentLanguage)}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 mt-2">
           <Lock className="w-3 h-3 text-slate-500" />
