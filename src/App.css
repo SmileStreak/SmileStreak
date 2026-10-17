@@ -930,6 +930,8 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   main { padding-top: 22px !important; }
   .app-page :is([class*="grid-cols-3"], [class*="grid-cols-4"]) { gap: 8px; }
   .app-page--home .home-dashboard { padding-right: 2px; padding-left: 2px; }
+  .app-footer { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .app-footer > div { flex-wrap: wrap; gap: 6px 14px; }
 }
 
 .today-page-heading,

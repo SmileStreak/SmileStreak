@@ -86,6 +86,9 @@ export default function App() {
     statusAllowed: "Allowed",
     statusOff: "Off",
     statusUnknown: "Not enabled",
+    privacyTerms: "Privacy & terms",
+    sendFeedback: "Send feedback",
+    giveFeedback: "Give Feedback",
     saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
     saveDeniedFailed: "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage."
   });
@@ -225,6 +228,9 @@ export default function App() {
       statusAllowed: "Allowed",
       statusOff: "Off",
       statusUnknown: "Not enabled",
+      privacyTerms: "Privacy & terms",
+      sendFeedback: "Send feedback",
+      giveFeedback: "Give Feedback",
       saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
       saveDeniedFailed: "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage."
     };
@@ -1081,14 +1087,14 @@ export default function App() {
               </div>
             </main>
 
-            <footer className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 border-t flex items-center justify-between text-xs ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
+            <footer className={`app-footer max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 border-t flex items-center justify-between text-xs ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
               <span>SmileStreak</span>
               <div className="flex items-center gap-4">
-                <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">Privacy & terms</button>
+                <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.privacyTerms}</button>
                 <button onClick={() => { setAnalyticsPreferenceNotice(""); setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.preferences}</button>
-                <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
+                <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title={analyticsConsentCopy.giveFeedback}>
                   <MessageCircle className="w-4 h-4" />
-                  <span>Send feedback</span>
+                  <span>{analyticsConsentCopy.sendFeedback}</span>
                 </button>
               </div>
             </footer>
