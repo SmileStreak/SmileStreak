@@ -331,7 +331,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
       </div>
 
       {/* Timeframe Selector */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="report-timeframe flex gap-2 overflow-x-auto pb-2" role="group" aria-label="Report date range">
         {[
           { id: 'all', label: translatedText.allTime },
           { id: '30days', label: translatedText.last30Days },
@@ -340,6 +340,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
           <button
             key={tf.id}
             onClick={() => setTimeframe(tf.id)}
+            aria-pressed={timeframe === tf.id}
             className={`px-4 py-2 rounded-xl font-semibold whitespace-nowrap transition-all ${
               timeframe === tf.id
                 ? 'bg-blue-500 text-white shadow-md'
@@ -375,7 +376,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
       <section className="report-section">
         <h3 className="font-black text-gray-900 mb-4">{translatedText.taskBreakdown}</h3>
         
-        <div className="space-y-4">
+        <div className="report-task-list space-y-4">
           {[
             { label: translatedText.morningBrushing, count: morningCount, icon: <Sun className="w-4 h-4 text-slate-600" /> },
             { label: translatedText.nightBrushing, count: nightCount, icon: <Moon className="w-4 h-4 text-slate-600" /> },
@@ -383,7 +384,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
           ].map((task) => {
             const taskPercent = percent(task.count);
             return (
-              <div key={task.label}>
+              <div key={task.label} className="report-task-row">
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
                     {task.icon}
@@ -391,7 +392,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
                   </div>
                   <span className="font-bold text-gray-900">{taskPercent}%</span>
                 </div>
-                <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div className="report-task-track relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="img" aria-label={`${task.label}: ${taskPercent}% (${task.count} of ${totalDays} days)`}>
                   <div
                     className="h-full bg-blue-600 transition-all duration-500"
                     style={{ width: `${taskPercent}%` }}
