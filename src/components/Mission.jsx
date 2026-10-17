@@ -84,7 +84,7 @@ export default function Mission() {
     principle1: "Education over diagnosis",
     principle2: "Trends over daily pressure",
     principle3: "Reflection over punishment",
-    principle4: "Privacy-first, local-only data storage",
+    principle4: "Local tracking with optional account sync",
     principle5: "Insights shown only when data is meaningful",
     principle6: "Transparency about limitations and uncertainty",
     researchTitle: "Research-Informed Design",
