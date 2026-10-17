@@ -869,7 +869,8 @@ const askAIAssistant = async () => {
             const isInCompare = selectedForCompare.some(s => s.id === d.id);
             const hasDirectoryAmenities = Object.values(d.accessibility || {}).some(Boolean)
               || Object.values(d.paymentOptions || {}).some(Boolean)
-              || Boolean(d.languages?.length);
+              || Boolean(d.languages?.length)
+              || Boolean(d.pediatricSpecialty);
 
             return (
               <article key={d.id} className={`dentist-result ${isInCompare ? "is-selected" : ""}`}>
@@ -902,14 +903,8 @@ const askAIAssistant = async () => {
                         <span className="dentist-feature-badge"><Target aria-hidden="true" /> Ortho Provider</span>
                       )}
                       {/* NEW: Specialized badges */}
-                      {d.pediatricSpecialty && (
-                        <span className="dentist-feature-badge"><Baby aria-hidden="true" /> Kids Friendly</span>
-                      )}
                       {d.anxietyFriendly && (
                         <span className="dentist-feature-badge"><Brain aria-hidden="true" /> Anxiety Friendly</span>
-                      )}
-                      {d.sedationOptions?.length > 0 && (
-                        <span className="dentist-feature-badge"><Moon aria-hidden="true" /> Sedation Available</span>
                       )}
                       {d.travelFriendly && (
                         <span className="dentist-feature-badge"><Plane aria-hidden="true" /> Travel Friendly</span>
