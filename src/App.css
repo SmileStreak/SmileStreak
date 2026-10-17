@@ -2255,6 +2255,7 @@ html.dark .account-username-modal button[class*="bg-blue-50"], html.dark .accoun
 .today-reflection-summary > p { color: var(--ink-secondary) !important; }
 .today-achievements { padding: 16px 0 !important; border-inline: 0 !important; border-bottom: 0 !important; background: transparent !important; }
 .today-achievements > div > span { border: 1px solid var(--line) !important; border-radius: 6px !important; background: var(--surface-quiet) !important; color: var(--ink-secondary) !important; font-weight: 550 !important; }
+.today-achievement-badge svg { width: 14px; height: 14px; flex: none; color: var(--brand); stroke-width: 1.7; }
 .today-week-chart { padding: 0 4px; }
 .today-week-day-bars > div { background-color: var(--line) !important; }
 .today-week-day-bars > div[class*="bg-blue-600"] { background-color: var(--brand) !important; }

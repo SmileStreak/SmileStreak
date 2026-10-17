@@ -5,7 +5,8 @@ import { getDateFromKey, getDateKey, getYesterdayKey } from "../utils/date.js";
 import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
-Clock, CheckCircle2, Circle, Share2, Heart, BookOpen, Zap, Sun, Moon, Brush
+Clock, CheckCircle2, Circle, Share2, Heart, BookOpen, Zap, Sun, Moon, Brush,
+ShieldCheck, Crown, Trophy, Sparkles, Star
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -134,11 +135,11 @@ const MOOD_OPTIONS = [
 ];
 
 const BADGE_META = {
-"Week Warrior":   { emoji: "🛡️", bg: "bg-blue-50",   text: "text-blue-700",   border: "border-blue-100" },
-"Monthly Master": { emoji: "👑", bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-100" },
-"Century Club":   { emoji: "🏆", bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-100" },
-"Perfect Week":   { emoji: "✨", bg: "bg-green-50",  text: "text-green-700",  border: "border-green-100" },
-"Perfect Month":  { emoji: "🌟", bg: "bg-pink-50",   text: "text-pink-700",   border: "border-pink-100" },
+"Week Warrior":   { icon: ShieldCheck },
+"Monthly Master": { icon: Crown },
+"Century Club":   { icon: Trophy },
+"Perfect Week":   { icon: Sparkles },
+"Perfect Month":  { icon: Star },
 };
 
 const UI_STRINGS = [
@@ -1088,10 +1089,11 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 <h3 id="today-achievements-title" className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{T("Achievements")}</h3>
 <div className="flex flex-wrap gap-2">
 {badges.map((b, i) => {
-const meta = BADGE_META[b] || { emoji:"⭐", bg:"bg-blue-50", text:"text-blue-700", border:"border-blue-100" };
+const meta = BADGE_META[b] || { icon: Star };
+const BadgeIcon = meta.icon;
 return (
-<span key={i} className={`inline-flex items-center gap-1.5 px-3 py-2 ${meta.bg} ${meta.text} rounded-xl text-xs font-bold border-2 ${meta.border}`}>
-{meta.emoji} {translatedBadgeNames[b] ?? b}
+<span key={i} className="today-achievement-badge inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border-2">
+<BadgeIcon aria-hidden="true" /> {translatedBadgeNames[b] ?? b}
 </span>
 );
 })}
