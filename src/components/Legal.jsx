@@ -61,7 +61,7 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
     sendMessage: "Send Message",
     hide: "Hide",
     view: "View",
-    version: "SmileStreak v1.1.1",
+    version: "SmileStreak v1.1.2",
     lastUpdated: "Last updated",
     
     // Export report sections
