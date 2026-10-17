@@ -86,6 +86,18 @@ export default function App() {
     statusAllowed: "Allowed",
     statusOff: "Off",
     statusUnknown: "Not enabled",
+    leaderboard: "Leaderboard",
+    lightMode: "Light",
+    darkMode: "Dark",
+    switchToLight: "Switch to light mode",
+    switchToDark: "Switch to dark mode",
+    changeLanguage: "Change language",
+    selectLanguage: "Select Language",
+    viewProfile: "View Profile",
+    editUsername: "Edit Username",
+    statisticsBadges: "Statistics & Badges",
+    switchAccount: "Switch Account",
+    signOut: "Sign Out",
     updatingLanguage: "Updating language…",
     loadingPage: "Loading page…",
     privacyTerms: "Privacy & terms",
@@ -230,6 +242,18 @@ export default function App() {
       statusAllowed: "Allowed",
       statusOff: "Off",
       statusUnknown: "Not enabled",
+      leaderboard: "Leaderboard",
+      lightMode: "Light",
+      darkMode: "Dark",
+      switchToLight: "Switch to light mode",
+      switchToDark: "Switch to dark mode",
+      changeLanguage: "Change language",
+      selectLanguage: "Select Language",
+      viewProfile: "View Profile",
+      editUsername: "Edit Username",
+      statisticsBadges: "Statistics & Badges",
+      switchAccount: "Switch Account",
+      signOut: "Sign Out",
       updatingLanguage: "Updating language…",
       loadingPage: "Loading page…",
       privacyTerms: "Privacy & terms",
@@ -815,32 +839,32 @@ export default function App() {
                               ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
                               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
-                        title="Leaderboard"
+                        title={analyticsConsentCopy.leaderboard}
                       >
                         <Trophy className={`w-4 h-4 ${showLeaderboard ? 'text-[var(--brand)]' : ''}`} />
-                        <span className="hidden sm:inline">Leaderboard</span>
+                        <span className="hidden sm:inline">{analyticsConsentCopy.leaderboard}</span>
                       </button>
                     )}
 
                     <button
                       onClick={toggleDarkMode}
-                      aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                      aria-label={darkMode ? analyticsConsentCopy.switchToLight : analyticsConsentCopy.switchToDark}
                       className={`app-header-control flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                         darkMode
                           ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
                           : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                       }`}
-                      title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                      title={darkMode ? analyticsConsentCopy.switchToLight : analyticsConsentCopy.switchToDark}
                     >
                       {darkMode ? (
                         <>
                           <Sun className="w-4 h-4" />
-                          <span className="hidden sm:inline">Light</span>
+                          <span className="hidden sm:inline">{analyticsConsentCopy.lightMode}</span>
                         </>
                       ) : (
                         <>
                           <Moon className="w-4 h-4" />
-                          <span className="hidden sm:inline">Dark</span>
+                          <span className="hidden sm:inline">{analyticsConsentCopy.darkMode}</span>
                         </>
                       )}
                     </button>
@@ -849,7 +873,7 @@ export default function App() {
                       <button
                         id="language-menu-trigger"
                         onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                        aria-label={`Change language. Current language: ${LANGUAGES[currentLanguage].name}`}
+                        aria-label={`${analyticsConsentCopy.changeLanguage}: ${LANGUAGES[currentLanguage].name}`}
                         aria-haspopup="menu"
                         aria-expanded={showLanguageMenu}
                         aria-controls="language-menu"
@@ -858,7 +882,7 @@ export default function App() {
                             ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
-                        title="Change Language"
+                        title={analyticsConsentCopy.changeLanguage}
                       >
                         <Globe className="w-4 h-4" />
                         <span className="hidden sm:inline">{LANGUAGES[currentLanguage].flag}</span>
@@ -871,7 +895,7 @@ export default function App() {
                           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                         }`}>
                           <div className={`px-4 py-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-                            <p className={`text-xs font-bold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Select Language</p>
+                            <p className={`text-xs font-bold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{analyticsConsentCopy.selectLanguage}</p>
                           </div>
                           {Object.entries(LANGUAGES).map(([code, lang]) => (
                             <button
@@ -955,7 +979,7 @@ export default function App() {
                                 }`}
                               >
                                 <User className="w-4 h-4 text-blue-600" />
-                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>View Profile</span>
+                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{analyticsConsentCopy.viewProfile}</span>
                               </button>
 
                               <button
@@ -972,7 +996,7 @@ export default function App() {
                                 }`}
                               >
                                 <Edit3 className="w-4 h-4 text-purple-600" />
-                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Edit Username</span>
+                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{analyticsConsentCopy.editUsername}</span>
                               </button>
 
                               <button
@@ -983,7 +1007,7 @@ export default function App() {
                               >
                                 <BarChart2 className="w-4 h-4 text-green-600" />
                                 <Award className="w-4 h-4 text-yellow-500 -ml-1" />
-                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Statistics & Badges</span>
+                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{analyticsConsentCopy.statisticsBadges}</span>
                               </button>
 
                               <div className={`my-1 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`} />
@@ -995,7 +1019,7 @@ export default function App() {
                                 }`}
                               >
                                 <RefreshCw className="w-4 h-4 text-blue-600" />
-                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Switch Account</span>
+                                <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{analyticsConsentCopy.switchAccount}</span>
                               </button>
 
                               <button
@@ -1005,7 +1029,7 @@ export default function App() {
                                 }`}
                               >
                                 <LogOut className="w-4 h-4 text-red-600" />
-                                <span className="text-sm font-medium text-red-600">Sign Out</span>
+                                <span className="text-sm font-medium text-red-600">{analyticsConsentCopy.signOut}</span>
                               </button>
                             </div>
                           </div>
