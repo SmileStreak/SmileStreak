@@ -137,6 +137,9 @@ html.dark header.sticky { background: rgb(17 24 32 / 0.96) !important; border-co
   background: var(--surface) !important; color: var(--ink-secondary) !important;
   box-shadow: none !important; transition: transform 180ms ease-out, color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out;
 }
+.app-header-control:disabled { cursor: wait; opacity: .72; }
+.auth-signin-error { margin: -4px 0 10px auto; max-width: 34rem; color: #9a3c32; font-size: 12px; line-height: 1.45; text-align: right; }
+html.dark .auth-signin-error { color: #f0a39a; }
 .app-header-control:focus-visible, .app-account-control:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .app-account-control { border-radius: 7px; transition: opacity 180ms ease-out, transform 180ms ease-out; }
 .app-account-control img { border-color: var(--line-strong) !important; box-shadow: none !important; }
@@ -151,7 +154,7 @@ html.dark .app-header-menu { background: var(--surface) !important; border-color
 html.dark .app-header-menu :is(p,span) { color: var(--ink-secondary); }
 html.dark .app-header-menu button:hover { background: #26323c !important; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .app-header-control:hover { transform: translateY(-1px); border-color: var(--line-strong) !important; background: var(--surface-quiet) !important; }
+  .app-header-control:not(:disabled):hover { transform: translateY(-1px); border-color: var(--line-strong) !important; background: var(--surface-quiet) !important; }
   .app-account-control:hover { transform: translateY(-1px); opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
