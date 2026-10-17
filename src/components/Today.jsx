@@ -5,7 +5,7 @@ import { getDateKey, getYesterdayKey } from "../utils/date.js";
 import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
-Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap, Sun, Moon
+Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap, Sun, Moon, Brush
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -357,7 +357,7 @@ for (let i = 6; i >= 0; i--) {
 const d = new Date(); d.setDate(d.getDate() - i);
 const day = habitData[getDateKey(d)];
 const done = day ? ["morning","night","floss"].filter(k => day[k]).length : 0;
-dots.push({ label: d.toLocaleDateString("en-US", { weekday:"short" }).slice(0,1), done, isToday: i === 0 });
+dots.push({ label: d.toLocaleDateString("en-US", { weekday:"short" }).slice(0,1), fullLabel: d.toLocaleDateString("en-US", { weekday:"long" }), done, isToday: i === 0 });
 }
 setWeekDots(dots);
 const scores = [];
@@ -574,11 +574,11 @@ return (
 }
 
 return (
-<section className="space-y-5 pb-8">
+<section className="today-page-content space-y-5 pb-8">
   {copied && (
-    <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50" style={{animation:"fadeIn .22s ease"}}>
-      <div className="bg-gray-900 text-white text-sm font-semibold px-5 py-2.5 rounded-2xl shadow-xl">
-        ✅ Copied to clipboard!
+    <div className="today-toast fixed top-5 left-1/2 -translate-x-1/2 z-50" role="status" aria-live="polite">
+      <div className="bg-gray-900 text-white text-sm font-semibold px-5 py-2.5 rounded-2xl">
+        Copied to clipboard
       </div>
     </div>
   )}
@@ -586,9 +586,9 @@ return (
 <Presence open={showCompletion}>
 {showCompletion && (
 <div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-center justify-center z-50">
-<div className="bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100">
+<div className="today-completion-dialog bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100" role="dialog" aria-modal="true" aria-labelledby="today-completion-title">
 <div className="mb-4 flex justify-center"><CheckCircle2 className="h-10 w-10 text-blue-700" strokeWidth={1.5} /></div>
-<p className="text-2xl font-black text-gray-900 mb-2">{T("Day Complete!")}</p>
+<h2 id="today-completion-title" className="text-2xl font-black text-gray-900 mb-2">{T("Day Complete!")}</h2>
 <p className="text-sm text-gray-500 mb-3">{isRecoveryDay ? `🔄 ${T("Recovery streak saved!")}` : "✨ Perfect consistency!"}</p>
 {streakMultiplier > 1 && (
 <span className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-full border border-blue-100">
@@ -599,17 +599,6 @@ return (
 </div>
 )}
 </Presence>
-
-  <style>{`
-    @keyframes fadeIn   { from{opacity:0}to{opacity:1} }
-    @keyframes slideUp  { from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1} }
-    @keyframes pulse-ring { 0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0} }
-    .press { transition: transform .14s ease }
-    .press:active { transform: scale(.98) }
-    .hover-lift { transition: transform 180ms ease-out, border-color 180ms ease-out }
-    .hover-lift:hover { transform: translateY(-2px) }
-    .aligner-pulse::before { content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid #06b6d4; animation:pulse-ring 1.5s ease-out infinite; }
-  `}</style>
 
 {/* ── DAILY ROUTINE HEADER ── */}
   <header className="today-page-heading">
@@ -647,10 +636,10 @@ return (
       <h3>{T("This Week")}</h3>
       <span>{T("Daily Tasks")}</span>
     </div>
-    <div className="flex justify-between items-end gap-2">
+    <div className="today-week-chart flex justify-between items-end gap-2" role="group" aria-label="Weekly routine completion">
       {weekDots.map((d, i) => (
-        <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-          <div className="w-full flex flex-col gap-0.5">
+        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-label={`${d.fullLabel}: ${d.done} of 3 tasks complete${d.isToday ? ", today" : ""}`}>
+          <div className="today-week-day-bars w-full flex flex-col gap-0.5" aria-hidden="true">
             {[2,1,0].map(slot => (
               <div key={slot} className={`h-2 rounded-sm transition-colors duration-200 ${d.done > slot ? "bg-blue-600" : "bg-slate-100"}`} />
             ))}
@@ -676,10 +665,10 @@ return (
 )}
 
 {/* ── DAILY TASKS ── */}
-  <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100 space-y-3">
+  <div className="today-task-panel bg-white rounded-3xl p-5 shadow-lg border border-blue-100 space-y-3">
     <div className="flex items-center gap-4 mb-2">
-      <div className="relative w-14 h-14 flex-shrink-0">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 56 56">
+      <div className="today-task-progress relative w-14 h-14 flex-shrink-0" role="progressbar" aria-label="Daily tasks complete" aria-valuemin="0" aria-valuemax="3" aria-valuenow={completedCount} aria-valuetext={`${completedCount} of 3 tasks complete`}>
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 56 56" aria-hidden="true">
           <circle cx="28" cy="28" r="22" fill="none" stroke="#e4eceb" strokeWidth="5" />
           <circle cx="28" cy="28" r="22" fill="none" stroke="#35666c" strokeWidth="5" strokeLinecap="round"
             strokeDasharray={`${2*Math.PI*22}`}
@@ -782,10 +771,10 @@ Log Dentist Visit
   </div>
 
 {/* ── ALIGNER TRACKER ── */}
-<div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
+<div className="today-aligner-panel bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
   <div className="flex items-center justify-between mb-4">
     <div className="flex items-center gap-2">
-      <span className="text-xl">😁</span>
+      <Clock className="today-section-icon" aria-hidden="true" />
       <div>
         <p className="font-bold text-gray-900">{T("Aligner Tracker")}</p>
         <p className="text-xs text-gray-500">Invisalign · ClearCorrect · Any aligner</p>
@@ -811,8 +800,8 @@ Log Dentist Visit
             {formatAlignerTime(alignerWornSeconds)} / {ALIGNER_GOAL_HOURS}h
           </span>
         </div>
-        <div className="h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100 mb-1">
-          <div className="h-full rounded-full transition-all duration-500"
+        <div className="today-aligner-track h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100 mb-1" role="progressbar" aria-label="Today's aligner wear time" aria-valuemin="0" aria-valuemax={ALIGNER_GOAL_HOURS} aria-valuenow={Math.min(ALIGNER_GOAL_HOURS, alignerWornHours)} aria-valuetext={`${formatAlignerTime(alignerWornSeconds)} of ${ALIGNER_GOAL_HOURS} hours`}>
+          <div className="h-full rounded-full transition-all duration-500" aria-hidden="true"
             style={{width:`${alignerPct}%`, background: alignerGoalReached ? "#708b79" : "#35666c"}} />
         </div>
         <div className="flex justify-between">
@@ -821,13 +810,12 @@ Log Dentist Visit
         </div>
       </div>
 
-      <button onClick={toggleAligner}
+      <button onClick={toggleAligner} aria-pressed={alignerRunning}
         className={`relative press hover-lift w-full py-5 rounded-2xl text-base font-black flex items-center justify-center gap-3 mb-4 transition-all duration-300 ${
           alignerRunning
             ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-100"
             : "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-100"
         }`}>
-        <span className="text-2xl">{alignerRunning ? "😮" : "😁"}</span>
         {alignerRunning ? "Aligners Out — Tap to Remove" : "Aligners In — Tap to Log"}
         {alignerRunning && (
           <span className="absolute top-2 right-3 text-xs font-bold text-white/80">
@@ -842,8 +830,8 @@ Log Dentist Visit
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Treatment Progress</span>
             <span className="text-xs font-black text-blue-600">{alignerTrayProgress.treatmentPct}% complete</span>
           </div>
-          <div className="h-2 bg-blue-100 rounded-full overflow-hidden mb-3">
-            <div className="h-full rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-700"
+          <div className="today-tray-track h-2 bg-blue-100 rounded-full overflow-hidden mb-3" role="progressbar" aria-label="Aligner treatment progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={alignerTrayProgress.treatmentPct}>
+            <div className="h-full rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-700" aria-hidden="true"
               style={{width:`${alignerTrayProgress.treatmentPct}%`}} />
           </div>
           <div className="flex justify-between">
@@ -863,30 +851,18 @@ Log Dentist Visit
         </div>
       )}
 
-      <div className="flex gap-2">
-        <div className="flex-1 bg-cyan-50 border border-cyan-100 rounded-xl p-3 text-center">
-          <p className="text-lg mb-1">🧼</p>
-          <p className="text-[10px] font-bold text-cyan-700">Clean aligners</p>
-          <p className="text-[10px] text-gray-400">when removed</p>
-        </div>
-        <div className="flex-1 bg-purple-50 border border-purple-100 rounded-xl p-3 text-center">
-          <p className="text-lg mb-1">💧</p>
-          <p className="text-[10px] font-bold text-purple-700">Rinse before</p>
-          <p className="text-[10px] text-gray-400">inserting</p>
-        </div>
-        <div className="flex-1 bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
-          <p className="text-lg mb-1">☕</p>
-          <p className="text-[10px] font-bold text-amber-700">Remove for</p>
-          <p className="text-[10px] text-gray-400">hot drinks</p>
-        </div>
-      </div>
+      <ul className="today-aligner-care-list" aria-label="Aligner care reminders">
+        <li><strong>Clean aligners</strong><span>When removed</span></li>
+        <li><strong>Rinse before inserting</strong><span>Use cool water</span></li>
+        <li><strong>Remove for hot drinks</strong><span>Protect the trays</span></li>
+      </ul>
     </>
   )}
 </div>
 
 {/* ── DENTIST VISIT CARD ── */}
 {(nextDentistVisit || lastDentistVisit) && (
-<div className={`rounded-3xl p-5 shadow-md border ${ nextDentistVisit && daysUntilVisit !== null && daysUntilVisit <= 0 ? "bg-orange-50 border-orange-200" : nextDentistVisit && daysUntilVisit !== null && daysUntilVisit <= 14 ? "bg-amber-50 border-amber-200" : "bg-white border-blue-100" }`}>
+<div className={`today-dentist-history rounded-3xl p-5 shadow-md border ${ nextDentistVisit && daysUntilVisit !== null && daysUntilVisit <= 0 ? "bg-orange-50 border-orange-200" : nextDentistVisit && daysUntilVisit !== null && daysUntilVisit <= 14 ? "bg-amber-50 border-amber-200" : "bg-white border-blue-100" }`}>
 {nextDentistVisit && daysUntilVisit !== null && (
 <div className="flex items-center gap-3 mb-3">
 <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl flex-shrink-0 ${ daysUntilVisit <= 0 ? "bg-orange-100" : daysUntilVisit <= 14 ? "bg-amber-100" : "bg-blue-50" }`}>🦷</div>
@@ -925,7 +901,7 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 
 {/* ── MILESTONE ── */}
 {streakMilestones.length > 0 && streakMilestones[0].remaining > 0 && (
-<div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
+<div className="today-milestone bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
 <div className="flex items-center gap-2 mb-3">
 <Zap className="w-5 h-5 text-blue-500" />
 <div className="flex items-center justify-between flex-1">
@@ -933,8 +909,8 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 <span className="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-lg">{current} → {streakMilestones[0].next} days</span>
 </div>
 </div>
-<div className="h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100">
-<div className="h-full rounded-full transition-all duration-700"
+<div className="today-milestone-track h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100" role="progressbar" aria-label="Progress toward next streak milestone" aria-valuemin="0" aria-valuemax={streakMilestones[0].next} aria-valuenow={Math.min(current, streakMilestones[0].next)} aria-valuetext={`${streakMilestones[0].remaining} days remaining`}>
+<div className="h-full rounded-full transition-all duration-700" aria-hidden="true"
 style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,background:"#35666c"}} />
 </div>
 <p className="text-xs text-gray-500 mt-2">{streakMilestones[0].remaining} {T("days to go — keep it up!")} 💪</p>
@@ -957,8 +933,8 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
   </aside>
 
 {/* ── BRUSHING TIPS ACCORDION ── */}
-<div className="bg-white rounded-3xl shadow-lg border border-blue-100 overflow-hidden">
-    <button className="w-full p-5 flex items-center justify-between press group" onClick={() => setTipsOpen(!tipsOpen)}>
+<div className="today-brushing-accordion bg-white rounded-3xl shadow-lg border border-blue-100 overflow-hidden">
+    <button aria-expanded={tipsOpen} aria-controls="today-brushing-tips" className="w-full p-5 flex items-center justify-between press group" onClick={() => setTipsOpen(!tipsOpen)}>
       <div className="flex items-center gap-2">
         <span className="text-xl">🪥</span>
         <p className="font-bold text-gray-900">{T("All Brushing Tips")}</p>
@@ -970,7 +946,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
       </div>
     </button>
     {tipsOpen && (
-      <div className="today-tips-list">
+      <div id="today-brushing-tips" className="today-tips-list">
         {translatedTips.map((tip, i) => (
           <div key={i} className="today-tip-row">
             <span aria-hidden="true">{tip.icon}</span>
@@ -986,7 +962,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 
 {/* ── REFLECTION NOTE ── */}
 {reflectionText && (
-<div className="bg-slate-50 border border-purple-200 rounded-3xl p-5">
+<aside className="today-reflection-summary bg-slate-50 border border-purple-200 rounded-3xl p-5">
 <div className="flex items-center justify-between mb-2">
 <div className="flex items-center gap-2">
 <Heart className="w-4 h-4 text-pink-500" />
@@ -995,13 +971,13 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 <button onClick={() => setShowReflection(true)} className="text-xs text-purple-500 font-bold press hover:text-purple-700">{T("Edit")}</button>
 </div>
 <p className="text-sm text-gray-600 italic leading-relaxed">"{reflectionText}"</p>
-</div>
+</aside>
 )}
 
 {/* ── BADGES ── */}
 {badges.length > 0 && (
-<div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-<p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">🏅 {T("Achievements")}</p>
+<section className="today-achievements bg-white rounded-3xl p-5 shadow-lg border border-blue-100" aria-labelledby="today-achievements-title">
+<h3 id="today-achievements-title" className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{T("Achievements")}</h3>
 <div className="flex flex-wrap gap-2">
 {badges.map((b, i) => {
 const meta = BADGE_META[b] || { emoji:"⭐", bg:"bg-blue-50", text:"text-blue-700", border:"border-blue-100" };
@@ -1012,7 +988,7 @@ return (
 );
 })}
 </div>
-</div>
+</section>
 )}
 
 {/* ── SHARE BUTTON ── */}
@@ -1026,17 +1002,16 @@ className="press hover-lift w-full py-4 rounded-2xl text-sm font-black text-whit
 <Presence open={showReflection}>
 {showReflection && (
 <div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
-style={{animation:"fadeIn .22s ease"}} onClick={() => setShowReflection(false)}>
-<div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl"
-style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)",boxShadow:"0 -8px 40px rgba(59,130,246,.15)"}}
+onClick={() => setShowReflection(false)}>
+<div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="today-reflection-title"
 onClick={e => e.stopPropagation()}>
 <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
 <div className="flex items-center gap-2 mb-1">
 <Heart className="w-5 h-5 text-pink-500" />
-<h3 className="text-lg font-black text-gray-900">{T("Daily Reflection")}</h3>
+<h3 id="today-reflection-title" className="text-lg font-black text-gray-900">{T("Daily Reflection")}</h3>
 </div>
 <p className="text-xs text-gray-500 mb-4">{T("Jot down a thought about your routine today.")}</p>
-<textarea value={reflectionText} onChange={e => setReflectionText(e.target.value)}
+<textarea aria-label={T("Daily reflection")} value={reflectionText} onChange={e => setReflectionText(e.target.value)}
 placeholder={T("How did brushing feel today? Anything to improve?…")}
 className="w-full p-4 border-2 border-blue-100 rounded-2xl text-sm text-gray-700 focus:outline-none focus:border-blue-400 min-h-[110px] resize-none" />
 <div className="flex gap-2 mt-4">
@@ -1057,15 +1032,14 @@ className="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-2xl text-sm font-bold
 <Presence open={showMoodModal}>
 {showMoodModal && (
 <div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
-style={{animation:"fadeIn .22s ease"}} onClick={() => setShowMoodModal(false)}>
-<div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl"
-style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
+onClick={() => setShowMoodModal(false)}>
+<div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="today-mood-title"
 onClick={e => e.stopPropagation()}>
 <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
-<h3 className="text-lg font-black text-gray-900 mb-4">{T("How are you feeling?")} 😊</h3>
+<h3 id="today-mood-title" className="text-lg font-black text-gray-900 mb-4">{T("How are you feeling?")}</h3>
 <div className="grid grid-cols-3 gap-3">
 {translatedMoods.map(m => (
-<button key={m.labelKey} onClick={() => saveMood(m.labelKey)}
+<button key={m.labelKey} aria-pressed={currentMood === m.labelKey} onClick={() => saveMood(m.labelKey)}
 className={`p-4 rounded-2xl border-2 text-center press transition-all hover-lift ${ currentMood === m.labelKey ? "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-400" : "bg-gradient-to-br from-gray-50 to-blue-50 border-gray-200 hover:border-blue-300" }`}>
 <div className="text-2xl mb-1.5">{m.emoji}</div>
 <div className="text-xs text-gray-600 font-bold">{m.label}</div>
@@ -1084,14 +1058,13 @@ className="w-full mt-4 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl p
 <Presence open={showShareModal}>
 {showShareModal && (
 <div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
-style={{animation:"fadeIn .22s ease"}} onClick={() => setShowShareModal(false)}>
-<div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl"
-style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
+onClick={() => setShowShareModal(false)}>
+<div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="today-share-title"
 onClick={e => e.stopPropagation()}>
 <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
 <div className="text-center mb-5">
 <div className="text-4xl mb-2">📤</div>
-<h3 className="text-lg font-black text-gray-900">{T("Share Your Progress")}</h3>
+<h3 id="today-share-title" className="text-lg font-black text-gray-900">{T("Share Your Progress")}</h3>
 <p className="text-xs text-gray-400 mt-1">🔥 {current} day streak · ✅ {completedCount}/3 today · 📊 {consistencyScore}% this week</p>
 </div>
 <button onClick={handleShare}
@@ -1111,38 +1084,37 @@ className="w-full mt-2.5 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-2xl
 <Presence open={showDentistModal}>
 {showDentistModal && (
 <div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
-style={{animation:"fadeIn .22s ease"}} onClick={() => setShowDentistModal(false)}>
-<div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
-style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
+onClick={() => setShowDentistModal(false)}>
+<div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-modal="true" aria-labelledby="today-visit-title"
 onClick={e => e.stopPropagation()}>
 <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
     <div className="flex items-center gap-3 mb-5">
       <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🦷</div>
       <div className="min-w-0">
-        <h3 className="text-lg font-black text-gray-900">Log Dentist Visit</h3>
+        <h3 id="today-visit-title" className="text-lg font-black text-gray-900">Log Dentist Visit</h3>
         <p className="text-xs text-gray-500">Record your last visit and schedule the next one</p>
       </div>
     </div>
     <div className="mb-5 p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">📅 Last Visit Date</p>
-      <input type="date" max={new Date().toISOString().split("T")[0]} value={lastVisitDateInput}
+      <label htmlFor="today-last-visit-date" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Last visit date</label>
+      <input id="today-last-visit-date" type="date" max={new Date().toISOString().split("T")[0]} value={lastVisitDateInput}
         onChange={e => setLastVisitDateInput(e.target.value)}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white"
         style={{maxWidth:"100%",boxSizing:"border-box",WebkitAppearance:"none",MozAppearance:"none",appearance:"none"}} />
       <p className="text-[10px] text-gray-400 mt-2">When did you last visit the dentist?</p>
     </div>
     <div className="mb-5">
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">🗓️ Next Appointment</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Next appointment</p>
       <div className="grid grid-cols-3 gap-2 mb-4">
         {[3, 6, 12].map(months => (
-          <button key={months} onClick={() => { setNextCustomMonths(months); setNextDateInput(""); }}
+          <button key={months} aria-pressed={nextCustomMonths === months && !nextDateInput} onClick={() => { setNextCustomMonths(months); setNextDateInput(""); }}
             className={`py-3 rounded-xl font-bold text-sm transition-all ${ nextCustomMonths === months && !nextDateInput ? "bg-blue-600 text-white shadow-md" : "bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100" }`}>
             {months}mo
           </button>
         ))}
       </div>
       <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-200 mb-4">
-        <input type="number" min="1" max="24" value={nextCustomMonths}
+        <input type="number" aria-label="Months until next appointment" min="1" max="24" value={nextCustomMonths}
           onChange={e => { setNextCustomMonths(Math.max(1, Math.min(24, parseInt(e.target.value) || 1))); setNextDateInput(""); }}
           className="w-16 text-center border border-blue-200 rounded-lg py-2 text-sm font-bold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
         <span className="text-sm text-gray-600">months from today</span>
@@ -1152,8 +1124,8 @@ onClick={e => e.stopPropagation()}>
         <div className="relative flex justify-center mb-4"><span className="px-3 bg-white text-xs text-gray-500">OR</span></div>
       </div>
       <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
-        <p className="text-xs font-medium text-gray-500 mb-2">Pick a specific date</p>
-        <input type="date" min={new Date().toISOString().split("T")[0]} value={nextDateInput}
+        <label htmlFor="today-next-visit-date" className="block text-xs font-medium text-gray-500 mb-2">Pick a specific date</label>
+        <input id="today-next-visit-date" type="date" min={new Date().toISOString().split("T")[0]} value={nextDateInput}
           onChange={e => setNextDateInput(e.target.value)}
           className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
       </div>
@@ -1175,48 +1147,47 @@ onClick={e => e.stopPropagation()}>
 <Presence open={showAlignerSetup}>
 {showAlignerSetup && (
 <div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
-style={{animation:"fadeIn .22s ease"}} onClick={() => setShowAlignerSetup(false)}>
-<div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
-style={{animation:"slideUp .35s cubic-bezier(.22,1,.36,1)"}}
+onClick={() => setShowAlignerSetup(false)}>
+<div className="today-dialog bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh]" role="dialog" aria-modal="true" aria-labelledby="today-aligner-title"
 onClick={e => e.stopPropagation()}>
   <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
   <div className="flex items-center gap-3 mb-5">
     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">😁</div>
     <div>
-      <h3 className="text-lg font-black text-gray-900">Aligner Setup</h3>
+      <h3 id="today-aligner-title" className="text-lg font-black text-gray-900">Aligner Setup</h3>
       <p className="text-xs text-gray-500">Works with Invisalign, ClearCorrect & more</p>
     </div>
   </div>
   <div className="space-y-4">
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Current Tray Number</p>
-      <input type="number" min="1" placeholder="e.g. 1" value={alignerTrayInput}
+      <label htmlFor="today-aligner-tray" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Current tray number</label>
+      <input id="today-aligner-tray" type="number" min="1" placeholder="e.g. 1" value={alignerTrayInput}
         onChange={e => setAlignerTrayInput(e.target.value)}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Number of Trays</p>
-      <input type="number" min="1" placeholder="e.g. 30" value={alignerTotalTraysInput}
+      <label htmlFor="today-aligner-total-trays" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total number of trays</label>
+      <input id="today-aligner-total-trays" type="number" min="1" placeholder="e.g. 30" value={alignerTotalTraysInput}
         onChange={e => setAlignerTotalTraysInput(e.target.value)}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Days Per Tray</p>
+      <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Days per tray</span>
       <div className="grid grid-cols-3 gap-2 mb-2">
         {[7, 10, 14].map(d => (
-          <button key={d} onClick={() => setAlignerDaysPerTrayInput(String(d))}
+          <button key={d} aria-pressed={alignerDaysPerTrayInput === String(d)} onClick={() => setAlignerDaysPerTrayInput(String(d))}
             className={`py-2.5 rounded-xl font-bold text-sm transition-all ${ alignerDaysPerTrayInput === String(d) ? "bg-blue-600 text-white shadow-md" : "bg-blue-50 text-blue-700 border border-blue-200" }`}>
             {d} days
           </button>
         ))}
       </div>
-      <input type="number" min="1" max="30" value={alignerDaysPerTrayInput}
+      <input type="number" aria-label="Custom days per tray" min="1" max="30" value={alignerDaysPerTrayInput}
         onChange={e => setAlignerDaysPerTrayInput(e.target.value)}
         className="w-full border border-blue-200 rounded-xl px-3 py-2 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Treatment Start Date</p>
-      <input type="date" max={new Date().toISOString().split("T")[0]} value={alignerStartDateInput}
+      <label htmlFor="today-aligner-start-date" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Treatment start date</label>
+      <input id="today-aligner-start-date" type="date" max={new Date().toISOString().split("T")[0]} value={alignerStartDateInput}
         onChange={e => setAlignerStartDateInput(e.target.value)}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>

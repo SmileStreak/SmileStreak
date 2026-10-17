@@ -2084,6 +2084,102 @@ html.dark .account-username-modal button[class*="bg-blue-50"], html.dark .accoun
 @media (prefers-reduced-motion: reduce) {
   .account-username-modal button, .account-dialog-close, .account-profile-content > button { transition: none; }
 }
+
+/* Today: keep the active checklist prominent and let supporting trackers read as one routine. */
+.today-task-panel {
+  border-color: var(--line) !important; border-radius: 9px !important;
+  background: var(--surface) !important; box-shadow: none !important;
+}
+.today-task-panel > .flex:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+.today-task-progress { flex: 0 0 52px !important; width: 52px !important; height: 52px !important; }
+.today-task-progress svg circle:first-child { stroke: var(--line) !important; }
+.today-task-progress svg circle:last-child { stroke: var(--brand) !important; }
+.today-task-progress > div span { color: var(--brand) !important; font-size: 12px !important; font-weight: 650 !important; }
+.today-aligner-panel {
+  padding: 20px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
+  border-bottom: 1px solid var(--line) !important; border-radius: 0 !important;
+  background: transparent !important; box-shadow: none !important;
+}
+.today-section-icon { width: 18px; height: 18px; color: var(--brand); stroke-width: 1.7; }
+.today-aligner-panel > div:first-child { min-height: 42px; }
+.today-aligner-panel > div:first-child p:first-child { color: var(--ink); font-weight: 650; }
+.today-aligner-panel > div:first-child button,
+.today-aligner-panel > button { min-height: 38px; border: 1px solid var(--line-strong); border-radius: 7px !important; background: var(--surface) !important; color: var(--ink-secondary) !important; box-shadow: none !important; }
+.today-aligner-panel > button { min-height: 44px; }
+.today-aligner-panel > button:not(:disabled):hover { border-color: var(--brand); background: var(--surface-quiet) !important; }
+.today-aligner-panel > div:nth-child(2) { padding: 12px 0 14px; border-block: 1px solid var(--line); }
+.today-aligner-track, .today-tray-track { border: 0 !important; background: var(--line) !important; }
+.today-aligner-track > div, .today-tray-track > div { background: var(--brand) !important; }
+.today-aligner-care-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 14px 0 0; padding: 0; list-style: none; }
+.today-aligner-care-list li { display: grid; gap: 3px; padding: 4px 12px; border-left: 1px solid var(--line); }
+.today-aligner-care-list li:first-child { padding-left: 0; border-left: 0; }
+.today-aligner-care-list strong { color: var(--ink-secondary); font-size: 12px; font-weight: 600; }
+.today-aligner-care-list span { color: var(--ink-muted); font-size: 11px; }
+.today-dentist-history, .today-milestone, .today-brushing-accordion, .today-achievements {
+  border-color: var(--line) !important; border-radius: 8px !important; box-shadow: none !important;
+}
+.today-dentist-history { padding: 16px 12px !important; background: transparent !important; border-inline: 0 !important; border-bottom: 0 !important; }
+.today-dentist-history :is(.bg-orange-50, .bg-amber-50) { background: var(--surface-quiet) !important; }
+.today-milestone { padding: 16px 0 !important; border-inline: 0 !important; border-top: 1px solid var(--line) !important; background: transparent !important; }
+.today-milestone-track { border: 0 !important; background: var(--line) !important; }
+.today-milestone-track > div { background: var(--brand) !important; }
+.today-brushing-accordion { overflow: clip; background: var(--surface) !important; }
+.today-brushing-accordion > button { min-height: 54px; padding: 14px 12px !important; color: var(--ink-secondary); text-align: left; transition: background-color 180ms ease-out; }
+.today-brushing-accordion > button:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.today-brushing-accordion > button > div:last-child { width: 28px !important; height: 28px !important; border: 1px solid var(--line-strong); border-radius: 6px !important; background: var(--surface-quiet) !important; color: var(--ink-secondary) !important; }
+.today-reflection-summary { padding: 14px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+.today-reflection-summary > div p { color: var(--ink-muted) !important; }
+.today-reflection-summary > p { color: var(--ink-secondary) !important; }
+.today-achievements { padding: 16px 0 !important; border-inline: 0 !important; border-bottom: 0 !important; background: transparent !important; }
+.today-achievements > div > span { border: 1px solid var(--line) !important; border-radius: 6px !important; background: var(--surface-quiet) !important; color: var(--ink-secondary) !important; font-weight: 550 !important; }
+.today-week-chart { padding: 0 4px; }
+.today-week-day-bars > div { background-color: var(--line) !important; }
+.today-week-day-bars > div[class*="bg-blue-600"] { background-color: var(--brand) !important; }
+html.dark .today-task-panel, html.dark .today-brushing-accordion { background: var(--surface) !important; }
+html.dark .today-aligner-care-list strong, html.dark .today-task-panel :is(p,span) { color: var(--ink-secondary); }
+html.dark .today-aligner-panel > div:first-child p:first-child { color: var(--ink); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .today-brushing-accordion > button:hover { background: var(--surface-quiet); }
+}
+@media (max-width: 540px) {
+  .today-aligner-care-list { grid-template-columns: 1fr; gap: 0; }
+  .today-aligner-care-list li, .today-aligner-care-list li:first-child { padding: 8px 0; border: 0; border-top: 1px solid var(--line); }
+  .today-aligner-care-list li:first-child { border-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .today-brushing-accordion > button { transition: none; }
+}
+
+/* Shared press/lift utilities are global because several lazy pages use them. */
+.press { transition: transform 150ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out, color 180ms ease-out; }
+.press:active { transform: scale(.98); }
+.hover-lift { transition: transform 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hover-lift:hover { transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .press, .hover-lift { transition: none !important; }
+  .press:active, .hover-lift:hover { transform: none !important; }
+}
+
+.today-toast > div { padding: 9px 13px; border: 1px solid rgb(255 255 255 / .14); border-radius: 6px !important; background: var(--ink) !important; box-shadow: 0 3px 12px rgb(42 42 42 / .12); }
+.today-dialog, .today-completion-dialog {
+  border: 1px solid var(--line) !important; border-radius: 10px !important;
+  box-shadow: 0 8px 28px rgb(24 33 42 / .08) !important;
+}
+.today-dialog :is(input, textarea, select) { border-color: var(--line-strong) !important; border-radius: 7px !important; }
+.today-dialog :is(input, textarea, select):focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; box-shadow: none !important; }
+.today-dialog button[class*="bg-gradient-to-r"] { min-height: 42px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
+.today-dialog button[class*="bg-gradient-to-r"]:hover { background: var(--brand-hover) !important; }
+.today-dialog > button:not([class*="bg-gradient-to-r"]) { border-radius: 7px !important; }
+.today-dialog > div[class*="bg-gray-50"] { border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+.today-completion-dialog { padding: 30px 32px !important; background: var(--surface) !important; color: var(--ink); }
+.today-completion-dialog h2 { font: 500 27px/1.1 "Newsreader Variable", Georgia, serif; }
+html.dark .today-task-progress > div span { color: var(--brand) !important; }
+html.dark .today-dialog, html.dark .today-completion-dialog { background: var(--surface) !important; color: var(--ink); }
+@media (max-width: 640px) {
+  .today-dialog { border-radius: 11px 11px 0 0 !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   .dentists-tool-button, .dentists-filter-panel button, .app-page--dentists .dentist-result__photos button { transition: none; }
 }
