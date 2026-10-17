@@ -1030,7 +1030,7 @@ const askAIAssistant = async () => {
             </div>
             <div className="space-y-6">
               {/* Basic Info */}
-              <div className="bg-blue-50 p-5 rounded-xl">
+              <div className="dentist-details-contact">
                 <p className="text-sm text-gray-700 mb-2 flex items-start gap-2"><MapPin className="w-4 h-4 text-blue-600 mt-0.5" />{selectedDentist.address}</p>
                 {selectedDentist.phone && <a href={`tel:${selectedDentist.phone}`} className="text-sm text-blue-600 font-semibold flex items-center gap-2 hover:text-blue-700"><Phone className="w-4 h-4" />{selectedDentist.phone}</a>}
                 {selectedDentist.website && <a href={selectedDentist.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 font-semibold flex items-center gap-2 mt-2 hover:text-blue-700"><Globe className="w-4 h-4" />{translatedText.website}</a>}
@@ -1059,7 +1059,7 @@ const askAIAssistant = async () => {
                     {Object.entries(selectedDentist.offerings)
                       .filter(([_, value]) => value === true)
                       .map(([key]) => (
-                        <span key={key} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                        <span key={key} className="dentist-detail-chip">
                           {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                         </span>
                       ))}
@@ -1075,7 +1075,7 @@ const askAIAssistant = async () => {
                     {Object.entries(selectedDentist.accessibility)
                       .filter(([_, value]) => value === true)
                       .map(([key]) => (
-                        <span key={key} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        <span key={key} className="dentist-detail-chip">
                           {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                         </span>
                       ))}
@@ -1107,7 +1107,7 @@ const askAIAssistant = async () => {
                     {Object.entries(selectedDentist.insuranceAccepted)
                       .filter(([_, value]) => value === true)
                       .map(([key]) => (
-                        <span key={key} className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
+                        <span key={key} className="dentist-detail-chip">
                           {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                         </span>
                       ))}
@@ -1121,7 +1121,7 @@ const askAIAssistant = async () => {
                   <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Users className="w-5 h-5 text-blue-600" />Our Dentists</h4>
                   <div className="space-y-3">
                     {selectedDentist.dentists.map((dentist, idx) => (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-xl">
+                      <div key={idx} className="dentist-profile-row">
                         <p className="font-bold text-gray-900">{dentist.name}</p>
                         <p className="text-sm text-gray-600">{dentist.specialty} • {dentist.yearsExperience} years experience</p>
                         {dentist.languages && (

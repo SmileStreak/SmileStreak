@@ -2377,6 +2377,13 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
   box-shadow: 0 6px 18px rgb(24 33 42 / .04) !important;
 }
 .dentists-dialog h3 { color: var(--ink) !important; font: 500 26px/1.12 "Newsreader Variable", Georgia, serif !important; }
+.dentists-dialog h4 svg { color: var(--brand) !important; }
+.dentist-details-contact { padding: 14px 16px; border: 1px solid var(--line); border-left: 2px solid var(--brand); border-radius: 7px; background: var(--surface-quiet); }
+.dentist-details-contact p { color: var(--ink-secondary) !important; }
+.dentist-details-contact a { color: var(--brand) !important; text-underline-offset: 2px; }
+.dentist-profile-row { padding: 11px 0; border-top: 1px solid var(--line); }
+.dentist-profile-row p:first-child { color: var(--ink); font-size: 13px; font-weight: 600; }
+.dentist-profile-row p + p { color: var(--ink-secondary); font-size: 12px; line-height: 1.5; }
 .dentists-dialog > div:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
 .dentists-dialog button:focus-visible, .dentists-dialog a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .dentists-dialog :is(input, select, textarea) { border-color: var(--line-strong) !important; border-radius: 7px !important; }
