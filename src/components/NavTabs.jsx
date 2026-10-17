@@ -16,9 +16,12 @@ export default function NavTabs({ activeTab, setActiveTab }) {
 
  const isMoreActive = moreTabs.map(t => t.toLowerCase()).includes(activeTab);
 
- const handleTab = (tab) => {
+ const handleTab = (tab, returnFocusToMore = false) => {
    setActiveTab(tab.toLowerCase());
    setShowMore(false);
+   if (returnFocusToMore) {
+     window.requestAnimationFrame(() => moreRef.current?.querySelector("#more-tabs-trigger")?.focus());
+   }
  };
 
  useEffect(() => {
@@ -130,7 +133,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                  <button
                    key={tab}
                    type="button"
-                   onClick={() => handleTab(tab)}
+                   onClick={() => handleTab(tab, true)}
                    aria-current={active ? "page" : undefined}
                    className={`
                      app-tab-menu-item px-3 py-2.5 rounded-md text-sm font-medium text-left
