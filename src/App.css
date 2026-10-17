@@ -1267,6 +1267,21 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
   border-radius: 0; background: transparent; text-align: left;
 }
 .mission-involved__action:hover { background: var(--surface-quiet); }
+.dentist-results { display: flex; flex-direction: column; }
+.dentist-results > p:first-child { margin: 0 0 2px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.dentist-result {
+  min-width: 0;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+  border-left: 2px solid transparent;
+  transition: border-color 180ms ease-out, background-color 180ms ease-out;
+}
+.dentist-result.is-selected { padding-left: 12px; border-left-color: var(--brand); }
+.dentist-result__photos img { display: block; }
+.dentist-result h3 { margin-bottom: 8px !important; color: var(--ink); font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+.dentist-result > div:last-child { padding-top: 12px; border-top: 1px solid var(--line); }
+.dentist-result button[aria-pressed="true"] { color: var(--brand); }
+html.dark .dentist-result { border-bottom-color: var(--line); }
 .scan-privacy-controls {
   padding: 16px 18px;
   border: 1px solid var(--line);

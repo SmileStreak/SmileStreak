@@ -770,7 +770,7 @@ const askAIAssistant = async () => {
 
       {/* DENTIST CARDS */}
       {!locationError && (
-        <div className="space-y-4">
+        <div className="dentist-results">
           <p className="px-1 text-xs leading-5 text-slate-600">Business listings, ratings, and photos provided by <span className="font-semibold">Google Maps</span>. Ratings and availability can change; confirm details with the dental office. Google checks for and removes fake reviews when identified, but does not verify every review. <a href="https://support.google.com/contributionpolicy/answer/7422880?hl=en" target="_blank" rel="noreferrer" className="underline underline-offset-2">Google Maps review policy</a>.</p>
           {sortedDentists.map((d) => {
             const estimate = insuranceEstimates[d.id];
@@ -778,10 +778,10 @@ const askAIAssistant = async () => {
             const isInCompare = selectedForCompare.some(s => s.id === d.id);
 
             return (
-              <div key={d.id} className={`group bg-white rounded-[2rem] p-6 shadow-md border-2 transition-all duration-200 ${isInCompare ? 'border-blue-400 shadow-lg scale-[1.02]' : 'border-gray-200 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1'}`}>
+              <article key={d.id} className={`dentist-result ${isInCompare ? "is-selected" : ""}`}>
                 {d.photos && d.photos.length > 0 && (
-                  <div className="mb-4 -mx-6 -mt-6">
-                    <div className="flex gap-2 overflow-x-auto pb-2 px-6 pt-6">
+                  <div className="dentist-result__photos mb-3">
+                    <div className="flex gap-2 overflow-x-auto pb-1">
                       {d.photos.slice(0, 4).map((photo, idx) => {
                         const photoUrl = getPhotoUrl(photo);
                         return photoUrl ? (
@@ -826,8 +826,8 @@ const askAIAssistant = async () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => toggleCompare(d)} className={`p-3 rounded-xl transition-all ${isInCompare ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-400'}`}><BarChart3 className="w-5 h-5" /></button>
-                    <button onClick={() => toggleFavorite(d)} className="p-3 rounded-xl hover:bg-gray-100 transition-all"><Heart className={`w-5 h-5 transition-all ${isFavorite(d.id) ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400'}`} /></button>
+                    <button type="button" onClick={() => toggleCompare(d)} aria-label={isInCompare ? "Remove dentist from comparison" : "Compare dentist"} aria-pressed={isInCompare} className={`p-3 rounded-xl transition-all ${isInCompare ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-400'}`}><BarChart3 className="w-5 h-5" /></button>
+                    <button type="button" onClick={() => toggleFavorite(d)} aria-label={isFavorite(d.id) ? "Remove dentist from saved list" : "Save dentist"} aria-pressed={isFavorite(d.id)} className="p-3 rounded-xl hover:bg-gray-100 transition-all"><Heart className={`w-5 h-5 transition-all ${isFavorite(d.id) ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400'}`} /></button>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -934,7 +934,7 @@ const askAIAssistant = async () => {
                   {d.phone && <a href={`tel:${d.phone}`} className="flex items-center justify-center gap-1 bg-green-500 text-white py-3 rounded-xl text-xs font-semibold hover:bg-green-600 transition-all hover:scale-[1.02]"><Phone className="w-3 h-3" /><span>{translatedText.call}</span></a>}
                   <button onClick={() => { fetchPlaceDetails(d.id); setSelectedDentist(d); }} className="flex items-center justify-center gap-1 bg-white border-2 border-gray-200 text-gray-900 py-3 rounded-xl text-xs font-semibold hover:border-blue-300 transition-all hover:scale-[1.02]"><ChevronRight className="w-3 h-3" /><span>{translatedText.viewDetails}</span></button>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
