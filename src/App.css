@@ -978,6 +978,7 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   .app-page--home .home-dashboard { padding-right: 2px; padding-left: 2px; }
   .app-footer { align-items: flex-start; flex-direction: column; gap: 10px; }
   .app-footer > div { flex-wrap: wrap; gap: 6px 14px; }
+  .app-footer button { min-height: 40px; }
 }
 
 .today-page-heading,
