@@ -35,27 +35,46 @@ export let analytics = null;
 const ANALYTICS_CONSENT_KEY = "smilestreak-analytics-consent";
 let analyticsConsentRevision = 0;
 
+function getSavedAnalyticsConsent() {
+  try {
+    return localStorage.getItem(ANALYTICS_CONSENT_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export async function setAnalyticsConsent(allowed) {
   if (typeof window === "undefined") return;
   const revision = ++analyticsConsentRevision;
-  localStorage.setItem(ANALYTICS_CONSENT_KEY, allowed ? "granted" : "denied");
-
-  if (!allowed) {
-    if (!analytics) return;
-    const { setAnalyticsCollectionEnabled } = await import("firebase/analytics");
-    if (revision === analyticsConsentRevision) setAnalyticsCollectionEnabled(analytics, false);
-    return;
+  let saved = false;
+  try {
+    localStorage.setItem(ANALYTICS_CONSENT_KEY, allowed ? "granted" : "denied");
+    saved = true;
+  } catch (error) {
+    console.warn("Analytics preference could not be saved:", error);
   }
 
+  if (!allowed) {
+    if (analytics) {
+      const { setAnalyticsCollectionEnabled } = await import("firebase/analytics");
+      if (revision === analyticsConsentRevision) setAnalyticsCollectionEnabled(analytics, false);
+    }
+    return saved;
+  }
+
+  // Fail closed: if a user's opt-in cannot be saved, do not enable analytics.
+  if (!saved) return false;
+
   const { isSupported, getAnalytics, setAnalyticsCollectionEnabled } = await import("firebase/analytics");
-  if (revision !== analyticsConsentRevision || localStorage.getItem(ANALYTICS_CONSENT_KEY) !== "granted") return;
-  if (!(await isSupported())) return;
-  if (revision !== analyticsConsentRevision || localStorage.getItem(ANALYTICS_CONSENT_KEY) !== "granted") return;
+  if (revision !== analyticsConsentRevision || getSavedAnalyticsConsent() !== "granted") return false;
+  if (!(await isSupported())) return true;
+  if (revision !== analyticsConsentRevision || getSavedAnalyticsConsent() !== "granted") return false;
   analytics = getAnalytics(app);
   setAnalyticsCollectionEnabled(analytics, true);
+  return true;
 }
 
-if (typeof window !== "undefined" && localStorage.getItem(ANALYTICS_CONSENT_KEY) === "granted") {
+if (typeof window !== "undefined" && getSavedAnalyticsConsent() === "granted") {
   setAnalyticsConsent(true).catch((error) => console.warn("Analytics could not be enabled:", error));
 }
 

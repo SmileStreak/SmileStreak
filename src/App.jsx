@@ -65,7 +65,11 @@ export default function App() {
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState("idle");
-  const [analyticsChoice, setAnalyticsChoice] = useState(() => localStorage.getItem("smilestreak-analytics-consent"));
+  const [analyticsChoice, setAnalyticsChoice] = useState(() => {
+    try { return localStorage.getItem("smilestreak-analytics-consent"); }
+    catch { return null; }
+  });
+  const [analyticsPreferenceNotice, setAnalyticsPreferenceNotice] = useState("");
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -156,8 +160,22 @@ export default function App() {
   };
 
   const chooseAnalytics = async (allowed) => {
-    await setAnalyticsConsent(allowed);
-    setAnalyticsChoice(allowed ? "granted" : "denied");
+    setAnalyticsPreferenceNotice("");
+    try {
+      const saved = await setAnalyticsConsent(allowed);
+      setAnalyticsChoice(allowed && !saved ? null : allowed ? "granted" : "denied");
+      if (!saved) {
+        setAnalyticsPreferenceNotice(allowed
+          ? "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
+          : "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
+      }
+    } catch (error) {
+      console.error("Could not update analytics preference:", error);
+      setAnalyticsChoice(allowed ? null : "denied");
+      setAnalyticsPreferenceNotice(allowed
+        ? "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
+        : "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
+    }
   };
 
   // SAVE LOCALLY
@@ -962,7 +980,7 @@ export default function App() {
                   {activeTab === "report" && <Report habitData={habitData} />}
                   {activeTab === "insights" && <Insights habitData={habitData} />}
                   {activeTab === "mission" && <Mission />}
-                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} />}
+                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} analyticsChoice={analyticsChoice} />}
                 </Suspense>
               </div>
             </main>
@@ -971,7 +989,7 @@ export default function App() {
               <span>SmileStreak</span>
               <div className="flex items-center gap-4">
                 <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">Privacy & terms</button>
-                <button onClick={() => { setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">Privacy settings</button>
+                <button onClick={() => { setAnalyticsPreferenceNotice(""); setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">Cookie preferences</button>
                 <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
                   <MessageCircle className="w-4 h-4" />
                   <span>Send feedback</span>
@@ -981,19 +999,29 @@ export default function App() {
 
             <Presence open={analyticsChoice === null} duration={180}>
             {analyticsChoice === null && (
-              <aside aria-label="Analytics preference" className={`analytics-consent fixed inset-x-0 bottom-0 z-40 border-t px-4 py-4 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] ${darkMode ? "bg-gray-900 border-gray-700 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}>
+              <aside aria-labelledby="analytics-consent-title" className={`analytics-consent fixed inset-x-0 bottom-0 z-40 border-t px-4 py-4 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] ${darkMode ? "bg-gray-900 border-gray-700 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}>
                 <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="max-w-3xl text-sm leading-relaxed">
-                    SmileStreak uses local storage for app preferences and progress. Optional Firebase Analytics helps us understand app use. Your choice is saved on this device; you can change it in Privacy settings.
-                  </p>
-                  <div className="flex shrink-0 gap-2">
-                    <button type="button" onClick={() => chooseAnalytics(false)} className={`rounded-md border px-3 py-2 text-sm font-medium ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>No thanks</button>
-                    <button type="button" onClick={() => chooseAnalytics(true)} className="rounded-md bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">Allow analytics</button>
+                  <div className="max-w-3xl">
+                    <h2 id="analytics-consent-title" className="text-sm font-semibold">Cookie and analytics choices</h2>
+                    <p className="mt-1 text-sm leading-relaxed">
+                      SmileStreak stores app settings and progress in your browser. Optional Firebase Analytics may use analytics cookies or identifiers to understand app use; it stays off unless you allow it. You can change your choice in Cookie preferences.
+                    </p>
+                    {analyticsPreferenceNotice && <p role="status" className="mt-2 text-sm">{analyticsPreferenceNotice}</p>}
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    <button type="button" onClick={() => chooseAnalytics(false)} className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Reject optional analytics</button>
+                    <button type="button" onClick={() => chooseAnalytics(true)} className={`rounded-md border px-3 py-2 text-sm font-semibold transition-colors duration-200 ${darkMode ? "border-gray-500 hover:bg-gray-800" : "border-gray-500 hover:bg-gray-50"}`}>Accept optional analytics</button>
                   </div>
                 </div>
               </aside>
             )}
             </Presence>
+
+            {analyticsPreferenceNotice && analyticsChoice !== null && (
+              <p role="status" className={`fixed bottom-4 left-4 z-50 max-w-sm rounded-lg border px-4 py-3 text-sm shadow-sm ${darkMode ? "border-gray-600 bg-gray-900 text-gray-100" : "border-gray-300 bg-white text-gray-800"}`}>
+                {analyticsPreferenceNotice}
+              </p>
+            )}
 
             <Presence open={showFeedback}>
             {showFeedback && (

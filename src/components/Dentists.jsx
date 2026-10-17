@@ -54,6 +54,8 @@ export default function Dentists() {
   const [userLocation, setUserLocation] = useState(null);
   const [translatedText, setTranslatedText] = useState({});
   const [locationError, setLocationError] = useState(false);
+  const [locationErrorMessage, setLocationErrorMessage] = useState("");
+  const [favoritesStorageWarning, setFavoritesStorageWarning] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [selectedPhotoAttributions, setSelectedPhotoAttributions] = useState([]);
   const [selectedPhotoGoogleMapsUri, setSelectedPhotoGoogleMapsUri] = useState(null);
@@ -101,7 +103,14 @@ export default function Dentists() {
     directions: "Directions", call: "Call", savedDentists: "Saved Dentists",
     viewDetails: "View Details", photos: "Photos", website: "Website",
     filters: "Filters", searchRadius: "Search Radius", results: "results",
-    minRating: "Minimum Rating", onlyOpenNow: "Only Open Now", clearFilters: "Clear All"
+    minRating: "Minimum Rating", onlyOpenNow: "Only Open Now", clearFilters: "Clear All",
+    locationDenied: "Location access is blocked. Allow it in browser settings and try again.",
+    locationUnavailable: "Your location couldn’t be determined. Check device location services and try again.",
+    locationTimeout: "The location request took too long. Try again when you have a stronger signal.",
+    dentistLoadFailed: "Dentists couldn’t be loaded right now. Check your connection and retry.",
+    noMatchingDentists: "No dentists match this search.",
+    noMatchingDentistsDesc: "Clear the name search and filters to see the full list again.",
+    clearSearchAndFilters: "Clear search and filters"
   };
 
   useEffect(() => {
@@ -116,10 +125,16 @@ export default function Dentists() {
   }, [currentLanguage, t]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('favoriteDentists') || '[]');
-    const placeIds = saved.map((item) => typeof item === "string" ? item : item?.id).filter(Boolean);
-    setFavorites(placeIds);
-    localStorage.setItem('favoriteDentists', JSON.stringify(placeIds));
+    try {
+      const saved = JSON.parse(localStorage.getItem('favoriteDentists') || '[]');
+      if (!Array.isArray(saved)) throw new TypeError("Saved dentist favorites are not a list");
+      const placeIds = saved.map((item) => typeof item === "string" ? item : item?.id).filter(Boolean);
+      setFavorites(placeIds);
+      localStorage.setItem('favoriteDentists', JSON.stringify(placeIds));
+    } catch (error) {
+      console.error("Could not read saved dentist favorites:", error);
+      setFavoritesStorageWarning(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -160,7 +175,13 @@ export default function Dentists() {
     const isFavorited = favorites.includes(dentist.id);
     const updated = isFavorited ? favorites.filter((id) => id !== dentist.id) : [...favorites, dentist.id];
     setFavorites(updated);
-    localStorage.setItem('favoriteDentists', JSON.stringify(updated));
+    try {
+      localStorage.setItem('favoriteDentists', JSON.stringify(updated));
+      setFavoritesStorageWarning(false);
+    } catch (error) {
+      console.error("Could not save dentist favorites:", error);
+      setFavoritesStorageWarning(true);
+    }
   };
 
   const isFavorite = (dentistId) => favorites.includes(dentistId);
@@ -171,6 +192,17 @@ export default function Dentists() {
     } else if (selectedForCompare.length < 3) {
       setSelectedForCompare([...selectedForCompare, dentist]);
     }
+  };
+
+  const clearSearchAndFilters = () => {
+    setSearchQuery("");
+    setFilterOpenNow(false);
+    setFilterMinRating(0);
+    setSearchRadius(31);
+    setAccessibilityFilters({ wheelchair: false, signLanguage: false, largePrint: false, serviceAnimal: false, sensoryFriendly: false });
+    setShowFamilyKids(false);
+    setShowDentalAnxiety(false);
+    setShowTravelMode(false);
   };
 
   // FIXED: AI Assistant function using Gemini with GEMINI_API_KEY
@@ -230,9 +262,15 @@ const askAIAssistant = async () => {
   const fetchDentists = async (radius) => {
     setLoading(true);
     setLocationError(false);
+    setLocationErrorMessage("");
     try {
+      if (!navigator.geolocation) throw new Error("Geolocation is unavailable in this browser");
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 12000,
+          maximumAge: 300000
+        });
       });
       const { latitude, longitude } = position.coords;
       setUserLocation({ latitude, longitude });
@@ -304,7 +342,15 @@ const askAIAssistant = async () => {
     } catch (error) {
       console.error("Unable to load nearby dentists:", error);
       setDentists([]);
-      if (error?.code) setLocationError(true);
+      setLocationError(true);
+      const message = error?.code === 1
+        ? translatedText.locationDenied
+        : error?.code === 2
+          ? translatedText.locationUnavailable
+          : error?.code === 3
+            ? translatedText.locationTimeout
+            : translatedText.dentistLoadFailed;
+      setLocationErrorMessage(message || "Dentists couldn’t be loaded right now. Check your connection and retry.");
     } finally {
       setLoading(false);
     }
@@ -462,6 +508,12 @@ const askAIAssistant = async () => {
           </div>
         </div>
       </div>
+
+      {favoritesStorageWarning && (
+        <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-950">
+          Saved dentist changes may last only for this session because browser storage couldn’t be accessed.
+        </p>
+      )}
 
       {/* NEW: AI Assistant Modal */}
       <Presence open={showAIAssistant}>
@@ -755,19 +807,31 @@ const askAIAssistant = async () => {
 
       {/* LOCATION ERROR */}
       {locationError && (
-        <div className="bg-red-50 border-2 border-red-200 rounded-[2rem] p-6 text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-          <p className="text-gray-700 font-medium mb-3">Location access denied. Please enable location services.</p>
-          <button onClick={() => fetchDentists(searchRadius)} className="bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors">Retry</button>
+        <div role="alert" className="bg-rose-50 border border-rose-200 rounded-xl p-6 text-center">
+          <AlertTriangle className="w-6 h-6 text-rose-700 mx-auto mb-3" aria-hidden="true" />
+          <p className="text-slate-800 font-medium mb-4">{locationErrorMessage}</p>
+          <button disabled={loading} onClick={() => fetchDentists(searchRadius)} className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-semibold transition-colors duration-200 ease-out hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-wait disabled:opacity-60">{loading ? "Trying…" : "Try again"}</button>
         </div>
       )}
 
       {/* NO RESULTS */}
       {!loading && !locationError && sortedDentists.length === 0 && (
-        <div className="text-center py-16 bg-gray-50 rounded-[2rem]">
-          <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 font-medium text-lg">{translatedText.noDentists}</p>
-          <p className="text-sm text-gray-500 mt-2">{translatedText.expandSearch}</p>
+        <div className="text-center py-12 px-6 bg-slate-50 border border-slate-200 rounded-xl">
+          <MapPin className="w-7 h-7 text-slate-500 mx-auto mb-4" aria-hidden="true" />
+          {dentists.length > 0 ? (
+            <>
+              <p className="text-slate-900 font-semibold text-lg">{translatedText.noMatchingDentists}</p>
+              <p className="text-sm text-slate-600 mt-2 mb-5">{translatedText.noMatchingDentistsDesc}</p>
+              <button type="button" onClick={clearSearchAndFilters} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition-colors duration-200 ease-out hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+                {translatedText.clearSearchAndFilters}
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-slate-900 font-semibold text-lg">{translatedText.noDentists}</p>
+              <p className="text-sm text-slate-600 mt-2">{translatedText.expandSearch}</p>
+            </>
+          )}
         </div>
       )}
 
