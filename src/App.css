@@ -144,6 +144,7 @@ html.dark header.sticky { background: #111820 !important; border-color: #303a45 
   box-shadow: 0 2px 8px rgb(42 42 42 / .04); transition: transform 160ms ease-out;
 }
 .skip-to-content:focus { transform: translateY(0); outline: 2px solid var(--brand); outline-offset: 2px; }
+#main-content { scroll-margin-top: 78px; }
 #main-content:focus { outline: none; }
 .app-header-control:disabled { cursor: wait; opacity: .72; }
 .auth-signin-error { margin: -4px 0 10px auto; max-width: 34rem; color: #9a3c32; font-size: 12px; line-height: 1.45; text-align: right; }
