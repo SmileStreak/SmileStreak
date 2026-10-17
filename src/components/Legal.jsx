@@ -248,7 +248,7 @@ export default function Legal({ onAnalyticsChoice }) {
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="legal-page space-y-6 pb-10">
 
       {/* HERO */}
       <div className="page-heading-surface relative overflow-hidden">
@@ -264,7 +264,7 @@ export default function Legal({ onAnalyticsChoice }) {
       </div>
 
       {/* ACCORDION TERMS */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="legal-terms-index overflow-hidden rounded-xl border border-slate-200 bg-white">
         {sections.map((s) => (
           <div key={s.id} className="border-b last:border-none border-gray-100">
             <button
@@ -293,7 +293,7 @@ export default function Legal({ onAnalyticsChoice }) {
         ))}
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="privacy-details-title">
+      <section className="legal-details-panel rounded-xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="privacy-details-title">
         <h3 id="privacy-details-title" className="text-lg font-semibold text-slate-900">What the app uses</h3>
         <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700">
           <p><strong>Account and synced data.</strong> Google sign-in provides your account identity. SmileStreak stores your email, display name, profile photo URL, username, language, theme, habit progress (which can include mood selections, reflections, aligner schedules, and dentist visit dates), leaderboard values, and notification token in Firebase services.</p>
@@ -315,9 +315,9 @@ export default function Legal({ onAnalyticsChoice }) {
       </section>
 
       {/* DATA CONTROLS */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <section className="legal-controls-panel" aria-labelledby="legal-controls-title">
         <h3 className="mb-4 font-serif text-xl font-medium tracking-tight text-slate-900">
-          {translatedText.yourDataControls}
+          <span id="legal-controls-title">{translatedText.yourDataControls}</span>
         </h3>
 
         <div className="grid gap-3">
@@ -353,16 +353,16 @@ export default function Legal({ onAnalyticsChoice }) {
         </div>
         <p className="mt-3 text-xs leading-5 text-slate-600">Deleting removes your SmileStreak Firebase account, synced profile, and data saved in this browser. It does not delete the Google Account used to sign in or messages already submitted to support.</p>
         {deleteError && <p role="alert" className="mt-3 text-sm font-medium text-red-700">SmileStreak could not delete the synced profile. Check your connection and try again.</p>}
-      </div>
+      </section>
 
       {/* SUPPORT FORM */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <section className="legal-support-panel" aria-labelledby="legal-support-title">
         <h3 className="mb-4 font-serif text-xl font-medium tracking-tight text-slate-900">
-          {translatedText.contactSupport}
+          <span id="legal-support-title">{translatedText.contactSupport}</span>
         </h3>
 
         {sent ? (
-          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
+          <div className="legal-support-success bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
             <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
             <p className="text-green-600 font-semibold text-sm">
               {translatedText.messageSent}
@@ -398,14 +398,14 @@ export default function Legal({ onAnalyticsChoice }) {
 
             <button 
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 rounded-xl font-bold hover:shadow-lg hover:scale-[1.02] transition-all"
+              className="legal-primary-action w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 rounded-xl font-bold transition-all"
             >
               {translatedText.sendMessage}
             </button>
             {supportError && <p role="alert" className="text-sm font-medium text-red-700">Your message could not be sent. Please try again.</p>}
           </form>
         )}
-      </div>
+      </section>
 
       {/* EXPORT SUCCESS MESSAGE */}
       {exported && (

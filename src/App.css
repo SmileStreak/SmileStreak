@@ -1384,6 +1384,32 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .legal-data-action span { line-height: 1.45; }
 .legal-data-action:hover { background: var(--surface-quiet); }
 .legal-data-action--destructive:hover { background: #f5efed; }
+.legal-page > h2 { margin: 0; }
+.legal-terms-index { border-radius: 8px !important; box-shadow: none !important; }
+.legal-terms-index > div { border-color: var(--line) !important; }
+.legal-terms-index > div:last-child { border-bottom: 0; }
+.legal-terms-index button { min-height: 54px; }
+.legal-terms-index button > div:first-child > div { display: flex; color: var(--brand); }
+.legal-terms-index button > span:last-child { min-width: 36px; text-align: right; }
+.legal-terms-index [id^="legal-section-"] { max-width: 74ch; padding-top: 0; color: var(--ink-secondary); }
+.legal-details-panel { border-radius: 8px !important; box-shadow: none !important; }
+.legal-details-panel h3 { font-family: "Newsreader Variable", Georgia, serif; font-size: 24px; font-weight: 500; }
+.legal-details-panel > div:first-of-type { max-width: 78ch; }
+.legal-controls-panel, .legal-support-panel { padding: 22px 0; border-top: 1px solid var(--line); }
+.legal-controls-panel h3, .legal-support-panel h3 { margin: 0 0 9px !important; color: var(--ink); font-family: "Newsreader Variable", Georgia, serif; font-size: 24px; font-weight: 500; }
+.legal-support-panel form { max-width: 620px; }
+.legal-support-panel :is(input, textarea) { border-radius: 7px !important; }
+.legal-support-panel input[type="checkbox"] { accent-color: var(--brand); }
+.legal-support-panel input:focus, .legal-support-panel textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgb(53 102 108 / .12); }
+.legal-primary-action { border: 1px solid var(--brand-action); border-radius: 7px !important; box-shadow: none !important; }
+.legal-support-success { display: inline-flex; align-items: center; gap: 9px; padding: 10px 12px !important; border: 1px solid var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; text-align: left !important; }
+.legal-support-success svg { width: 18px; height: 18px; margin: 0 !important; color: var(--brand) !important; }
+.legal-support-success p { color: var(--ink-secondary) !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .legal-terms-index button:hover { padding-left: 22px; }
+  .legal-primary-action:hover { filter: brightness(1.05); }
+}
+@media (prefers-reduced-motion: reduce) { .legal-terms-index button, .legal-primary-action { transition: none; } }
 .legal-export-toast {
   position: fixed; right: 24px; bottom: 24px; z-index: 30;
   display: flex; align-items: center; gap: 9px; padding: 12px 16px;
