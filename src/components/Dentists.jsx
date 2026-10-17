@@ -136,6 +136,13 @@ export default function Dentists() {
     toggleFilters: "Toggle dentist filters", searchDentists: "Search dentists by name",
     searchPlaceholder: "Search by dentist name", directoryActions: "Dentist directory actions",
     savedShortLabel: "Saved",
+    clearAllFilters: "Clear All", minRatingLabel: "Minimum Rating",
+    basicFilters: "Basic Filters", accessibilityFeatures: "Accessibility Features",
+    wheelchairEntranceReported: "Wheelchair-accessible entrance reported",
+    wheelchairFilterNote: "This filter shows only offices Google explicitly lists as having an accessible entrance. Missing listing details don’t confirm whether a location is accessible.",
+    confirmWithOffice: "Details to confirm with an office",
+    directoryDetailsNote: "The listing source doesn’t provide reliable filters for interpreters, sensory needs, family care, sedation, or travel access. Use each office’s call or website link to check these details before visiting.",
+    anyRating: "Any", milesShort: "miles", found: "Found",
     closeQuestionAssistant: "Close dental question assistant", closeCostQuestions: "Close treatment cost questions",
     closeVisitPrep: "Close dental visit prep", dentalOfficePhoto: "Dental office photo",
     closeOfficePhoto: "Close dental office photo", officePhotoFromMaps: "Dental office photo from Google Maps",
@@ -555,7 +562,7 @@ const askAIAssistant = async () => {
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{favorites.length}</span>
                   </button>
                 )}
-                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label={translatedText.toggleFilters || "Toggle dentist filters"} aria-expanded={showFilters}>
+                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label={translatedText.toggleFilters || "Toggle dentist filters"} aria-expanded={showFilters} aria-controls="dentist-filters">
                   <Filter className="w-4 h-4" /><span>{translatedText.filters || "Filters"}</span>
                 </button>
               </div>
@@ -716,34 +723,34 @@ const askAIAssistant = async () => {
 
       {/* IMPROVED: Cleaner Filters UI */}
       {showFilters && !locationError && (
-        <div className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
+        <div id="dentist-filters" className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">Filters</h3>
-            <button onClick={clearSearchAndFilters} className="text-sm text-blue-600 hover:text-blue-700 font-semibold">Clear All</button>
+            <h3 className="font-bold text-gray-900">{translatedText.filters || "Filters"}</h3>
+            <button onClick={clearSearchAndFilters} className="text-sm text-blue-600 hover:text-blue-700 font-semibold">{translatedText.clearAllFilters || "Clear All"}</button>
           </div>
           
           <div className="space-y-6">
             {/* Basic Filters - Card Style */}
             <div className="bg-gray-50 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Basic Filters</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">{translatedText.basicFilters || "Basic Filters"}</h4>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-600">{translatedText.searchRadius}</label>
+                    <label htmlFor="dentist-search-radius" className="text-sm font-medium text-gray-600">{translatedText.searchRadius}</label>
                     <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{searchRadius} mi</span>
                   </div>
-                  <input type="range" min="1" max="31" value={searchRadius} onChange={(e) => setSearchRadius(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                  <input id="dentist-search-radius" type="range" min="1" max="31" value={searchRadius} aria-valuetext={`${searchRadius} ${translatedText.milesShort || "miles"}`} onChange={(e) => setSearchRadius(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
                     <span>1 mi</span><span>16 mi</span><span>31 mi</span>
                   </div>
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium text-gray-600 mb-2 block">Minimum Rating</label>
+                <div role="group" aria-label={translatedText.minRatingLabel || "Minimum Rating"}>
+                  <p className="text-sm font-medium text-gray-600 mb-2">{translatedText.minRatingLabel || "Minimum Rating"}</p>
                   <div className="flex flex-wrap gap-2">
                     {[0, 3, 4, 4.5].map(rating => (
                       <button key={rating} aria-pressed={filterMinRating === rating} onClick={() => setFilterMinRating(rating)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${filterMinRating === rating ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}>
-                        {rating === 0 ? 'Any' : `${rating}+ ⭐`}
+                        {rating === 0 ? (translatedText.anyRating || "Any") : `${rating}+ ⭐`}
                       </button>
                     ))}
                   </div>
@@ -760,21 +767,21 @@ const askAIAssistant = async () => {
             <div className="bg-gray-50 rounded-xl p-4">
               <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 <Wheelchair className="w-4 h-4 text-blue-600" />
-                Accessibility Features
+                {translatedText.accessibilityFeatures || "Accessibility Features"}
               </h4>
               <div className="grid grid-cols-1 gap-2">
                 <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-lg transition-colors">
                   <input type="checkbox" checked={accessibilityFilters.wheelchair} onChange={(e) => setAccessibilityFilters(prev => ({ ...prev, wheelchair: e.target.checked }))} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700">Wheelchair-accessible entrance reported</span>
+                  <span className="text-sm text-gray-700">{translatedText.wheelchairEntranceReported || "Wheelchair-accessible entrance reported"}</span>
                 </label>
-                <p className="px-2 text-xs leading-5 text-slate-600">This filter shows only offices Google explicitly lists as having an accessible entrance. Missing listing details don’t confirm whether a location is accessible.</p>
+                <p className="px-2 text-xs leading-5 text-slate-600">{translatedText.wheelchairFilterNote || "This filter shows only offices Google explicitly lists as having an accessible entrance. Missing listing details don’t confirm whether a location is accessible."}</p>
               </div>
             </div>
 
             {/* The current directory source does not provide searchable specialty or travel details. */}
             <div className="bg-gray-50 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Details to confirm with an office</h4>
-              <p className="text-sm leading-5 text-slate-600">The listing source doesn’t provide reliable filters for interpreters, sensory needs, family care, sedation, or travel access. Use each office’s call or website link to check these details before visiting.</p>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">{translatedText.confirmWithOffice || "Details to confirm with an office"}</h4>
+              <p className="text-sm leading-5 text-slate-600">{translatedText.directoryDetailsNote || "The listing source doesn’t provide reliable filters for interpreters, sensory needs, family care, sedation, or travel access. Use each office’s call or website link to check these details before visiting."}</p>
             </div>
           </div>
         </div>
@@ -807,7 +814,7 @@ const askAIAssistant = async () => {
       )}
 
       {/* RESULTS COUNT */}
-      {!locationError && <p className="text-sm text-gray-600 font-medium px-1">Found <span className="text-blue-600 font-bold">{sortedDentists.length}</span> {translatedText.results}</p>}
+      {!locationError && <p className="text-sm text-gray-600 font-medium px-1" aria-live="polite"><span>{translatedText.found || "Found"} </span><span className="text-blue-600 font-bold">{sortedDentists.length}</span> {translatedText.results}</p>}
 
       {/* LOADING */}
       {loading && !locationError && (
