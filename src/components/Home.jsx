@@ -202,12 +202,19 @@ export default function Home({ setActiveTab, user, habitData }) {
 
   const getDaysUntilVisit = () => {
     if (!nextDentistVisit) return null;
-    return Math.ceil((new Date(nextDentistVisit) - new Date()) / (1000 * 60 * 60 * 24));
+    const visitDate = typeof nextDentistVisit === "string" && /^\d{4}-\d{2}-\d{2}$/.test(nextDentistVisit)
+      ? getDateFromKey(nextDentistVisit)
+      : new Date(nextDentistVisit);
+    if (!Number.isFinite(visitDate.getTime())) return null;
+    return Math.round((getDateFromKey(getDateKey(visitDate)) - getDateFromKey(getDateKey())) / (1000 * 60 * 60 * 24));
   };
 
   const formatVisitDate = (iso) => {
     if (!iso) return "";
-    return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    const date = typeof iso === "string" && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? getDateFromKey(iso) : new Date(iso);
+    return Number.isFinite(date.getTime())
+      ? date.toLocaleDateString(currentLanguage, { month: "long", day: "numeric", year: "numeric" })
+      : "Date unavailable";
   };
 
   const daysUntilVisit = getDaysUntilVisit();
@@ -220,7 +227,7 @@ export default function Home({ setActiveTab, user, habitData }) {
             <h2>{getGreeting()}{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}</h2>
             <p className="home-intro">{texts.careIntro || "A few small habits add up to a healthier smile."}</p>
           </div>
-          <p className="home-date">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</p>
+          <p className="home-date">{new Date().toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}</p>
         </header>
 
         <section className="home-streak-summary" aria-label="Streak summary">
@@ -279,12 +286,12 @@ export default function Home({ setActiveTab, user, habitData }) {
                     <div
                       key={i}
                       role="img"
-                      aria-label={`${date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}: ${done} of 3 habits completed`}
-                      title={`${date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 habits`}
+                      aria-label={`${date.toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}: ${done} of 3 habits completed`}
+                      title={`${date.toLocaleDateString(currentLanguage, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 habits`}
                       className={`home-week-day ${isToday ? "is-today" : ""}`}
                     >
                       <div className="home-week-bar-track"><span style={{ height: `${Math.max(percent, 5)}%` }} className={percent === 0 ? "is-empty" : ""} /></div>
-                      <span>{date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 1)}</span>
+                      <span>{date.toLocaleDateString(currentLanguage, { weekday: "short" }).slice(0, 1)}</span>
                     </div>
                   );
                 })}

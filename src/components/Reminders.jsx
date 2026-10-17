@@ -3,11 +3,31 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { getReminders, getReminderPreference, getReminderStats, saveReminders, saveReminderPreference } from "../utils/reminders";
 import { requestNotificationPermission, setupFCMToken } from "../utils/notifications";
 import { savePushNotificationPreferences } from "../utils/pushNotifications";
+import { getDateFromKey, getDateKey } from "../utils/date";
 import { auth } from "../firebase";
 import { Bell, BellOff, Clock, Sparkles, Zap, CheckCircle2, Moon, Sun, Activity, Calendar, AlertCircle, Smartphone } from "lucide-react";
 import { TranslationContext } from "../App";
 
 const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPo/.test(navigator.userAgent);
+
+const parseCalendarDate = (value) => {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return getDateFromKey(value);
+  return new Date(value);
+};
+
+const calendarDayDifference = (target, base = new Date()) => {
+  const targetDate = parseCalendarDate(target);
+  if (!Number.isFinite(targetDate.getTime())) return null;
+  const targetDay = getDateFromKey(getDateKey(targetDate));
+  const baseDay = getDateFromKey(getDateKey(base));
+  return Math.round((targetDay - baseDay) / (1000 * 60 * 60 * 24));
+};
+
+const shiftCalendarDate = (date, days) => {
+  const shifted = getDateFromKey(getDateKey(date));
+  shifted.setDate(shifted.getDate() + days);
+  return shifted;
+};
 
 export default function Reminders() {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
@@ -133,16 +153,23 @@ export default function Reminders() {
           const aligner = data.__aligner || null;
           setAlignerData(aligner);
           if (aligner) {
-            setCustomSwapDays(aligner.daysPerTray || 14);
+            const daysPerTray = Number.isInteger(Number(aligner.daysPerTray)) && Number(aligner.daysPerTray) > 0
+              ? Number(aligner.daysPerTray)
+              : 14;
+            setCustomSwapDays(daysPerTray);
             // Calculate next tray swap date
-            const start = new Date(aligner.startDate);
-            const now = new Date();
-            const daysSinceStart = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-            const daysOnCurrentTray = daysSinceStart % aligner.daysPerTray;
-            const daysUntilSwap = aligner.daysPerTray - daysOnCurrentTray;
-            const swapDate = new Date();
-            swapDate.setDate(swapDate.getDate() + daysUntilSwap);
-            setTraySwapDate(swapDate);
+            const start = getDateFromKey(aligner.startDate);
+            if (Number.isFinite(start.getTime())) {
+              const today = getDateFromKey(getDateKey());
+              const daysSinceStart = Math.max(0, Math.round((today - start) / (1000 * 60 * 60 * 24)));
+              const daysOnCurrentTray = daysSinceStart % daysPerTray;
+              const daysUntilSwap = daysPerTray - daysOnCurrentTray;
+              const swapDate = new Date();
+              swapDate.setDate(swapDate.getDate() + daysUntilSwap);
+              setTraySwapDate(swapDate);
+            } else {
+              setTraySwapDate(null);
+            }
           }
         }
       } catch (e) {
@@ -217,7 +244,8 @@ export default function Reminders() {
 
       const swapDate = new Date(schedule.nextSwapDate);
       const now = new Date();
-      const daysUntil = Math.ceil((swapDate - now) / (1000 * 60 * 60 * 24));
+      const daysUntil = calendarDayDifference(swapDate, now);
+      if (daysUntil === null) return;
 
       if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
       const reg = await navigator.serviceWorker.ready;
@@ -255,11 +283,12 @@ export default function Reminders() {
       const reg = await navigator.serviceWorker.ready;
       if (!reg || !('Notification' in window) || Notification.permission !== 'granted') return;
 
-      const visitDate = new Date(nextDentistVisit);
+      const visitDate = parseCalendarDate(nextDentistVisit);
+      if (!Number.isFinite(visitDate.getTime())) return;
       const now = new Date();
 
       const checkAndNotify = (targetDate, title, body, tag) => {
-        const daysUntil = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
+        const daysUntil = calendarDayDifference(targetDate, now);
         if (daysUntil >= 0 && daysUntil <= 1) {
           reg.showNotification(title, { body, icon: '/icon-511.png', tag })
             .catch((error) => console.error("Could not show dentist reminder:", error));
@@ -267,19 +296,19 @@ export default function Reminders() {
       };
 
       checkAndNotify(
-        new Date(visitDate.getTime() - 30 * 24 * 60 * 60 * 1000),
+        shiftCalendarDate(visitDate, -30),
         "Dentist visit in 1 month",
         `Your appointment is on ${visitDate.toLocaleDateString()}`,
         'dentist-1month'
       );
       checkAndNotify(
-        new Date(visitDate.getTime() - 14 * 24 * 60 * 60 * 1000),
+        shiftCalendarDate(visitDate, -14),
         "Dentist visit in 2 weeks",
         `Your appointment is on ${visitDate.toLocaleDateString()}`,
         'dentist-2weeks'
       );
       checkAndNotify(
-        new Date(visitDate.getTime() - 7 * 24 * 60 * 60 * 1000),
+        shiftCalendarDate(visitDate, -7),
         "Dentist visit in 1 week",
         `Your appointment is on ${visitDate.toLocaleDateString()}`,
         'dentist-1week'
@@ -295,20 +324,23 @@ export default function Reminders() {
   // ── DENTIST SCHEDULED REMINDERS DISPLAY ──
   useEffect(() => {
     if (!nextDentistVisit) { setScheduledDentistReminders([]); return; }
-    const visitDate = new Date(nextDentistVisit);
-    const now = new Date();
+    const visitDate = parseCalendarDate(nextDentistVisit);
+    if (!Number.isFinite(visitDate.getTime())) { setScheduledDentistReminders([]); return; }
     const remindersToSchedule = [
-      { label: "1 month before", date: new Date(visitDate.getTime() - 30 * 24 * 60 * 60 * 1000), color: "bg-blue-50 border-blue-200 text-blue-700" },
-      { label: "2 weeks before", date: new Date(visitDate.getTime() - 14 * 24 * 60 * 60 * 1000), color: "bg-purple-50 border-purple-200 text-purple-700" },
-      { label: "1 week before",  date: new Date(visitDate.getTime() - 7 * 24 * 60 * 60 * 1000),  color: "bg-teal-50 border-teal-200 text-teal-700" },
+      { label: "1 month before", date: shiftCalendarDate(visitDate, -30), color: "bg-blue-50 border-blue-200 text-blue-700" },
+      { label: "2 weeks before", date: shiftCalendarDate(visitDate, -14), color: "bg-purple-50 border-purple-200 text-purple-700" },
+      { label: "1 week before",  date: shiftCalendarDate(visitDate, -7),  color: "bg-teal-50 border-teal-200 text-teal-700" },
     ];
-    setScheduledDentistReminders(remindersToSchedule.map(r => ({
-      ...r,
-      isPast: r.date < now,
-      daysUntil: Math.ceil((r.date - now) / (1000 * 60 * 60 * 24)),
-      formattedDate: r.date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    })));
-  }, [nextDentistVisit]);
+    setScheduledDentistReminders(remindersToSchedule.map((reminder) => {
+      const daysUntil = calendarDayDifference(reminder.date);
+      return {
+        ...reminder,
+        isPast: daysUntil < 0,
+        daysUntil,
+        formattedDate: reminder.date.toLocaleDateString(currentLanguage, { month: "short", day: "numeric", year: "numeric" })
+      };
+    }));
+  }, [nextDentistVisit, currentLanguage]);
 
   const updateTime = (key, value) => setReminders((prev) => ({ ...prev, [key]: value }));
 
@@ -421,15 +453,24 @@ export default function Reminders() {
 
   const formatVisitDate = (iso) => {
     if (!iso) return "";
-    return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    const date = parseCalendarDate(iso);
+    return Number.isFinite(date.getTime())
+      ? date.toLocaleDateString(currentLanguage, { month: "long", day: "numeric", year: "numeric" })
+      : "Date unavailable";
   };
 
   const getDaysUntilVisit = () => {
     if (!nextDentistVisit) return null;
-    return Math.ceil((new Date(nextDentistVisit) - new Date()) / (1000 * 60 * 60 * 24));
+    const visit = parseCalendarDate(nextDentistVisit);
+    if (!Number.isFinite(visit.getTime())) return null;
+    const targetDay = getDateFromKey(getDateKey(visit));
+    const today = getDateFromKey(getDateKey());
+    return Math.round((targetDay - today) / (1000 * 60 * 60 * 24));
   };
 
-  const daysUntilSwap = traySwapDate ? Math.ceil((traySwapDate - new Date()) / (1000 * 60 * 60 * 24)) : null;
+  const daysUntilSwap = traySwapDate
+    ? Math.round((getDateFromKey(getDateKey(traySwapDate)) - getDateFromKey(getDateKey())) / (1000 * 60 * 60 * 24))
+    : null;
   const daysUntilVisit = getDaysUntilVisit();
 
   if (translating || Object.keys(translatedText).length === 0) {
@@ -641,14 +682,14 @@ export default function Reminders() {
                   const swapD = new Date(traySwapDate);
                   swapD.setDate(swapD.getDate() + i * customSwapDays);
                   const trayNum = Math.min((alignerData.tray || 1) + i, alignerData.totalTrays);
-                  const dUntil = Math.ceil((swapD - new Date()) / (1000 * 60 * 60 * 24));
+                  const dUntil = calendarDayDifference(swapD);
                   return (
                     <div key={i} className="reminder-schedule-row flex items-center justify-between p-3 rounded-xl border bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-100">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-slate-500" aria-hidden="true" />
                         <div>
                           <p className="text-xs font-bold text-blue-700">Tray {trayNum}</p>
-                          <p className="text-xs text-gray-500">{swapD.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                          <p className="text-xs text-gray-500">{swapD.toLocaleDateString(currentLanguage, { month: "short", day: "numeric" })}</p>
                         </div>
                       </div>
                       <span className="text-xs font-bold text-blue-600">{dUntil <= 0 ? "Today!" : `in ${dUntil}d`}</span>

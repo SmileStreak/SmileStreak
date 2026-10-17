@@ -1,8 +1,20 @@
+import { useContext, useEffect, useState } from "react";
+import { TranslationContext } from "../App";
 import { getDateKey } from "../utils/date";
 import { Check } from "lucide-react";
 
 export default function WeeklyCalendar({ habitData }) {
+  const { t, currentLanguage } = useContext(TranslationContext);
+  const [title, setTitle] = useState("Last 7 days");
   const today = new Date();
+
+  useEffect(() => {
+    let active = true;
+    t("Last 7 days").then((translated) => {
+      if (active) setTitle(translated);
+    }).catch((error) => console.warn("Could not translate weekly calendar heading:", error));
+    return () => { active = false; };
+  }, [currentLanguage, t]);
 
   const days = [...Array(7)].map((_, i) => {
     const d = new Date();
@@ -36,7 +48,7 @@ export default function WeeklyCalendar({ habitData }) {
           const status = getStatus(completedCount);
           const isToday =
             date.toDateString() === today.toDateString();
-          const dateLabel = date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+          const dateLabel = date.toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" });
 
           return (
             <div
@@ -47,7 +59,7 @@ export default function WeeklyCalendar({ habitData }) {
               className={`flex min-w-0 flex-col items-center gap-1.5 rounded-lg px-1 py-2 ${isToday ? "weekly-calendar__today" : "bg-transparent"}`}
             >
               <span className={`text-[11px] ${isToday ? "font-semibold text-slate-900" : "text-slate-600"}`}>
-                {date.toLocaleDateString(undefined, { weekday: "short" })}
+                {date.toLocaleDateString(currentLanguage, { weekday: "short" })}
               </span>
               <span className={`text-sm tabular-nums ${isToday ? "font-semibold text-slate-900" : "text-slate-700"}`}>{date.getDate()}</span>
               <span aria-hidden="true" className={`flex h-4 w-4 items-center justify-center rounded-full ${status === "complete" ? "bg-[var(--brand)] text-white" : status === "partial" ? "bg-slate-300" : "bg-slate-200"}`}>
