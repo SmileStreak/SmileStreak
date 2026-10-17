@@ -114,24 +114,6 @@ export default function Mission() {
     featureTitle6: "Multi-Language Support",
     featureDesc6: "Available in 20+ languages to serve our global community",
     
-    badges: "Achievement Badges",
-    badge1: "Early Adopter",
-    badge2: "Perfect Week",
-    badge3: "Streak Master",
-    badge4: "Community Hero",
-    badge5: "Beta Tester",
-    
-    connect: "Connect With Us",
-    followTwitter: "Follow on Twitter",
-    joinDiscord: "Join Discord Community",
-    watchYoutube: "Watch on YouTube",
-    followInstagram: "Follow on Instagram",
-    
-    testimonials: "What Our Users Say",
-    testimonial1: "This app helped me build a consistent routine for the first time in my life!",
-    testimonial2: "The AI scan gave me insights I never would have noticed on my own.",
-    testimonial3: "Finally, a dental app that doesn't make me feel guilty about missed days.",
-    
     faq: "Frequently Asked Questions",
     faq1q: "Is Smile Streak really free?",
     faq1a: "There is no in-app checkout in this version. Check the current terms for any changes to features or pricing.",
@@ -155,7 +137,6 @@ export default function Mission() {
     cancel: "Cancel",
     submit: "Submit",
     closeFeedback: "Close feedback form",
-    thankYou: "Thank you for your feedback!"
   };
 
   // Load translations when language changes
