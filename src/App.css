@@ -2388,6 +2388,20 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
 .dentist-prep-note__bullet { color: var(--brand); }
 .dentist-detail-chip { padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-quiet); color: var(--ink-secondary); font-size: 12px; }
 html.dark .dentist-feature-badge, html.dark .dentist-detail-chip { border-color: var(--line); background: var(--surface-quiet); color: var(--ink-secondary); }
+.dentist-compare-scroll { overflow-x: auto; overscroll-behavior-inline: contain; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.dentist-compare-scroll:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.dentist-compare-table { width: 100%; border-collapse: collapse; text-align: left; }
+.dentist-compare-table :is(th, td) { min-width: 125px; padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--ink-secondary); font-size: 12px; line-height: 1.45; vertical-align: top; }
+.dentist-compare-table thead th { color: var(--ink); font: 500 16px/1.25 "Newsreader Variable", Georgia, serif; }
+.dentist-compare-table thead th:first-child { color: var(--ink-muted); font: 600 10px/1.4 "Source Sans 3 Variable", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.dentist-compare-table tbody th { min-width: 120px; color: var(--ink-muted); font-size: 11px; font-weight: 600; }
+.dentist-compare-table a { color: var(--brand); text-underline-offset: 2px; }
+.dentist-compare-table tr:last-child > * { border-bottom: 0; }
+.dentist-compare-remove { min-height: 32px; padding: 5px 9px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--ink-secondary); font-size: 12px; font-weight: 600; }
+.dentist-compare-remove:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .dentist-compare-remove:hover { border-color: var(--brand); background: var(--surface-quiet); }
+}
 @media (prefers-reduced-motion: reduce) {
   .dentists-dialog button { transition: none !important; }
 }

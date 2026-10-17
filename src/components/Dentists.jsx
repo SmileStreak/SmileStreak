@@ -48,6 +48,20 @@ const handleDentistPhotoError = (event) => {
 // Procedure recommendations based on symptoms
 const discussionTopics = ["Tooth pain", "Sensitivity", "Chipped tooth", "Missing tooth", "Tooth color", "Bleeding gums", "Bad breath", "Jaw discomfort"];
 
+const dentistComparisonRows = [
+  { label: "Rating", value: (d) => d.rating ? `${d.rating} / 5${d.review_count ? ` · ${d.review_count} reviews` : ""}` : "Not listed" },
+  { label: "Distance", value: (d) => d.distance ? `${d.distance} mi` : "Not listed" },
+  { label: "Open now", value: (d) => typeof d.openNow === "boolean" ? (d.openNow ? "Open" : "Closed") : "Not listed" },
+  { label: "Phone", value: (d) => d.phone ? <a href={`tel:${d.phone}`}>{d.phone}</a> : "Not listed" },
+  { label: "Medicaid", value: (d) => d.specialDesignations?.medicaidProvider ? "Provider listed" : "Not listed" },
+  { label: "Orthodontics", value: (d) => d.specialDesignations?.orthoProvider ? "Provider listed" : "Not listed" },
+  { label: "Kids friendly", value: (d) => d.pediatricSpecialty ? "Listed" : "Not listed" },
+  { label: "Anxiety friendly", value: (d) => d.anxietyFriendly ? "Listed" : "Not listed" },
+  { label: "Sedation", value: (d) => d.sedationOptions?.length ? d.sedationOptions.join(", ") : "Not listed" },
+  { label: "Cards accepted", value: (d) => d.paymentOptions?.creditCards ? "Listed" : "Not listed" },
+  { label: "Wheelchair access", value: (d) => d.accessibility?.wheelchairEntrance ? "Listed" : "Not listed" },
+];
+
 export default function Dentists() {
   const { t, currentLanguage } = useContext(TranslationContext);
   
@@ -1241,26 +1255,35 @@ const askAIAssistant = async () => {
               <h3 id="compare-dentists-title" className="text-2xl font-black text-gray-900">Compare dentists</h3>
               <button aria-label="Close dentist comparison" onClick={() => setShowCompare(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {selectedForCompare.map(d => (
-                <div key={d.id} className="p-5 bg-gray-50 rounded-2xl">
-                  <h4 className="font-bold text-gray-900 mb-3">{d.name}</h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-semibold">Rating:</span> {d.rating || 'N/A'} ⭐ ({d.review_count || 0} reviews)</p>
-                    <p><span className="font-semibold">Distance:</span> {d.distance || '?'} mi</p>
-                    <p><span className="font-semibold">Status:</span> {d.openNow ? '🟢 Open' : '🔴 Closed'}</p>
-                    {d.specialDesignations?.medicaidProvider && <p className="text-green-600">✓ Medicaid Provider</p>}
-                    {d.specialDesignations?.orthoProvider && <p className="text-purple-600">Ortho Provider</p>}
-                    {d.pediatricSpecialty && <p>Kids Friendly</p>}
-                    {d.anxietyFriendly && <p>Anxiety Friendly</p>}
-                    {d.sedationOptions?.length > 0 && <p>Sedation Available</p>}
-                    {d.phone && <p><span className="font-semibold">Phone:</span> {d.phone}</p>}
-                    {d.paymentOptions?.creditCards && <p className="text-xs text-gray-600">✓ Cards Accepted</p>}
-                    {d.accessibility?.wheelchairEntrance && <p className="text-xs text-gray-600">✓ Wheelchair Access</p>}
-                  </div>
-                  <button onClick={() => toggleCompare(d)} className="w-full mt-4 bg-red-100 text-red-600 py-2 rounded-xl text-xs font-semibold hover:bg-red-200 transition-colors">Remove</button>
-                </div>
-              ))}
+            <div className="dentist-compare-scroll" role="region" aria-label="Dentist comparison" tabIndex={0}>
+              <table className="dentist-compare-table" style={{ minWidth: `${180 + 190 * selectedForCompare.length}px` }}>
+                <thead>
+                  <tr>
+                    <th scope="col">Details</th>
+                    {selectedForCompare.map((d) => (
+                      <th scope="col" key={d.id}>{d.name}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {dentistComparisonRows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row">{row.label}</th>
+                      {selectedForCompare.map((d) => (
+                        <td key={d.id}>{row.value(d)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                  <tr>
+                    <th scope="row">Actions</th>
+                    {selectedForCompare.map((d) => (
+                      <td key={d.id}>
+                        <button type="button" aria-label={`Remove ${d.name} from comparison`} onClick={() => toggleCompare(d)} className="dentist-compare-remove">Remove</button>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
