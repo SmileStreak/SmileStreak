@@ -111,7 +111,19 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          <button
            id="more-tabs-trigger"
            type="button"
-           onClick={() => setShowMore((prev) => !prev)}
+         onClick={(event) => {
+           if (!showMore) {
+             const rect = event.currentTarget.getBoundingClientRect();
+             const top = rect.bottom + 8;
+             const estimatedWidth = 180;
+             setMoreMenuPosition({
+               top,
+               left: Math.max(8, Math.min(rect.left, window.innerWidth - estimatedWidth - 8)),
+               maxHeight: Math.max(96, Math.min(420, window.innerHeight * 0.7, window.innerHeight - top - 8)),
+             });
+           }
+           setShowMore((prev) => !prev);
+         }}
            aria-expanded={showMore}
            aria-controls="more-tabs-menu"
            className={`
