@@ -24,6 +24,7 @@ export default function Home({ setActiveTab, user, habitData }) {
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [recentScans, setRecentScans] = useState([]);
   const [dailyTip, setDailyTip] = useState(null);
+  const [translatedDailyTip, setTranslatedDailyTip] = useState(null);
   const [lastScanDate, setLastScanDate] = useState(null);
   const [totalScans, setTotalScans] = useState(0);
   const [weeklyActivity, setWeeklyActivity] = useState([]);
@@ -199,6 +200,18 @@ export default function Home({ setActiveTab, user, habitData }) {
     return () => { active = false; };
   }, [currentLanguage]);
 
+  useEffect(() => {
+    if (!dailyTip) return undefined;
+    let active = true;
+    setTranslatedDailyTip(null);
+    translateBatch([dailyTip.title, dailyTip.tip], currentLanguage, "en")
+      .then(([title, tip]) => {
+        if (active) setTranslatedDailyTip({ title, tip });
+      })
+      .catch((error) => console.error("Could not load daily tip translation:", error));
+    return () => { active = false; };
+  }, [currentLanguage, dailyTip]);
+
   const go = (tab) => {
     if (typeof setActiveTab === "function") setActiveTab(tab);
   };
@@ -345,8 +358,8 @@ export default function Home({ setActiveTab, user, habitData }) {
 
             {dailyTip && (
               <section className="home-tip-section">
-                <h3>{dailyTip.title}</h3>
-                <p>{dailyTip.tip}</p>
+                <h3>{translatedDailyTip?.title || dailyTip.title}</h3>
+                <p>{translatedDailyTip?.tip || dailyTip.tip}</p>
               </section>
             )}
 
