@@ -41,7 +41,7 @@ export default function WeeklyCalendar({ habitData }) {
 
     return (
     <section className="rounded-xl border border-slate-200 bg-white p-5" aria-labelledby="weekly-calendar-heading">
-      <h3 id="weekly-calendar-heading" className="mb-4 text-sm font-semibold text-slate-900">Last 7 days</h3>
+      <h3 id="weekly-calendar-heading" className="mb-4 text-sm font-semibold text-slate-900">{title}</h3>
 
       <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {days.map(({ date, completedCount, key }) => {
