@@ -467,11 +467,11 @@ const askAIAssistant = async () => {
       <Presence open={showAIAssistant}>
 {showAIAssistant && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="dentist-assistant-title">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Bot className="w-6 h-6 text-blue-600" />
-                <h3 className="text-2xl font-black text-gray-900">Dental AI Assistant</h3>
+                <h3 id="dentist-assistant-title" className="text-2xl font-black text-gray-900">Dental AI Assistant</h3>
               </div>
               <button onClick={() => { setShowAIAssistant(false); setAiResponse(""); setAiQuery(""); }} className="text-gray-400 hover:text-gray-600" aria-label="Close dental question assistant">
                 <X className="w-6 h-6" />
@@ -506,7 +506,7 @@ const askAIAssistant = async () => {
                 )}
               </button>
               {aiResponse && (
-                <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-200 max-h-96 overflow-y-auto">
+                <div role="log" aria-live="polite" className="dentists-assistant-response bg-blue-50 p-4 rounded-xl border-2 border-blue-200 max-h-96 overflow-y-auto">
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{aiResponse}</p>
                 </div>
               )}
@@ -520,20 +520,21 @@ const askAIAssistant = async () => {
       <Presence open={showPriceEstimator}>
 {showPriceEstimator && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="treatment-cost-title">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <DollarSign className="w-6 h-6 text-blue-600" />
-                <h3 className="text-2xl font-black text-gray-900">Treatment cost questions</h3>
+                <h3 id="treatment-cost-title" className="text-2xl font-black text-gray-900">Treatment cost questions</h3>
               </div>
-              <button onClick={() => setShowPriceEstimator(false)} className="text-gray-400 hover:text-gray-600">
+              <button aria-label="Close treatment cost questions" onClick={() => setShowPriceEstimator(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Procedure</label>
+                <label htmlFor="treatment-cost-procedure" className="block text-sm font-semibold text-gray-700 mb-2">Select procedure</label>
                 <select
+                  id="treatment-cost-procedure"
                   value={selectedProcedure}
                   onChange={(e) => setSelectedProcedure(e.target.value)}
                   className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none"
@@ -564,19 +565,21 @@ const askAIAssistant = async () => {
       <Presence open={showTreatmentPlanner}>
 {showTreatmentPlanner && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-lg w-full p-8 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="visit-prep-title">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Calendar className="w-6 h-6 text-blue-600" />
-                <h3 className="text-2xl font-black text-gray-900">Dental visit prep</h3>
+                <h3 id="visit-prep-title" className="text-2xl font-black text-gray-900">Dental visit prep</h3>
               </div>
-              <button onClick={() => setShowTreatmentPlanner(false)} className="text-gray-400 hover:text-gray-600">
+              <button aria-label="Close dental visit prep" onClick={() => setShowTreatmentPlanner(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
             <p className="text-sm text-gray-600 mb-4">Choose a topic you may want to discuss with a dental professional.</p>
             <div className="space-y-4">
+              <label htmlFor="visit-prep-topic" className="sr-only">Choose a topic to discuss at your dental visit</label>
               <select
+                id="visit-prep-topic"
                 value={symptom}
                 onChange={(e) => handleSymptomChange(e.target.value)}
                 className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none"
@@ -943,8 +946,8 @@ const askAIAssistant = async () => {
       {/* PHOTO MODAL */}
       <Presence open={showPhotoModal && selectedPhoto}>
 {showPhotoModal && selectedPhoto && (
-        <div className="t-modal-backdrop fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center gap-3 p-4" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}>
-          <button aria-label="Close photo" className="absolute top-4 right-4 text-white hover:text-gray-300" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}><X className="w-8 h-8" /></button>
+        <div className="t-modal-backdrop fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center gap-3 p-4" role="dialog" aria-modal="true" aria-label="Dental office photo" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}>
+          <button aria-label="Close dental office photo" className="absolute top-4 right-4 text-white hover:text-gray-300" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}><X className="w-8 h-8" /></button>
           <img onClick={(event) => event.stopPropagation()} src={selectedPhoto} alt="Dental office photo from Google Maps" className="max-w-full max-h-[82vh] rounded-xl" />
           <p className="max-w-full text-center text-sm text-white">
             {selectedPhotoAttributions.length ? selectedPhotoAttributions.map((author, index) => (
@@ -962,10 +965,10 @@ const askAIAssistant = async () => {
       <Presence open={selectedDentist}>
 {selectedDentist && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl my-8">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl my-8" role="dialog" aria-modal="true" aria-labelledby="dentist-details-title">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-black text-gray-900">{selectedDentist.name}</h3>
-              <button onClick={() => setSelectedDentist(null)} className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100"><X className="w-6 h-6" /></button>
+              <h3 id="dentist-details-title" className="text-2xl font-black text-gray-900">{selectedDentist.name}</h3>
+              <button aria-label="Close dentist details" onClick={() => setSelectedDentist(null)} className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100"><X className="w-6 h-6" /></button>
             </div>
             <div className="space-y-6">
               {/* Basic Info */}
@@ -1157,10 +1160,10 @@ const askAIAssistant = async () => {
       <Presence open={showFavorites}>
 {showFavorites && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] max-w-lg w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-lg w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="saved-dentists-title">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-black text-gray-900">{translatedText.savedDentists}</h3>
-              <button onClick={() => setShowFavorites(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
+              <h3 id="saved-dentists-title" className="text-2xl font-black text-gray-900">{translatedText.savedDentists}</h3>
+              <button aria-label="Close saved dentists" onClick={() => setShowFavorites(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
             </div>
             {favorites.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No saved dentists yet</p>
@@ -1192,10 +1195,10 @@ const askAIAssistant = async () => {
       <Presence open={showCompare && selectedForCompare.length > 0}>
 {showCompare && selectedForCompare.length > 0 && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] max-w-4xl w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-4xl w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="compare-dentists-title">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-black text-gray-900">Compare Dentists</h3>
-              <button onClick={() => setShowCompare(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
+              <h3 id="compare-dentists-title" className="text-2xl font-black text-gray-900">Compare dentists</h3>
+              <button aria-label="Close dentist comparison" onClick={() => setShowCompare(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {selectedForCompare.map(d => (

@@ -2215,6 +2215,17 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
 @media (prefers-reduced-motion: reduce) {
   .feedback-rating-options label > div, .app-feedback-dialog button[type="submit"] { transition: none; }
 }
+
+.dentists-dialog { border-color: var(--line) !important; border-radius: 9px !important; box-shadow: 0 8px 24px rgb(24 33 42 / .06) !important; }
+.dentists-dialog h3 { color: var(--ink) !important; font: 500 26px/1.12 "Newsreader Variable", Georgia, serif !important; }
+.dentists-dialog > div:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+.dentists-dialog button:focus-visible, .dentists-dialog a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.dentists-dialog :is(input, select, textarea) { border-color: var(--line-strong) !important; border-radius: 7px !important; }
+.dentists-dialog :is(input, select, textarea):focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; box-shadow: none !important; }
+.dentists-assistant-response { max-height: min(46vh, 360px); border: 0 !important; border-left: 3px solid var(--brand) !important; border-radius: 0 !important; background: var(--surface-quiet) !important; }
+@media (prefers-reduced-motion: reduce) {
+  .dentists-dialog button { transition: none !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   .dentists-tool-button, .dentists-filter-panel button, .app-page--dentists .dentist-result__photos button { transition: none; }
 }
