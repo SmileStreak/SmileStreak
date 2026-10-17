@@ -910,7 +910,16 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   .t-modal-backdrop, .t-modal-backdrop > div[class*="rounded-"], .t-dropdown { transition-duration: 1ms !important; }
 }
 
-.analytics-consent { transition: transform 180ms var(--motion-out), opacity 180ms ease-out; }
+.analytics-consent {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  transition: transform 180ms var(--motion-out), opacity 180ms ease-out;
+}
+.analytics-consent > div > div:last-child { align-items: stretch; }
+.analytics-consent button { min-height: 40px; border-radius: 6px; }
+@media (max-width: 480px) {
+  .analytics-consent > div > div:last-child { display: grid; grid-template-columns: 1fr 1fr; }
+  .analytics-consent button { padding-inline: 8px; }
+}
 .analytics-consent.is-open { animation: consent-enter 220ms var(--motion-out) both; }
 .analytics-consent.is-closing { transform: translateY(8px); opacity: 0; pointer-events: none; }
 @keyframes consent-enter { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
