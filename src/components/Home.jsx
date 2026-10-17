@@ -99,16 +99,20 @@ export default function Home({ setActiveTab, user, habitData }) {
     } catch (error) {
       console.warn("Could not read recent scan history:", error);
     }
-    setRecentScans(scanHistory.filter((scan) => scan && typeof scan === "object").slice(0, 3));
-    setTotalScans(scanHistory.length);
-    if (scanHistory.length > 0 && scanHistory[0]?.date) {
-      const lastScan = new Date(scanHistory[0].date);
+    const validScans = scanHistory.filter((scan) => scan && typeof scan === "object" && typeof scan.image === "string" && scan.image.length > 0);
+    setRecentScans(validScans.slice(0, 3));
+    setTotalScans(validScans.length);
+    const latestDatedScan = validScans.find((scan) => Number.isFinite(new Date(scan.date || scan.timestamp).getTime()));
+    if (latestDatedScan) {
+      const lastScan = new Date(latestDatedScan.date || latestDatedScan.timestamp);
       if (Number.isFinite(lastScan.getTime())) {
         const diffDays = Math.round((getDateFromKey(getDateKey()) - getDateFromKey(getDateKey(lastScan))) / (1000 * 60 * 60 * 24));
         setLastScanDate(diffDays === 0 ? "Today" : diffDays === 1 ? "Yesterday" : diffDays > 1 ? `${diffDays} days ago` : "Recently");
       } else {
         setLastScanDate("Date unavailable");
       }
+    } else if (validScans.length > 0) {
+      setLastScanDate("Date unavailable");
     } else {
       setLastScanDate(null);
     }
