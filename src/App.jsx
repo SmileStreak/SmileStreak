@@ -82,7 +82,10 @@ export default function App() {
     accept: "Accept optional analytics",
     saving: "Saving your preference…",
     preferences: "Cookie preferences",
-    statusLabel: "Optional Firebase Analytics:"
+    statusLabel: "Optional Firebase Analytics:",
+    statusAllowed: "Allowed",
+    statusOff: "Off",
+    statusUnknown: "Not enabled"
   });
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
@@ -216,7 +219,10 @@ export default function App() {
       accept: "Accept optional analytics",
       saving: "Saving your preference…",
       preferences: "Cookie preferences",
-      statusLabel: "Optional Firebase Analytics:"
+      statusLabel: "Optional Firebase Analytics:",
+      statusAllowed: "Allowed",
+      statusOff: "Off",
+      statusUnknown: "Not enabled"
     };
     Promise.all(Object.values(defaults).map((text) => t(text))).then((values) => {
       if (active) setAnalyticsConsentCopy(Object.fromEntries(Object.keys(defaults).map((key, index) => [key, values[index]])));

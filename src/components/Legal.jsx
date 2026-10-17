@@ -39,7 +39,7 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
     imageProcessing: "Image & Scan Processing",
     imageProcessingContent: "Only after you confirm in the scan flow, the selected photo is sent to Google's Gemini service for general educational observations. Saving the photo and feedback in this browser is a separate choice and is off by default. Avoid photos with faces or identifying details. This feedback is not a dental examination, diagnosis, or treatment recommendation.",
     privacyData: "Privacy & Data Use",
-    privacyDataContent: "Habit progress is stored in this browser and, when you sign in, synced to Firebase Firestore with your profile details. The 18+ age-check result is saved only in this browser; your date of birth is not saved or sent to Firebase Analytics. Optional Firebase Analytics is off unless you choose Allow analytics. You can change this choice below.",
+    privacyDataContent: "Habit progress is stored in this browser and, when you sign in, synced to Firebase Firestore with your profile details. The 18+ age-check result is saved only in this browser; your date of birth is not saved or sent to Firebase Analytics. Optional Firebase Analytics is off unless you choose Accept optional analytics. You can change this choice below.",
     liability: "Using SmileStreak",
     liabilityContent: "SmileStreak provides habit tracking and general educational information. It is not a dental exam, diagnosis, or treatment plan. Contact a licensed dental professional about symptoms or concerns.",
     termsOfUse: "Terms of Use",
@@ -364,7 +364,7 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
           <p className="text-xs text-slate-500">This notice describes behavior visible in the current app code. It is not legal advice, does not establish legal compliance, and does not specify provider retention periods. Last updated October 17, 2026.</p>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
-          <span className="text-sm text-slate-700">{consentCopy.statusLabel || "Optional Firebase Analytics:"} <strong>{analyticsChoice === "granted" ? "Allowed" : analyticsChoice === "denied" ? "Off" : "Not enabled"}</strong></span>
+          <span className="text-sm text-slate-700">{consentCopy.statusLabel || "Optional Firebase Analytics:"} <strong>{analyticsChoice === "granted" ? (consentCopy.statusAllowed || "Allowed") : analyticsChoice === "denied" ? (consentCopy.statusOff || "Off") : (consentCopy.statusUnknown || "Not enabled")}</strong></span>
           {savingAnalyticsChoice && <span role="status" className="text-sm text-slate-600">{consentCopy.saving || "Saving your preference…"}</span>}
           <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => onAnalyticsChoice?.(false)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">{consentCopy.reject || "Reject optional analytics"}</button>
           <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => onAnalyticsChoice?.(true)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">{consentCopy.accept || "Accept optional analytics"}</button>
