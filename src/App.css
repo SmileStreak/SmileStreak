@@ -541,7 +541,7 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #7a858e;
+  color: var(--home-muted);
   font-size: 12px;
 }
 
@@ -605,11 +605,13 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
   width: 100%;
   min-height: 4px;
   background: var(--home-accent);
+  transition: height 200ms ease-out;
 }
 
 .home-week-bar-track span.is-empty {
   background: #dce3ea;
 }
+.home-week-day[role="img"] { outline: none; }
 
 .home-week-caption {
   margin-top: 10px;
@@ -1309,6 +1311,7 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 }
 @media (prefers-reduced-motion: reduce) {
   .report-weekly-segment { transition: none; }
+  .home-week-bar-track span { transition: none; }
 }
 
 .mission-heading {

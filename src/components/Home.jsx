@@ -262,7 +262,13 @@ export default function Home({ setActiveTab, user, habitData }) {
                   const percent = done === 0 ? 0 : done === 1 ? 33 : done === 2 ? 67 : 100;
                   const isToday = key === todayKey;
                   return (
-                    <div key={i} className={`home-week-day ${isToday ? "is-today" : ""}`}>
+                    <div
+                      key={i}
+                      role="img"
+                      aria-label={`${date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}: ${done} of 3 habits completed`}
+                      title={`${date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 habits`}
+                      className={`home-week-day ${isToday ? "is-today" : ""}`}
+                    >
                       <div className="home-week-bar-track"><span style={{ height: `${Math.max(percent, 5)}%` }} className={percent === 0 ? "is-empty" : ""} /></div>
                       <span>{date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 1)}</span>
                     </div>
