@@ -99,7 +99,10 @@ export default function Insights({ habitData }) {
       const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
       if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
-    loadTranslations();
+    loadTranslations().catch((error) => {
+      console.error("Could not load insights translations:", error);
+      if (active) setTranslatedText(translationKeys);
+    });
     return () => { active = false; };
   }, [currentLanguage]);
 

@@ -180,8 +180,7 @@ export default function Progress({ habitData }) {
 
   useEffect(() => {
     let active = true;
-    const translateAll = async () => {
-      const translations = {
+    const translations = {
         yourProgress: "Your Progress",
         trackJourney: "Track your dental care journey",
         perfectDaysLabel: "Perfect days",
@@ -211,12 +210,16 @@ export default function Progress({ habitData }) {
         visualizeHabits: "Visualize your daily dental habits",
         contributionsThisYear: "contributions this year",
         longestStreak: "Longest Streak",
-      };
+    };
+    const translateAll = async () => {
       const keys = Object.keys(translations);
       const values = await translateBatch(Object.values(translations), currentLanguage, "en");
       if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
-    translateAll().catch((error) => console.error("Could not load progress translations:", error));
+    translateAll().catch((error) => {
+      console.error("Could not load progress translations:", error);
+      if (active) setTexts(translations);
+    });
     return () => { active = false; };
   }, [currentLanguage]);
 

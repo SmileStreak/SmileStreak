@@ -148,7 +148,10 @@ export default function Mission() {
       if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     
-    loadTranslations();
+    loadTranslations().catch((error) => {
+      console.error("Could not load mission page translations:", error);
+      if (active) setTranslatedText(translationKeys);
+    });
     return () => { active = false; };
   }, [currentLanguage]);
 

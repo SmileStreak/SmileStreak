@@ -158,7 +158,10 @@ export default function Dentists() {
       const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
       if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
-    loadTranslations().catch((error) => console.error("Could not load dentist finder translations:", error));
+    loadTranslations().catch((error) => {
+      console.error("Could not load dentist finder translations:", error);
+      if (active) setTranslatedText(translationKeys);
+    });
     return () => { active = false; };
   }, [currentLanguage]);
 

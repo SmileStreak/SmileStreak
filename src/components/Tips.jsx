@@ -41,7 +41,6 @@ const factTimerRef = useRef(null);
 
 useEffect(() => {
 let active = true;
-const translateAll = async () => {
 const translations = {
 dentalTips: "Dental Tips & Facts",
 expertAdvice: "Everyday answers, with sources to explore",
@@ -68,6 +67,7 @@ readArticle: "Read Article",
 showMore: "Show more myths",
 showLess: "Show less",
 };
+const translateAll = async () => {
 for (const myth of MYTHS) {
 translations[`myth${myth.id}`] = myth.myth;
 translations[`truth${myth.id}`] = myth.truth;
@@ -83,6 +83,7 @@ if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[in
 };
 translateAll().catch((error) => {
 console.error("Could not load dental tip translations:", error);
+if (active) setTexts(translations);
 });
 return () => { active = false; };
 }, [currentLanguage]);

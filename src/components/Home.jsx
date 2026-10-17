@@ -133,8 +133,7 @@ export default function Home({ setActiveTab, user, habitData }) {
 
   useEffect(() => {
     let active = true;
-    const translateAll = async () => {
-      const translations = {
+    const translations = {
         title: "SmileStreak",
         currentStreak: "Current Streak",
         days: "days",
@@ -199,12 +198,16 @@ export default function Home({ setActiveTab, user, habitData }) {
         onCalendar: "On your calendar",
         quickAccess: "Quick access",
         noScans: "No scans yet"
-      };
+    };
+    const translateAll = async () => {
       const keys = Object.keys(translations);
       const values = await translateBatch(Object.values(translations), currentLanguage, "en");
       if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
-    translateAll().catch((error) => console.error("Could not load home translations:", error));
+    translateAll().catch((error) => {
+      console.error("Could not load home translations:", error);
+      if (active) setTexts(translations);
+    });
     return () => { active = false; };
   }, [currentLanguage]);
 
@@ -216,7 +219,10 @@ export default function Home({ setActiveTab, user, habitData }) {
       .then(([title, tip]) => {
         if (active) setTranslatedDailyTip({ title, tip });
       })
-      .catch((error) => console.error("Could not load daily tip translation:", error));
+      .catch((error) => {
+        console.error("Could not load daily tip translation:", error);
+        if (active) setTranslatedDailyTip({ title: dailyTip.title, tip: dailyTip.tip });
+      });
     return () => { active = false; };
   }, [currentLanguage, dailyTip]);
 
