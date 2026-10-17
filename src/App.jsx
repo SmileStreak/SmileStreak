@@ -1,5 +1,7 @@
 import { useEffect, useState, createContext, useCallback, useRef, lazy, Suspense } from "react";
 import { flushSync } from "react-dom";
+import "@fontsource-variable/source-sans-3";
+import "@fontsource-variable/newsreader";
 import NavTabs from "./components/NavTabs";
 import Presence from "./components/Presence";
 const pageLoaders = {
