@@ -1004,7 +1004,7 @@ const askAIAssistant = async () => {
       <Presence open={selectedDentist}>
 {selectedDentist && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="dentists-dialog bg-white rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl my-8" role="dialog" aria-modal="true" aria-labelledby="dentist-details-title">
+          <div className="dentists-dialog bg-white rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl my-8" role="dialog" aria-modal={!showPhotoModal} aria-hidden={showPhotoModal} inert={showPhotoModal} aria-labelledby="dentist-details-title">
             <div className="flex items-center justify-between mb-6">
               <h3 id="dentist-details-title" className="text-2xl font-black text-gray-900">{selectedDentist.name}</h3>
               <button aria-label="Close dentist details" onClick={() => setSelectedDentist(null)} className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100"><X className="w-6 h-6" /></button>
