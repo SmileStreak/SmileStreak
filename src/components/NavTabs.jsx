@@ -28,7 +28,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
    const values = [...tabs, "More", "Primary navigation"];
    translateBatch(values, currentLanguage, "en").then((translated) => {
      if (active) setLabels(Object.fromEntries(keys.map((key, index) => [key, translated[index]])));
-   });
+   }).catch((error) => console.error("Could not load navigation translations:", error));
    return () => { active = false; };
  }, [currentLanguage]);
 

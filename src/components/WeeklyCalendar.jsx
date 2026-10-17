@@ -18,7 +18,13 @@ export default function WeeklyCalendar({ habitData }) {
         setTitle(translatedTitle);
         setCompletionSummary(translatedSummary);
       })
-      .catch((error) => console.warn("Could not translate weekly calendar labels:", error));
+      .catch((error) => {
+        console.warn("Could not translate weekly calendar labels:", error);
+        if (active) {
+          setTitle("Last 7 days");
+          setCompletionSummary("of 3 habits completed");
+        }
+      });
     return () => { active = false; };
   }, [currentLanguage]);
 

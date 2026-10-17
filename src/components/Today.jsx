@@ -442,6 +442,15 @@ badgeKeys.forEach((k, i) => { bm[k] = badgeTranslated[i] ?? k; });
 setTranslatedBadgeNames(bm);
 } catch (err) {
 console.error("Translation failed:", err);
+if (!active) return;
+const fallbackMap = {};
+UI_STRINGS.forEach(s => { fallbackMap[s] = s; });
+setTx(fallbackMap);
+setTranslatedTips(DENTAL_TIPS_EN);
+setTranslatedMoods(MOOD_OPTIONS.map(m => ({ ...m, label: m.labelKey })));
+const fallbackBadges = {};
+Object.keys(BADGE_META).forEach(k => { fallbackBadges[k] = k; });
+setTranslatedBadgeNames(fallbackBadges);
 } finally {
 if (active) setTxReady(true);
 }
