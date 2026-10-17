@@ -62,6 +62,15 @@ howItWorksDesc: "A photo is sent to Google Gemini for general, habit-focused obs
 photoConsent: "I agree to send this photo to Google Gemini for general educational feedback. It is not a dental exam or diagnosis.",
 photoStorageConsent: "Save this photo and its feedback in this browser’s scan history (optional; off by default).",
 photoConsentRequired: "Confirm how this photo will be used before continuing.",
+guidancePositionTitle: "Position yourself",
+guidancePositionInstruction: "Face the camera with good lighting",
+guidancePositionTip: "Natural light works best",
+guidanceOpenTitle: "Open wide",
+guidanceOpenInstruction: "Open your mouth to show all teeth",
+guidanceOpenTip: "Relax your jaw and smile naturally",
+guidanceSteadyTitle: "Hold steady",
+guidanceSteadyInstruction: "Keep still and get ready to take the photo",
+guidanceSteadyTip: "When you’re ready, tap the capture button below",
 photoTypeError: "Choose a JPEG, PNG, or WebP image.",
 photoSizeError: "Choose an image smaller than 3 MB.",
 currentOnly: "Mentioned only in this note",
@@ -138,23 +147,32 @@ const guidanceSteps = [
 {
 id: 0,
 title: "Position yourself",
+titleKey: "guidancePositionTitle",
 instruction: "Face the camera with good lighting",
-icon: "📱",
-tip: "Natural light works best"
+instructionKey: "guidancePositionInstruction",
+icon: Camera,
+tip: "Natural light works best",
+tipKey: "guidancePositionTip"
 },
 {
 id: 1,
 title: "Open wide",
+titleKey: "guidanceOpenTitle",
 instruction: "Open your mouth to show all teeth",
-icon: "😁",
-tip: "Relax your jaw and smile naturally"
+instructionKey: "guidanceOpenInstruction",
+icon: CheckCircle2,
+tip: "Relax your jaw and smile naturally",
+tipKey: "guidanceOpenTip"
 },
 {
 id: 2,
 title: "Hold steady",
+titleKey: "guidanceSteadyTitle",
 instruction: "Keep still and get ready to take the photo",
-icon: "⏱️",
-tip: "When you're ready, tap the capture button below"
+instructionKey: "guidanceSteadyInstruction",
+icon: Target,
+tip: "When you’re ready, tap the capture button below",
+tipKey: "guidanceSteadyTip"
 }
 ];
 
@@ -572,6 +590,9 @@ setShareEmailError("");
 setShowShareModal(true);
 };
 
+const activeGuidanceStep = guidanceSteps[guidanceStep] || guidanceSteps[0];
+const GuidanceIcon = activeGuidanceStep.icon;
+
 // Show loading state while translating
 if (translating || Object.keys(translatedText).length === 0) {
 return (
@@ -960,10 +981,10 @@ return (
         {/* Guidance Instructions */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
           <div className="text-center text-white space-y-3">
-            <div className="scan-guidance-icon mb-2" aria-hidden="true">{guidanceSteps[guidanceStep].icon}</div>
-            <h3 className="text-xl font-black">{guidanceSteps[guidanceStep].title}</h3>
-            <p className="text-sm opacity-90">{guidanceSteps[guidanceStep].instruction}</p>
-            <p className="text-xs opacity-75">{guidanceSteps[guidanceStep].tip}</p>
+            <div className="scan-guidance-icon mb-2" aria-hidden="true"><GuidanceIcon className="h-6 w-6" strokeWidth={1.6} /></div>
+            <h3 className="text-xl font-black">{translatedText[activeGuidanceStep.titleKey] || activeGuidanceStep.title}</h3>
+            <p className="text-sm opacity-90">{translatedText[activeGuidanceStep.instructionKey] || activeGuidanceStep.instruction}</p>
+            <p className="text-xs opacity-75">{translatedText[activeGuidanceStep.tipKey] || activeGuidanceStep.tip}</p>
             
             {/* Progress dots */}
             <div className="flex justify-center gap-2 pt-2">
