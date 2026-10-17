@@ -307,6 +307,21 @@ export default function App() {
     }
   };
 
+  const openCookiePreferences = async () => {
+    setAnalyticsPreferenceNotice("");
+    try { await pageLoaders.legal(); } catch { /* navigateToTab still renders its fallback on a chunk error */ }
+    navigateToTab("legal");
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const controls = document.getElementById("legal-analytics-preferences");
+      if (!controls) return;
+      controls.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "center",
+      });
+      controls.focus({ preventScroll: true });
+    }));
+  };
+
   // SAVE LOCALLY
   useEffect(() => {
     storage.set("habitData", habitData);
@@ -1127,7 +1142,7 @@ export default function App() {
               <span>SmileStreak</span>
               <div className="flex items-center gap-4">
                 <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.privacyTerms}</button>
-                <button onClick={() => { setAnalyticsPreferenceNotice(""); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.preferences}</button>
+                <button onClick={openCookiePreferences} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.preferences}</button>
                 <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title={analyticsConsentCopy.giveFeedback}>
                   <MessageCircle className="w-4 h-4" />
                   <span>{analyticsConsentCopy.sendFeedback}</span>
