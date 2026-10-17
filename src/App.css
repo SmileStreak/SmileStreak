@@ -1373,10 +1373,12 @@ html.dark .weekly-calendar__today { background: #2a3940; }
   color: var(--ink-secondary);
   text-align: left;
   cursor: pointer;
+  transition: background-color 180ms ease-out, color 180ms ease-out, transform 180ms ease-out;
 }
 
 .reminder-preset:last-child { border-right: 0; }
-.reminder-preset:hover { background: var(--surface-quiet); }
+.reminder-preset:hover, .reminder-preset[aria-pressed="true"] { background: var(--surface-quiet); }
+.reminder-preset:active { transform: scale(.99); }
 .reminder-preset:focus-visible, .reminder-toggle:focus-visible, .reminder-adjust-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .reminder-preset span { font-size: 12px; }
 .reminder-preset strong { color: var(--ink); font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -1800,11 +1802,12 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-help-note > div > svg { color: var(--brand) !important; }
 .reminder-help-note ul { padding-left: 16px; list-style: disc; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .reminder-adjust-action:hover { border-color: var(--brand) !important; background: var(--surface-quiet) !important; }
+  .reminder-preset:hover { color: var(--ink); }
+  .reminder-adjust-action:hover { border-color: var(--brand) !important; background: var(--surface-quiet) !important; transform: translateY(-1px); }
   .reminder-enable-action:hover { background: var(--brand-hover) !important; transform: translateY(-1px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reminder-toggle, .reminder-toggle > div, .reminder-enable-action { transition: none !important; }
+  .reminder-preset, .reminder-toggle, .reminder-toggle > div, .reminder-adjust-action, .reminder-enable-action { transition: none !important; }
 }
 .reminder-empty-state { padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .reminder-empty-state p { margin: 0; }

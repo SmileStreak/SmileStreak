@@ -561,15 +561,15 @@ export default function Reminders() {
           <span className="text-xs text-slate-500">{translatedText.morning} · {translatedText.night} · {translatedText.floss}</span>
         </div>
         <div className="reminder-quick-set grid grid-cols-3">
-          <button onClick={quickSetMorning} className="reminder-preset">
+          <button type="button" onClick={quickSetMorning} aria-pressed={reminders.morning === "08:00"} className="reminder-preset">
             <span>{translatedText.morning}</span>
             <strong>8:00 AM</strong>
           </button>
-          <button onClick={quickSetNight} className="reminder-preset">
+          <button type="button" onClick={quickSetNight} aria-pressed={reminders.night === "21:00"} className="reminder-preset">
             <span>{translatedText.night}</span>
             <strong>9:00 PM</strong>
           </button>
-          <button onClick={quickSetFloss} className="reminder-preset">
+          <button type="button" onClick={quickSetFloss} aria-pressed={reminders.floss === "20:30"} className="reminder-preset">
             <span>{translatedText.floss}</span>
             <strong>8:30 PM</strong>
           </button>
