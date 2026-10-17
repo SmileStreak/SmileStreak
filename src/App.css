@@ -1435,13 +1435,20 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .feedback-rating-options input:checked + div svg { color: var(--brand) !important; fill: none !important; }
 .mission-feedback-dialog :is(input, select, textarea) { border-width: 1px; border-color: var(--line-strong); border-radius: 7px !important; }
 .mission-feedback-dialog :is(input, select, textarea):focus { border-color: var(--brand); }
-.mission-feedback-dialog button[type="submit"] { border-radius: 7px !important; box-shadow: none !important; }
+.mission-feedback-dialog button[type="submit"] {
+  min-height: 42px; border: 1px solid var(--brand-action); border-radius: 7px !important;
+  background: var(--brand-action) !important; box-shadow: none !important;
+  transition: background-color 180ms ease-out, transform 180ms ease-out;
+}
+.mission-feedback-dialog button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.mission-feedback-dialog button[type="button"] { border-width: 1px !important; border-radius: 7px !important; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .mission-faq-trigger:hover { padding-left: 6px; }
-  .mission-feedback-dialog button[type="submit"]:hover { filter: brightness(1.05); }
+  .mission-feedback-dialog button[type="submit"]:hover { background: var(--brand-hover) !important; transform: translateY(-1px); }
+  .mission-feedback-dialog button[type="button"]:hover { background: var(--surface-quiet); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mission-faq-trigger, .mission-feedback-dialog button[type="submit"] { transition: none; }
+  .mission-faq-trigger, .mission-feedback-dialog button { transition: none; }
 }
 .mission-involved__action {
   display: flex; width: 100%; align-items: center; justify-content: space-between;
