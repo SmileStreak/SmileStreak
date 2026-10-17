@@ -550,6 +550,16 @@ const [y, m, d] = dateStr.split("-").map(Number);
 return new Date(y, m - 1, d, 12, 0, 0);
 };
 
+const addCalendarMonthsClamped = (date, months) => {
+const result = new Date(date);
+const day = result.getDate();
+result.setDate(1);
+result.setMonth(result.getMonth() + months);
+const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
+result.setDate(Math.min(day, lastDay));
+return result;
+};
+
 const saveDentistModal = () => {
 const updates = {};
 if (lastVisitDateInput) {
@@ -558,8 +568,7 @@ updates.__lastDentistVisit = parseLocalDate(lastVisitDateInput).toISOString();
 if (nextDateInput) {
 updates.__nextDentistVisit = parseLocalDate(nextDateInput).toISOString();
 } else {
-const nextDate = new Date();
-nextDate.setMonth(nextDate.getMonth() + nextCustomMonths);
+const nextDate = addCalendarMonthsClamped(new Date(), Number(nextCustomMonths));
 updates.__nextDentistVisit = nextDate.toISOString();
 }
 setHabitData(prev => ({ ...prev, ...updates }));
