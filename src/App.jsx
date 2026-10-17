@@ -36,7 +36,7 @@ import { setupFCMToken, onForegroundMessage } from "./utils/notifications";
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, onSnapshot, collection, query, where, getDocs } from "firebase/firestore";
 import { LogOut, RefreshCw, MessageCircle, X, Globe, Check, Languages, Moon, Sun, User, Edit3, BarChart2, Award, Trophy } from "lucide-react";
-import { LANGUAGES, getStoredLanguage, saveLanguagePreference, detectBrowserLanguage, translateText } from "./utils/translate";
+import { LANGUAGES, getStoredLanguage, saveLanguagePreference, detectBrowserLanguage, translateText, translateBatch } from "./utils/translate";
 import { calculateStreaks, isDayComplete } from "./utils/progress";
 import { ACHIEVEMENTS } from "./data/achievements";
 import { subscribeToLeaderboard } from "./services/leaderboardService";
@@ -234,11 +234,11 @@ export default function App() {
       saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
       saveDeniedFailed: "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage."
     };
-    Promise.all(Object.values(defaults).map((text) => t(text))).then((values) => {
+    translateBatch(Object.values(defaults), currentLanguage, "en").then((values) => {
       if (active) setAnalyticsConsentCopy(Object.fromEntries(Object.keys(defaults).map((key, index) => [key, values[index]])));
-    }).catch((error) => console.error("Could not translate cookie preferences:", error));
+    }).catch((error) => console.error("Could not translate app shell labels:", error));
     return () => { active = false; };
-  }, [t]);
+  }, [currentLanguage]);
 
   // Apply dark mode class to html element
   useEffect(() => {
