@@ -2,6 +2,7 @@ import { TIPS } from "../data";
 import { ExternalLink, XCircle, CheckCircle, AlertCircle, BookOpen, RefreshCw } from "lucide-react";
 import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { TranslationContext } from "../App";
+import { translateBatch } from "../utils/translate.js";
 
 const MYTHS = [
 { id: 1, myth: "You should rinse your mouth with water right after brushing", truth: "Spit out the excess toothpaste instead of rinsing straight away; rinsing can wash away fluoride left on your teeth.", icon: "💧", isMyth: true },
@@ -30,7 +31,7 @@ const DID_YOU_KNOW = [
 ];
 
 export default function Tips() {
-const { t, currentLanguage } = useContext(TranslationContext);
+const { currentLanguage } = useContext(TranslationContext);
 const [texts, setTexts] = useState({});
 const [revealedMyths, setRevealedMyths] = useState(new Set());
 const [didYouKnowIndex, setDidYouKnowIndex] = useState(() => Math.floor(Math.random() * DID_YOU_KNOW.length));
@@ -42,42 +43,45 @@ useEffect(() => {
 let active = true;
 const translateAll = async () => {
 const translations = {
-dentalTips: await t("Dental Tips & Facts"),
-expertAdvice: await t("Everyday answers, with sources to explore"),
-mythBusters: await t("Myth Busters"),
-testKnowledge: await t("Test your dental knowledge!"),
-myth: await t("MYTH!"),
-true: await t("TRUE!"),
-tapReveal: await t("Tap to reveal the truth →"),
-revealed: await t("revealed"),
-proTip: await t("Pro Tip of the Day"),
-proTipText: await t("Brush your teeth at a 45-degree angle toward your gumline. This removes more plaque and prevents gum disease!"),
-source: await t("Source"),
-learnMore: await t("Learn More"),
-adaDesc: await t("Comprehensive oral health research"),
-cdcDesc: await t("Public health guidelines and basics"),
-whoDesc: await t("Global oral health statistics"),
-important: await t("Important"),
-disclaimer: await t("These tips are for prevention and education only, based on published dental research. This app does not provide medical diagnosis or treatment recommendations. Always consult with a licensed dental professional for personalized advice, treatment, or if you have concerns about your oral health."),
-didYouKnow: await t("Did You Know?"),
-newFact: await t("New fact"),
-fromTheBlog: await t("From the Blog"),
-blogDesc: await t("Deep dives into dental health, technology, and the story behind SmileStreak."),
-readArticle: await t("Read Article"),
-showMore: await t("Show more myths"),
-showLess: await t("Show less"),
+dentalTips: "Dental Tips & Facts",
+expertAdvice: "Everyday answers, with sources to explore",
+mythBusters: "Myth Busters",
+testKnowledge: "Test your dental knowledge!",
+myth: "MYTH!",
+true: "TRUE!",
+tapReveal: "Tap to reveal the truth →",
+revealed: "revealed",
+proTip: "Pro Tip of the Day",
+proTipText: "Brush your teeth at a 45-degree angle toward your gumline. This removes more plaque and prevents gum disease!",
+source: "Source",
+learnMore: "Learn More",
+adaDesc: "Comprehensive oral health research",
+cdcDesc: "Public health guidelines and basics",
+whoDesc: "Global oral health statistics",
+important: "Important",
+disclaimer: "These tips are for prevention and education only, based on published dental research. This app does not provide medical diagnosis or treatment recommendations. Always consult with a licensed dental professional for personalized advice, treatment, or if you have concerns about your oral health.",
+didYouKnow: "Did You Know?",
+newFact: "New fact",
+fromTheBlog: "From the Blog",
+blogDesc: "Deep dives into dental health, technology, and the story behind SmileStreak.",
+readArticle: "Read Article",
+showMore: "Show more myths",
+showLess: "Show less",
 };
 for (const myth of MYTHS) {
-translations[`myth${myth.id}`] = await t(myth.myth);
-translations[`truth${myth.id}`] = await t(myth.truth);
+translations[`myth${myth.id}`] = myth.myth;
+translations[`truth${myth.id}`] = myth.truth;
 }
-if (active) setTexts(translations);
+DID_YOU_KNOW.forEach((fact, index) => { translations[`fact${index}`] = fact; });
+const keys = Object.keys(translations);
+const values = await translateBatch(Object.values(translations), currentLanguage, "en");
+if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
 };
 translateAll().catch((error) => {
 console.error("Could not load dental tip translations:", error);
 });
 return () => { active = false; };
-}, [currentLanguage, t]);
+}, [currentLanguage]);
 
 const handleMythClick = (mythId) => {
 if (revealedMyths.has(mythId)) return;
@@ -129,7 +133,7 @@ return (
         className="tips-fact-note__fact"
         style={{ opacity: factAnimating ? 0 : 1 }}
       >
-        {DID_YOU_KNOW[didYouKnowIndex]}
+        {texts[`fact${didYouKnowIndex}`] || DID_YOU_KNOW[didYouKnowIndex]}
       </p>
     </div>
     <button
