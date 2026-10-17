@@ -89,6 +89,8 @@ main :is([class*="text-purple-500"], [class*="text-violet-500"], [class*="text-p
 main :is([class*="text-orange-500"], [class*="text-amber-500"], [class*="text-yellow-500"]) { color: #806c46 !important; }
 main :is([class*="text-green-500"], [class*="text-emerald-500"]) { color: #567361 !important; }
 main :is([class*="text-red-500"], [class*="text-rose-500"]) { color: #8b625e !important; }
+main :is([class~="text-gray-600"], [class~="text-slate-600"]) { color: var(--ink-secondary) !important; }
+main :is([class~="text-gray-500"], [class~="text-slate-500"], [class~="text-gray-400"], [class~="text-slate-400"]) { color: var(--ink-muted) !important; }
 main :is([class*="bg-blue-500"], [class*="bg-blue-600"], [class*="bg-cyan-500"], [class*="bg-cyan-600"], [class*="bg-teal-500"], [class*="bg-teal-600"]) { background-color: var(--brand-action) !important; }
 main :is([class*="bg-green-400"], [class*="bg-green-500"], [class*="bg-emerald-400"], [class*="bg-emerald-500"]) { background-color: #708b79 !important; }
 main :is([class*="bg-orange-400"], [class*="bg-orange-500"], [class*="bg-amber-400"], [class*="bg-yellow-400"]) { background-color: #a58b5c !important; }
@@ -293,8 +295,8 @@ html.dark main [class*="bg-gray-50"], html.dark main [class*="bg-slate-50"] { ba
 html.dark main :is([class*="bg-blue-50"], [class*="bg-cyan-50"], [class*="bg-blue-100"], [class*="bg-cyan-100"], [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-green-100"], [class*="bg-emerald-100"], [class*="bg-yellow-50"], [class*="bg-amber-50"], [class*="bg-orange-50"], [class*="bg-purple-50"], [class*="bg-pink-50"], [class*="bg-violet-50"], [class*="bg-red-50"], [class*="bg-rose-50"]) { background-color: #202b35 !important; }
 html.dark main [class*="text-gray-900"], html.dark main [class*="text-gray-800"], html.dark main [class*="text-gray-700"],
 html.dark main [class*="text-slate-900"], html.dark main [class*="text-slate-800"], html.dark main [class*="text-slate-700"] { color: #d9e0e6 !important; }
-html.dark main [class*="text-gray-600"], html.dark main [class*="text-gray-500"], html.dark main [class*="text-gray-400"],
-html.dark main [class*="text-slate-600"], html.dark main [class*="text-slate-500"], html.dark main [class*="text-slate-400"] { color: #a4afb8 !important; }
+html.dark main :is([class~="text-gray-600"], [class~="text-slate-600"]) { color: var(--ink-secondary) !important; }
+html.dark main :is([class~="text-gray-500"], [class~="text-slate-500"], [class~="text-gray-400"], [class~="text-slate-400"]) { color: var(--ink-muted) !important; }
 html.dark main [class*="border-gray-100"], html.dark main [class*="border-gray-200"], html.dark main [class*="border-gray-300"],
 html.dark main [class*="border-slate-100"], html.dark main [class*="border-slate-200"], html.dark main [class*="border-slate-300"] { border-color: #34404c !important; }
 html.dark .t-modal-backdrop > div[class*="rounded-"] { background-color: #1c2630; color: #d9e0e6; }
