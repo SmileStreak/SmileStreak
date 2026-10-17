@@ -104,10 +104,10 @@ emailResults: "Email Results",
 addNotes: "Add notes for your dentist",
 
 shareTitle: "Share with Your Dentist",
-shareDesc: "Open a prefilled email draft to share your scan notes with your dentist.",
+shareDesc: "Opens a text-only email draft with your feedback and notes. Your photo is not attached, and nothing is sent until you review and send the email.",
 emailPlaceholder: "Dentist's email address",
 notesPlaceholder: "Add any notes or questions for your dentist...",
-sendEmail: "Send Email",
+sendEmail: "Open email draft",
 
 comparisonTitle: "Scan Comparison",
 comparisonDesc: "Review the feedback saved from two different dates",
