@@ -562,7 +562,7 @@ const askAIAssistant = async () => {
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{favorites.length}</span>
                   </button>
                 )}
-                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label={translatedText.toggleFilters || "Toggle dentist filters"} aria-expanded={showFilters} aria-controls="dentist-filters">
+                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label={translatedText.toggleFilters || "Toggle dentist filters"} aria-expanded={showFilters} aria-controls={showFilters ? "dentist-filters" : undefined}>
                   <Filter className="w-4 h-4" /><span>{translatedText.filters || "Filters"}</span>
                 </button>
               </div>
@@ -723,9 +723,9 @@ const askAIAssistant = async () => {
 
       {/* IMPROVED: Cleaner Filters UI */}
       {showFilters && !locationError && (
-        <div id="dentist-filters" className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
+        <div id="dentist-filters" role="region" aria-labelledby="dentist-filter-title" className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">{translatedText.filters || "Filters"}</h3>
+            <h3 id="dentist-filter-title" className="font-bold text-gray-900">{translatedText.filters || "Filters"}</h3>
             <button onClick={clearSearchAndFilters} className="text-sm text-blue-600 hover:text-blue-700 font-semibold">{translatedText.clearAllFilters || "Clear All"}</button>
           </div>
           
