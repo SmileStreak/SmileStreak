@@ -680,17 +680,11 @@ return (
     <div className="flex items-center gap-4 mb-2">
       <div className="relative w-14 h-14 flex-shrink-0">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 56 56">
-          <circle cx="28" cy="28" r="22" fill="none" stroke="#dbeafe" strokeWidth="5" />
-          <circle cx="28" cy="28" r="22" fill="none" stroke="url(#grad)" strokeWidth="5" strokeLinecap="round"
+          <circle cx="28" cy="28" r="22" fill="none" stroke="#e4eceb" strokeWidth="5" />
+          <circle cx="28" cy="28" r="22" fill="none" stroke="#35666c" strokeWidth="5" strokeLinecap="round"
             strokeDasharray={`${2*Math.PI*22}`}
             strokeDashoffset={`${2*Math.PI*22*(1-percent/100)}`}
             style={{transition:"stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)"}} />
-          <defs>
-            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#06b6d4" />
-            </linearGradient>
-          </defs>
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-[11px] font-black text-blue-600">{percent}%</span>
@@ -836,7 +830,7 @@ className="press hover-lift w-full py-3.5 rounded-2xl text-sm font-bold border b
         </div>
         <div className="h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100 mb-1">
           <div className="h-full rounded-full transition-all duration-500"
-            style={{width:`${alignerPct}%`, background: alignerGoalReached ? "linear-gradient(90deg,#22c55e,#16a34a)" : "linear-gradient(90deg,#3b82f6,#06b6d4)"}} />
+            style={{width:`${alignerPct}%`, background: alignerGoalReached ? "#708b79" : "#35666c"}} />
         </div>
         <div className="flex justify-between">
           <span className="text-[10px] text-gray-400">Time off: {formatAlignerTime(Math.max(0, 86400 - alignerWornSeconds))}</span>
@@ -958,29 +952,26 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 </div>
 <div className="h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100">
 <div className="h-full rounded-full transition-all duration-700"
-style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,background:"linear-gradient(90deg,#3b82f6,#06b6d4)"}} />
+style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,background:"#35666c"}} />
 </div>
 <p className="text-xs text-gray-500 mt-2">{streakMilestones[0].remaining} {T("days to go — keep it up!")} 💪</p>
 </div>
 )}
 
 {/* ── TIP OF THE DAY ── */}
-<div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 rounded-3xl p-5 shadow-xl relative overflow-hidden">
-    <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12" />
-    <div className="relative z-10">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="w-4 h-4 text-white/80"><Sparkles className="w-4 h-4" /></span>
-        <p className="text-[11px] font-bold text-white/80 uppercase tracking-wider">✨ {T("Tip of the Day")}</p>
+<aside className="today-tip-note">
+      <div className="today-tip-note__label">
+        <Sparkles className="w-4 h-4" />
+        <p>{T("Tip of the Day")}</p>
       </div>
-      <div className="flex gap-3 items-start">
-        <span className="text-2xl">{tip.icon}</span>
+      <div className="today-tip-note__body">
+        <span aria-hidden="true">{tip.icon}</span>
         <div>
-          <p className="text-sm font-black text-white">{tip.title}</p>
-          <p className="text-xs text-blue-100 mt-1 leading-relaxed">{tip.body}</p>
+          <h3>{tip.title}</h3>
+          <p>{tip.body}</p>
         </div>
       </div>
-    </div>
-  </div>
+  </aside>
 
 {/* ── BRUSHING TIPS ACCORDION ── */}
 <div className="bg-white rounded-3xl shadow-lg border border-blue-100 overflow-hidden">
@@ -996,13 +987,13 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
       </div>
     </button>
     {tipsOpen && (
-      <div className="px-5 pb-5 border-t border-blue-50 pt-4 space-y-4" style={{animation:"slideUp .3s ease"}}>
+      <div className="today-tips-list">
         {translatedTips.map((tip, i) => (
-          <div key={i} className="flex gap-3 items-start p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100">
-            <span className="text-xl mt-0.5">{tip.icon}</span>
+          <div key={i} className="today-tip-row">
+            <span aria-hidden="true">{tip.icon}</span>
             <div>
-              <p className="text-xs font-bold text-gray-700">{tip.title}</p>
-              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{tip.body}</p>
+              <h3>{tip.title}</h3>
+              <p>{tip.body}</p>
             </div>
           </div>
         ))}
