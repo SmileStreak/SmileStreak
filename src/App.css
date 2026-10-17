@@ -2322,7 +2322,15 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
   .feedback-rating-options label > div, .app-feedback-dialog button[type="submit"] { transition: none; }
 }
 
-.dentists-dialog { border-color: var(--line) !important; border-radius: 9px !important; box-shadow: 0 8px 24px rgb(24 33 42 / .06) !important; }
+.dentists-dialog {
+  max-height: min(88dvh, 860px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(20px, 4vw, 32px) !important;
+  border-color: var(--line) !important;
+  border-radius: 9px !important;
+  box-shadow: 0 8px 24px rgb(24 33 42 / .06) !important;
+}
 .dentists-dialog h3 { color: var(--ink) !important; font: 500 26px/1.12 "Newsreader Variable", Georgia, serif !important; }
 .dentists-dialog > div:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
 .dentists-dialog button:focus-visible, .dentists-dialog a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
