@@ -41,16 +41,25 @@ export default function NavTabs({ activeTab, setActiveTab }) {
 
  useEffect(() => {
    if (!showMore) return;
+   let frame = 0;
    const updatePosition = () => {
      const rect = moreRef.current?.querySelector("#more-tabs-trigger")?.getBoundingClientRect();
      if (rect) setMoreMenuPosition({ top: rect.bottom + 8, left: rect.left });
    };
+   const schedulePositionUpdate = () => {
+     if (frame) return;
+     frame = window.requestAnimationFrame(() => {
+       frame = 0;
+       updatePosition();
+     });
+   };
    updatePosition();
-   window.addEventListener("resize", updatePosition);
-   window.addEventListener("scroll", updatePosition, true);
+   window.addEventListener("resize", schedulePositionUpdate);
+   window.addEventListener("scroll", schedulePositionUpdate, true);
    return () => {
-     window.removeEventListener("resize", updatePosition);
-     window.removeEventListener("scroll", updatePosition, true);
+     window.removeEventListener("resize", schedulePositionUpdate);
+     window.removeEventListener("scroll", schedulePositionUpdate, true);
+     if (frame) window.cancelAnimationFrame(frame);
    };
  }, [showMore]);
 
