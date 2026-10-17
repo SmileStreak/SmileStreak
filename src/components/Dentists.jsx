@@ -6,7 +6,7 @@ import {
   Menu, BarChart3, Sparkles, Shield, HelpCircle, AlertTriangle,
   Wifi, Coffee, Baby, CreditCard, Languages as LanguagesIcon, ExternalLink, Share2,
   Image as ImageIcon, Zap, Target, Bot, Volume2,
-  Thermometer, Plane, GraduationCap, MessageCircle
+  Thermometer, Plane, GraduationCap, MessageCircle, Brain, Moon
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -859,16 +859,16 @@ const askAIAssistant = async () => {
                       )}
                       {/* NEW: Specialized badges */}
                       {d.pediatricSpecialty && (
-                        <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-pink-100 text-pink-700">👶 Kids Friendly</span>
+                        <span className="dentist-feature-badge"><Baby aria-hidden="true" /> Kids Friendly</span>
                       )}
                       {d.anxietyFriendly && (
-                        <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-red-100 text-red-700">🧠 Anxiety Friendly</span>
+                        <span className="dentist-feature-badge"><Brain aria-hidden="true" /> Anxiety Friendly</span>
                       )}
                       {d.sedationOptions?.length > 0 && (
-                        <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-purple-100 text-purple-700">💤 Sedation Available</span>
+                        <span className="dentist-feature-badge"><Moon aria-hidden="true" /> Sedation Available</span>
                       )}
                       {d.travelFriendly && (
-                        <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-blue-100 text-blue-700">✈️ Travel Friendly</span>
+                        <span className="dentist-feature-badge"><Plane aria-hidden="true" /> Travel Friendly</span>
                       )}
                     </div>
                   </div>
@@ -946,12 +946,12 @@ const askAIAssistant = async () => {
                 
                 {/* Know Before You Go Section for Royse City */}
                 {d.knowBeforeYouGo && d.knowBeforeYouGo.length > 0 && (
-                  <div className="mb-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
-                    <p className="text-xs font-bold text-amber-800 mb-1">✨ Know Before You Go</p>
+                  <div className="dentist-prep-note mb-3 p-3">
+                    <p className="dentist-prep-note__title">Know Before You Go</p>
                     <ul className="space-y-1">
                       {d.knowBeforeYouGo.slice(0, 3).map((item, idx) => (
-                        <li key={idx} className="text-xs text-amber-700 flex items-start gap-1">
-                          <span className="text-amber-500 mt-0.5">•</span>
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="dentist-prep-note__bullet" aria-hidden="true">•</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -1077,7 +1077,7 @@ const askAIAssistant = async () => {
                     {Object.entries(selectedDentist.paymentOptions)
                       .filter(([_, value]) => value === true)
                       .map(([key]) => (
-                        <span key={key} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                          <span key={key} className="dentist-detail-chip">
                           {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                         </span>
                       ))}
@@ -1125,7 +1125,7 @@ const askAIAssistant = async () => {
                   <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Thermometer className="w-5 h-5 text-blue-600" />Sedation Options</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedDentist.sedationOptions.map((option, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                      <span key={idx} className="dentist-detail-chip">
                         {option}
                       </span>
                     ))}
@@ -1251,9 +1251,9 @@ const askAIAssistant = async () => {
                     <p><span className="font-semibold">Status:</span> {d.openNow ? '🟢 Open' : '🔴 Closed'}</p>
                     {d.specialDesignations?.medicaidProvider && <p className="text-green-600">✓ Medicaid Provider</p>}
                     {d.specialDesignations?.orthoProvider && <p className="text-purple-600">Ortho Provider</p>}
-                    {d.pediatricSpecialty && <p className="text-pink-600">👶 Kids Friendly</p>}
-                    {d.anxietyFriendly && <p className="text-red-600">🧠 Anxiety Friendly</p>}
-                    {d.sedationOptions?.length > 0 && <p className="text-purple-600">💤 Sedation Available</p>}
+                    {d.pediatricSpecialty && <p>Kids Friendly</p>}
+                    {d.anxietyFriendly && <p>Anxiety Friendly</p>}
+                    {d.sedationOptions?.length > 0 && <p>Sedation Available</p>}
                     {d.phone && <p><span className="font-semibold">Phone:</span> {d.phone}</p>}
                     {d.paymentOptions?.creditCards && <p className="text-xs text-gray-600">✓ Cards Accepted</p>}
                     {d.accessibility?.wheelchairEntrance && <p className="text-xs text-gray-600">✓ Wheelchair Access</p>}

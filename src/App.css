@@ -2351,6 +2351,22 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
 .dentists-dialog :is(input, select, textarea) { border-color: var(--line-strong) !important; border-radius: 7px !important; }
 .dentists-dialog :is(input, select, textarea):focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; box-shadow: none !important; }
 .dentists-assistant-response { max-height: min(46vh, 360px); border: 0 !important; border-left: 3px solid var(--brand) !important; border-radius: 0 !important; background: var(--surface-quiet) !important; }
+.dentist-feature-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--surface-quiet);
+  color: var(--ink-secondary); font-size: 11px; font-weight: 550; line-height: 1.2;
+}
+.dentist-feature-badge svg { width: 13px; height: 13px; flex: none; stroke-width: 1.7; color: var(--brand); }
+.dentist-prep-note {
+  border: 1px solid var(--line); border-left: 2px solid var(--brand); border-radius: 6px;
+  background: var(--surface-quiet); color: var(--ink-secondary);
+}
+.dentist-prep-note__title { margin: 0 0 5px; color: var(--ink); font-size: 12px; font-weight: 650; }
+.dentist-prep-note ul { padding: 0; list-style: none; }
+.dentist-prep-note li { color: var(--ink-secondary); font-size: 12px; line-height: 1.45; }
+.dentist-prep-note__bullet { color: var(--brand); }
+.dentist-detail-chip { padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-quiet); color: var(--ink-secondary); font-size: 12px; }
+html.dark .dentist-feature-badge, html.dark .dentist-detail-chip { border-color: var(--line); background: var(--surface-quiet); color: var(--ink-secondary); }
 @media (prefers-reduced-motion: reduce) {
   .dentists-dialog button { transition: none !important; }
 }
