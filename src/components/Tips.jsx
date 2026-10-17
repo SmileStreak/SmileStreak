@@ -168,12 +168,12 @@ return (
             key={item.id}
             onClick={() => !isRevealed && handleMythClick(item.id)}
             aria-pressed={isRevealed}
+            aria-disabled={isRevealed}
             className={`w-full text-left py-4 transition-colors duration-200 ${
               isRevealed
                 ? "cursor-default"
                 : "hover:bg-slate-50 cursor-pointer"
             }`}
-            disabled={isRevealed}
           >
             <div className="flex items-start gap-3">
               <div className="flex-1">
