@@ -66,6 +66,21 @@ export default function Insights({ habitData }) {
     dayStreak: "Day Streak!"
   };
 
+  // Keep translation loading mounted across empty and populated states so
+  // receiving the first tracked day never changes hook order.
+  useEffect(() => {
+    let active = true;
+    const loadTranslations = async () => {
+      const translations = {};
+      for (const [key, value] of Object.entries(translationKeys)) {
+        translations[key] = await t(value);
+      }
+      if (active) setTranslatedText(translations);
+    };
+    loadTranslations();
+    return () => { active = false; };
+  }, [currentLanguage, t]);
+
   // Safety check for habitData
   if (!habitData || Object.keys(habitData).length === 0) {
     return (
@@ -83,7 +98,7 @@ export default function Insights({ habitData }) {
           </div>
         </div>
         
-        <div className="bg-white rounded-3xl p-8 shadow-lg border border-blue-100 text-center">
+        <div className="insights-empty-state bg-white rounded-3xl p-8 shadow-lg border border-blue-100 text-center">
           <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-gray-900 mb-2">{translatedText.noDataTitle || translationKeys.noDataTitle}</h3>
           <p className="text-sm text-gray-600">
@@ -93,19 +108,6 @@ export default function Insights({ habitData }) {
       </div>
     );
   }
-
-  // Load translations when language changes
-  useEffect(() => {
-    const loadTranslations = async () => {
-      const translations = {};
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      setTranslatedText(translations);
-    };
-    
-    loadTranslations();
-  }, [currentLanguage, t]);
 
   const insights = generateInsights(habitData);
 
@@ -320,7 +322,7 @@ export default function Insights({ habitData }) {
       </section>
 
       {/* Score Breakdown */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+      <div className="insights-score-breakdown bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
         <h3 className="font-black text-gray-900 mb-4">{translatedText.scoreBreakdown}</h3>
         
         <div className="space-y-4">
@@ -358,7 +360,7 @@ export default function Insights({ habitData }) {
       </dl>
 
       {/* Task Breakdown */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+      <div className="insights-task-breakdown bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
         <h3 className="font-black text-gray-900 mb-4">Task Breakdown</h3>
         
         <div className="space-y-4">
