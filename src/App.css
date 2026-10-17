@@ -952,7 +952,9 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
 .analytics-consent.is-open { animation: consent-enter 220ms var(--motion-out) both; }
 .analytics-consent.is-closing { transform: translateY(8px); opacity: 0; pointer-events: none; }
 @keyframes consent-enter { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .analytics-consent.is-open { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .analytics-consent, .analytics-consent.is-open { animation: none !important; transition: none !important; }
+}
 
 .app-language-progress {
   position: fixed;
