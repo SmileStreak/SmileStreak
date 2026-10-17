@@ -126,8 +126,9 @@ export default function Home({ setActiveTab, user, habitData }) {
   }, [habitData, user]);
 
   useEffect(() => {
+    let active = true;
     const translateAll = async () => {
-      setTexts({
+      const translations = {
         title: await t("SmileStreak"),
         currentStreak: await t("Current Streak"),
         days: await t("days"),
@@ -181,9 +182,11 @@ export default function Home({ setActiveTab, user, habitData }) {
         onCalendar: await t("On your calendar"),
         quickAccess: await t("Quick access"),
         noScans: await t("No scans yet")
-      });
+      };
+      if (active) setTexts(translations);
     };
-    translateAll();
+    translateAll().catch((error) => console.error("Could not load home translations:", error));
+    return () => { active = false; };
   }, [currentLanguage, t]);
 
   const go = (tab) => {

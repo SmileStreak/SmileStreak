@@ -113,8 +113,9 @@ export default function Progress({ habitData }) {
     date.toLocaleDateString(currentLanguage, { weekday: "short", month: "long", day: "numeric", year: "numeric" });
 
   useEffect(() => {
+    let active = true;
     const translateAll = async () => {
-      setTexts({
+      const translations = {
         yourProgress: await t("Your Progress"),
         trackJourney: await t("Track your dental care journey"),
         perfectDaysLabel: await t("Perfect days"),
@@ -144,9 +145,11 @@ export default function Progress({ habitData }) {
         visualizeHabits: await t("Visualize your daily dental habits"),
         contributionsThisYear: await t("contributions this year"),
         longestStreak: await t("Longest Streak"),
-      });
+      };
+      if (active) setTexts(translations);
     };
-    translateAll();
+    translateAll().catch((error) => console.error("Could not load progress translations:", error));
+    return () => { active = false; };
   }, [currentLanguage, t]);
 
   return (

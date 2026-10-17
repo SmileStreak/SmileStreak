@@ -314,6 +314,7 @@ return `${m}m ${s}s`;
 };
 
 useEffect(() => {
+let active = true;
 setTxReady(false);
 if (!currentLanguage || currentLanguage === "en") {
 const map = {};
@@ -325,34 +326,39 @@ const bm = {};
 Object.keys(BADGE_META).forEach(k => { bm[k] = k; });
 setTranslatedBadgeNames(bm);
 setTxReady(true);
-return;
+return () => { active = false; };
 }
 const run = async () => {
 try {
 const uiTranslated = await translateBatch(UI_STRINGS, currentLanguage, "en");
 const map = {};
 UI_STRINGS.forEach((s, i) => { map[s] = uiTranslated[i] ?? s; });
+if (!active) return;
 setTx(map);
 const tipTexts = DENTAL_TIPS_EN.flatMap(t => [t.title, t.body]);
 const tipTranslated = await translateBatch(tipTexts, currentLanguage, "en");
+if (!active) return;
 setTranslatedTips(DENTAL_TIPS_EN.map((t, i) => ({
 ...t, title: tipTranslated[i*2] ?? t.title, body: tipTranslated[i*2+1] ?? t.body,
 })));
 const moodLabels = MOOD_OPTIONS.map(m => m.labelKey);
 const moodTranslated = await translateBatch(moodLabels, currentLanguage, "en");
+if (!active) return;
 setTranslatedMoods(MOOD_OPTIONS.map((m, i) => ({ ...m, label: moodTranslated[i] ?? m.labelKey })));
 const badgeKeys = Object.keys(BADGE_META);
 const badgeTranslated = await translateBatch(badgeKeys, currentLanguage, "en");
+if (!active) return;
 const bm = {};
 badgeKeys.forEach((k, i) => { bm[k] = badgeTranslated[i] ?? k; });
 setTranslatedBadgeNames(bm);
 } catch (err) {
 console.error("Translation failed:", err);
 } finally {
-setTxReady(true);
+if (active) setTxReady(true);
 }
 };
 run();
+return () => { active = false; };
 }, [currentLanguage]);
 
 const T = useCallback((key) => tx[key] ?? key, [tx]);

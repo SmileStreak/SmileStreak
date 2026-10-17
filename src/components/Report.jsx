@@ -172,6 +172,7 @@ export default function Report({ habitData }) {
 
   // Load translations when language changes
   useEffect(() => {
+    let active = true;
     const loadTranslations = async () => {
       const translations = {};
       
@@ -180,10 +181,10 @@ export default function Report({ habitData }) {
         translations[key] = await t(value);
       }
       
-      setTranslatedText(translations);
+      if (active) setTranslatedText(translations);
     };
-    
-    loadTranslations();
+    loadTranslations().catch((error) => console.error("Could not load report translations:", error));
+    return () => { active = false; };
   }, [currentLanguage, t]);
 
   // Generate insights with translations
