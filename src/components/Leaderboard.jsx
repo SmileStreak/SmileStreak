@@ -179,17 +179,14 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
   }
 
   return (
-    <div className={`w-full rounded-2xl overflow-hidden shadow-lg border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} mb-6`}>
+    <div className={`w-full overflow-hidden rounded-xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200'} mb-6`}>
       
       {/* ── HEADER ── */}
-      <div className={`bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 p-5 text-white`}>
+      <div className={`border-b p-5 ${darkMode ? 'border-gray-700' : 'border-slate-200'}`}>
         <div className="flex items-center gap-3">
-          <div className="bg-white/20 p-2 rounded-xl">
-            <Trophy className="w-6 h-6" />
-          </div>
           <div>
-            <h2 className="text-xl font-black">League Leaderboard</h2>
-            <p className="text-white/90 text-xs">Ranked by weekly points</p>
+            <h2 className={`font-serif text-xl font-medium tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>League leaderboard</h2>
+            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>Ranked by weekly points</p>
           </div>
         </div>
       </div>
@@ -276,6 +273,7 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
         }`}>
           <Search className="w-4 h-4 mr-2 text-gray-400" />
           <input
+            aria-label="Search usernames"
             placeholder="Search username..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -288,13 +286,13 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
 
       {/* ── TOP 3 ── */}
       <div className="px-4 mt-4">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 items-end gap-3">
           {topThree.map((player, index) => (
             <div
               key={player.uid}
-              className={`rounded-xl p-3 text-center border ${
+              className={`rounded-lg p-3 text-center border transition-transform duration-200 ease-out hover:-translate-y-0.5 ${
                 index === 0
-                  ? "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/30"
+                  ? darkMode ? "border-amber-700 bg-amber-950/30" : "border-amber-200 bg-amber-50/70"
                   : darkMode
                   ? "border-gray-700 bg-gray-700/50"
                   : "border-gray-200 bg-gray-50"
@@ -304,7 +302,7 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
               <img
                 src={player.photoURL}
                 alt={player.username}
-                className="w-12 h-12 rounded-full mx-auto border-2 border-white shadow-lg"
+                className="w-12 h-12 rounded-full mx-auto border border-slate-200 object-cover"
               />
               <h4 className="mt-2 font-bold text-sm truncate">@{player.username}</h4>
               <p className="text-xs text-gray-500">⭐ {player.weeklyPoints} pts</p>
@@ -338,7 +336,7 @@ export default function Leaderboard({ user, username, habitData, darkMode }) {
               <img
                 src={player.photoURL}
                 alt={player.username}
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full border border-slate-200 object-cover"
               />
               <div>
                 <p className="font-bold text-sm">@{player.username}</p>

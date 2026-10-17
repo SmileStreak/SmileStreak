@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { Download, Mail, TrendingUp, TrendingDown, Award, Calendar, Target, Zap, FileText, Share2, Printer, CheckCircle2, AlertCircle, BarChart3 } from "lucide-react";
+import { Download, Mail, TrendingUp, TrendingDown, Minus, Award, Target, Zap, FileText, Share2, Printer, CheckCircle2, AlertCircle, BarChart3, Sun, Moon, Activity } from "lucide-react";
 import { TranslationContext } from "../App";
 
 export default function Report({ habitData }) {
@@ -44,6 +44,7 @@ export default function Report({ habitData }) {
     vsPrevious: "vs previous",
     improving: "Improving",
     declining: "Declining",
+    unchanged: "Unchanged",
     generated: "Generated",
     
     // Insight messages
@@ -270,7 +271,7 @@ ${translatedText.interdentalCare || translationKeys.interdentalCare}: ${flossCou
 
 ${trend ? `${translatedText.reportTrendAnalysis || translationKeys.reportTrendAnalysis}
 ${translatedText.reportChangeFromPrevious || translationKeys.reportChangeFromPrevious}: ${trend.change > 0 ? '+' : ''}${trend.change}%
-${translatedText.reportStatus || translationKeys.reportStatus}: ${trend.improving ? (translatedText.improving || translationKeys.improving) : (translatedText.declining || translationKeys.declining)} ↑
+${translatedText.reportStatus || translationKeys.reportStatus}: ${trend.change > 0 ? (translatedText.improving || translationKeys.improving) : trend.change < 0 ? (translatedText.declining || translationKeys.declining) : (translatedText.unchanged || translationKeys.unchanged)} ${trend.change > 0 ? "↑" : trend.change < 0 ? "↓" : "→"}
 ` : ''}
 
 ${translatedText.reportKeyInsights || translationKeys.reportKeyInsights}
@@ -323,7 +324,6 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
         
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <BarChart3 className="w-6 h-6" />
             <h2 className="text-2xl font-black">{translatedText.title}</h2>
           </div>
           <p className="text-sm opacity-90">{translatedText.subtitle}</p>
@@ -351,32 +351,25 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
         ))}
       </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl p-5 shadow-lg border border-blue-100">
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="w-5 h-5 text-blue-500" />
-            <p className="text-xs text-gray-500">{translatedText.totalDays}</p>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{totalDays}</p>
+      {/* Overview metrics */}
+      <dl className="progress-stat-strip grid grid-cols-2">
+        <div>
+          <dt>{translatedText.totalDays}</dt>
+          <dd>{totalDays}</dd>
         </div>
-
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 shadow-lg border-2 border-green-200">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <p className="text-xs text-gray-600">{translatedText.perfectDays}</p>
-          </div>
-          <p className="text-3xl font-black text-green-700">{percent(perfectDays)}%</p>
+        <div>
+          <dt>{translatedText.perfectDays}</dt>
+          <dd>{percent(perfectDays)}%</dd>
           {trend && (
             <p className={`text-xs font-semibold mt-1 flex items-center gap-1 ${
-              trend.improving ? 'text-green-600' : 'text-red-600'
+              trend.change > 0 ? 'text-green-700' : trend.change < 0 ? 'text-red-700' : 'text-slate-600'
             }`}>
-              {trend.improving ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {trend.change > 0 ? <TrendingUp className="w-3 h-3" /> : trend.change < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
               {trend.change > 0 ? '+' : ''}{trend.change}% {translatedText.vsPrevious}
             </p>
           )}
         </div>
-      </div>
+      </dl>
 
       {/* Detailed Stats */}
       <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
@@ -384,23 +377,23 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
         
         <div className="space-y-4">
           {[
-            { label: translatedText.morningBrushing, count: morningCount, icon: "☀️", color: "orange" },
-            { label: translatedText.nightBrushing, count: nightCount, icon: "🌙", color: "indigo" },
-            { label: translatedText.interdentalCare, count: flossCount, icon: "🧵", color: "cyan" }
+            { label: translatedText.morningBrushing, count: morningCount, icon: <Sun className="w-4 h-4 text-slate-600" /> },
+            { label: translatedText.nightBrushing, count: nightCount, icon: <Moon className="w-4 h-4 text-slate-600" /> },
+            { label: translatedText.interdentalCare, count: flossCount, icon: <Activity className="w-4 h-4 text-slate-600" /> }
           ].map((task) => {
             const taskPercent = percent(task.count);
             return (
               <div key={task.label}>
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{task.icon}</span>
+                    {task.icon}
                     <span className="font-semibold text-gray-900">{task.label}</span>
                   </div>
                   <span className="font-bold text-gray-900">{taskPercent}%</span>
                 </div>
                 <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className={`h-full bg-gradient-to-r from-${task.color}-400 to-${task.color}-500 transition-all duration-500`}
+                    className="h-full bg-blue-600 transition-all duration-500"
                     style={{ width: `${taskPercent}%` }}
                   />
                 </div>

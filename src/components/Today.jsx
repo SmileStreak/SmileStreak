@@ -5,7 +5,7 @@ import { getDateKey, getYesterdayKey } from "../utils/date.js";
 import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
-Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap
+Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap, Sun, Moon
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -116,7 +116,7 @@ const DENTAL_TIPS_EN = [
 { title: "Wait After Eating",  body: "Wait 30 minutes after meals before brushing — acidic food softens enamel and brushing too soon wears it away.", icon: "🍎" },
 { title: "Stay Hydrated",      body: "Water washes away food particles and prevents dry mouth, a leading cause of cavities.", icon: "💧" },
 { title: "Replace Your Brush", body: "Swap your toothbrush every 3–4 months or when bristles splay — a worn brush cleans far less effectively.", icon: "🪥" },
-{ title: "Floss First",        body: "Flossing before you brush loosens debris between teeth so your toothpaste can reach those surfaces too.", icon: "🧵" },
+{ title: "Clean between teeth daily", body: "The ADA recommends cleaning between your teeth once a day. Flossing can happen before or after brushing.", icon: "🧵" },
 ];
 
 const MOOD_OPTIONS = [
@@ -157,7 +157,7 @@ const UI_STRINGS = [
 "Energised", "Good", "Calm", "Tired", "Meh", "Unwell",
 "Week Warrior", "Monthly Master", "Century Club", "Perfect Week", "Perfect Month",
 "Circular Motion", "45° Angle", "Two Full Minutes", "Brush Your Tongue",
-"Wait After Eating", "Stay Hydrated", "Replace Your Brush", "Floss First",
+"Wait After Eating", "Stay Hydrated", "Replace Your Brush", "Clean between teeth daily",
 "Aligners In", "Aligners Out", "Aligner Wear Time", "Daily Goal", "Tray", "Week",
 "Aligner goal reached!", "Clean your aligners", "Switch tray reminder",
 "Treatment Progress", "hours today", "Aligner Tracker",
@@ -733,8 +733,8 @@ style={{transform:`scaleX(${fillPct/100})`,transition:"transform 1s linear"}} />
 )}
 <div className="relative flex items-center justify-between gap-3">
 <div className="flex items-center gap-3">
-<div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl ${ task === "morning" ? "bg-gradient-to-br from-yellow-100 to-orange-100" : "bg-slate-100" }`}>
-{task === "morning" ? "🪥" : "🌙"}
+<div className={`w-11 h-11 rounded-xl flex items-center justify-center ${ task === "morning" ? "bg-gradient-to-br from-yellow-100 to-orange-100 text-amber-800" : "bg-slate-100 text-slate-600"}`}>
+{task === "morning" ? <Sun className="w-5 h-5" strokeWidth={1.6} /> : <Moon className="w-5 h-5" strokeWidth={1.6} />}
 </div>
 <div>
 <p className="font-bold text-gray-900 text-sm">

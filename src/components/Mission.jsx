@@ -65,15 +65,15 @@ export default function Mission() {
     
     exploreFeatures: "Explore Features",
     featureTitle1: "Smart Reminders",
-    featureDesc1: "Intelligent notifications that adapt to your schedule and habits",
+    featureDesc1: "Set reminders for the times that fit your day",
     featureTitle2: "AI-Powered Insights",
     featureDesc2: "Personalized analytics to help you understand your dental health patterns",
     featureTitle3: "Dentist Finder",
-    featureDesc3: "Find top-rated dental professionals near you with our integrated directory",
+    featureDesc3: "Search a nearby dentist directory and review office details",
     featureTitle4: "Progress Tracking",
-    featureDesc4: "Visualize your journey with beautiful charts and milestone celebrations",
+    featureDesc4: "Review saved habits, streaks, and routine patterns over time",
     featureTitle5: "Scan & Analyze",
-    featureDesc5: "Upload photos for AI analysis of your dental hygiene",
+    featureDesc5: "Request educational observations from an uploaded photo",
     featureTitle6: "Multi-Language Support",
     featureDesc6: "Available in 20+ languages to serve our global community",
     
@@ -99,9 +99,9 @@ export default function Mission() {
     faq1q: "Is Smile Streak really free?",
     faq1a: "Yes! Smile Streak is completely free to use with no hidden costs. We believe dental health tools should be accessible to everyone.",
     faq2q: "How does the AI scan work?",
-    faq2a: "Our AI analyzes uploaded photos to identify potential areas of concern and provides educational feedback. It's not a diagnostic tool, but helps you understand what to discuss with your dentist.",
-    faq3q: "Is my data private?",
-    faq3a: "Absolutely. All your data is stored locally on your device by default. Cloud sync is optional and encrypted. We never sell your data to third parties.",
+    faq2a: "A photo can be sent to Google's Gemini service to return educational feedback. It is not a diagnostic tool; discuss dental concerns with a licensed professional.",
+    faq3q: "Where is my data stored?",
+    faq3a: "Habit and profile information is kept in this browser and synced to Firebase when you sign in. Scan photos and history are stored in this browser. See Legal & Privacy for the data controls and service details.",
     faq4q: "Can I use Smile Streak with my dentist?",
     faq4a: "Yes! You can export your habit data and share reports directly with your dentist to inform your appointments.",
     faq5q: "How do I change my language?",
@@ -135,21 +135,12 @@ export default function Mission() {
 
   // Features
   const features = [
-    { icon: <Bell className="w-5 h-5" />, title: 'featureTitle1', desc: 'featureDesc1', color: 'blue' },
-    { icon: <Brain className="w-5 h-5" />, title: 'featureTitle2', desc: 'featureDesc2', color: 'purple' },
-    { icon: <MapPin className="w-5 h-5" />, title: 'featureTitle3', desc: 'featureDesc3', color: 'green' },
-    { icon: <TrendingUp className="w-5 h-5" />, title: 'featureTitle4', desc: 'featureDesc4', color: 'orange' },
-    { icon: <Camera className="w-5 h-5" />, title: 'featureTitle5', desc: 'featureDesc5', color: 'cyan' },
-    { icon: <Globe className="w-5 h-5" />, title: 'featureTitle6', desc: 'featureDesc6', color: 'indigo' }
-  ];
-
-  // Badges
-  const badges = [
-    { name: 'badge1', icon: <Rocket className="w-4 h-4" />, color: 'purple' },
-    { name: 'badge2', icon: <Star className="w-4 h-4" />, color: 'yellow' },
-    { name: 'badge3', icon: <Flame className="w-4 h-4" />, color: 'orange' },
-    { name: 'badge4', icon: <Heart className="w-4 h-4" />, color: 'red' },
-    { name: 'badge5', icon: <Award className="w-4 h-4" />, color: 'green' }
+    { icon: <Bell className="w-4 h-4" />, title: 'featureTitle1', desc: 'featureDesc1' },
+    { icon: <Brain className="w-4 h-4" />, title: 'featureTitle2', desc: 'featureDesc2' },
+    { icon: <MapPin className="w-4 h-4" />, title: 'featureTitle3', desc: 'featureDesc3' },
+    { icon: <TrendingUp className="w-4 h-4" />, title: 'featureTitle4', desc: 'featureDesc4' },
+    { icon: <Camera className="w-4 h-4" />, title: 'featureTitle5', desc: 'featureDesc5' },
+    { icon: <Globe className="w-4 h-4" />, title: 'featureTitle6', desc: 'featureDesc6' }
   ];
 
   // Social links - keeping only the GitHub link which exists
@@ -197,135 +188,77 @@ export default function Mission() {
       </div>
 
       {/* Mission Statement */}
-      <div className="bg-white p-6 rounded-3xl shadow-lg border border-blue-100">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <Target className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h3 className="text-xl font-black text-gray-900 mb-2">{translatedText.missionTitle}</h3>
-          </div>
-        </div>
-        <p className="text-sm text-gray-700 leading-relaxed mb-3">
+      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+        <h3 className="mb-4 font-serif text-2xl font-medium tracking-tight text-slate-900">{translatedText.missionTitle}</h3>
+        <p className="mb-3 max-w-3xl text-base leading-7 text-slate-700">
           {translatedText.missionDesc1}
         </p>
-        <p className="text-sm text-gray-700 leading-relaxed">
+        <p className="max-w-3xl text-base leading-7 text-slate-700">
           {translatedText.missionDesc2}
         </p>
-      </div>
+      </section>
 
       {/* Features Grid */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-blue-600" />
+      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+        <h3 className="mb-2 font-serif text-xl font-medium tracking-tight text-slate-900">
           {translatedText.exploreFeatures}
         </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {features.map((feature, i) => (
-            <div key={i} className={`p-4 rounded-xl bg-${feature.color}-50 border-2 border-${feature.color}-200`}>
-              <div className={`w-10 h-10 rounded-xl bg-${feature.color}-500 flex items-center justify-center mb-3 text-white`}>
-                {feature.icon}
+        <div className="mt-4 divide-y divide-slate-200">
+          {features.map((feature) => (
+            <div key={feature.title} className="flex gap-4 py-4 first:pt-2 last:pb-0">
+              <span className="mt-1 text-slate-500">{feature.icon}</span>
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900">{translatedText[feature.title]}</h4>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{translatedText[feature.desc]}</p>
               </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">{translatedText[feature.title]}</h4>
-              <p className="text-xs text-gray-600">{translatedText[feature.desc]}</p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* The Problem We're Solving */}
-      <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-3xl p-6 shadow-lg">
+      <section className="rounded-xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
         <div className="flex items-start gap-3 mb-4">
-          <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <Lightbulb className="w-6 h-6 text-white" />
+          <div className="mt-1 flex-shrink-0 text-slate-500">
+            <Lightbulb className="w-5 h-5" />
           </div>
           <h3 className="text-xl font-black text-gray-900">{translatedText.problemTitle}</h3>
         </div>
-        <p className="text-sm text-gray-700 leading-relaxed mb-3">
+        <p className="mb-3 max-w-3xl text-sm leading-6 text-slate-700">
           {translatedText.problemDesc1}
         </p>
-        <p className="text-sm text-gray-700 leading-relaxed">
+        <p className="max-w-3xl text-sm leading-6 text-slate-700">
           {translatedText.problemDesc2}
         </p>
-      </div>
+      </section>
 
       {/* Design Principles */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <div className="flex items-center gap-2 mb-4">
-          <Award className="w-6 h-6 text-blue-600" />
-          <h3 className="text-xl font-black text-gray-900">{translatedText.designPrinciples}</h3>
-        </div>
-        <div className="grid grid-cols-1 gap-3">
-          {[
-            { icon: <Lightbulb className="w-4 h-4" />, text: translatedText.principle1, color: "blue" },
-            { icon: <Target className="w-4 h-4" />, text: translatedText.principle2, color: "green" },
-            { icon: <Heart className="w-4 h-4" />, text: translatedText.principle3, color: "pink" },
-            { icon: <Lock className="w-4 h-4" />, text: translatedText.principle4, color: "purple" },
-            { icon: <Sparkles className="w-4 h-4" />, text: translatedText.principle5, color: "cyan" },
-            { icon: <Eye className="w-4 h-4" />, text: translatedText.principle6, color: "orange" }
-          ].map((principle, i) => (
-            <div key={i} className={`flex items-center gap-3 p-3 rounded-xl bg-${principle.color}-50 border border-${principle.color}-200`}>
-              <div className={`text-${principle.color}-600`}>{principle.icon}</div>
-              <p className="text-sm text-gray-700 font-medium">{principle.text}</p>
-            </div>
+      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+        <h3 className="mb-3 font-serif text-xl font-medium tracking-tight text-slate-900">{translatedText.designPrinciples}</h3>
+        <ol className="divide-y divide-slate-200">
+          {[translatedText.principle1, translatedText.principle2, translatedText.principle3, translatedText.principle4, translatedText.principle5, translatedText.principle6].map((principle, i) => (
+            <li key={i} className="flex gap-4 py-3 text-sm leading-6 text-slate-700">
+              <span className="w-6 shrink-0 font-mono text-xs text-slate-400">0{i + 1}</span>{principle}
+            </li>
           ))}
-        </div>
-      </div>
-
-      {/* Badges */}
-      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-3xl p-6 shadow-lg">
-        <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-          <Crown className="w-6 h-6 text-yellow-600" />
-          {translatedText.badges}
-        </h3>
-        
-        <div className="flex flex-wrap gap-2">
-          {badges.map((badge, i) => (
-            <div key={i} className={`flex items-center gap-2 px-3 py-2 rounded-full bg-${badge.color}-100 border border-${badge.color}-300`}>
-              <span className={`text-${badge.color}-600`}>{badge.icon}</span>
-              <span className="text-xs font-medium text-gray-700">{translatedText[badge.name]}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+        </ol>
+      </section>
 
       {/* Research-Informed */}
-      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
+      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
         <div className="flex items-start gap-3 mb-4">
-          <div className="w-12 h-12 bg-purple-500 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <Microscope className="w-6 h-6 text-white" />
+          <div className="mt-1 flex-shrink-0 text-slate-500">
+            <Microscope className="w-5 h-5" />
           </div>
           <h3 className="text-xl font-black text-gray-900">{translatedText.researchTitle}</h3>
         </div>
-        <p className="text-sm text-gray-700 leading-relaxed mb-3">
+        <p className="mb-3 max-w-3xl text-sm leading-6 text-slate-700">
           {translatedText.researchDesc1}
         </p>
-        <p className="text-sm text-gray-700 leading-relaxed">
+        <p className="max-w-3xl text-sm leading-6 text-slate-700">
           {translatedText.researchDesc2}
         </p>
-      </div>
-
-      {/* Testimonials */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-          <MessageCircle className="w-6 h-6 text-blue-600" />
-          {translatedText.testimonials}
-        </h3>
-        
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <p className="text-sm text-gray-700 italic">"{translatedText[`testimonial${i}`]}"</p>
-              <div className="flex items-center gap-1 mt-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
 
       {/* FAQ Section */}
       <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
@@ -341,6 +274,8 @@ export default function Mission() {
               <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
+                  aria-expanded={expandedFaq === i}
+                  aria-controls={`mission-faq-${i}`}
                   className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
                 >
                   <span className="font-semibold text-gray-900 text-sm">
@@ -354,7 +289,7 @@ export default function Mission() {
                 </button>
                 
                 {expandedFaq === i && (
-                  <div className="px-4 pb-4 text-sm text-gray-600 leading-relaxed">
+                  <div id={`mission-faq-${i}`} className="px-4 pb-4 text-sm text-gray-600 leading-relaxed">
                     {translatedText[item.answer]}
                   </div>
                 )}

@@ -3,9 +3,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import {
-  Calendar, MapPin, TrendingUp, Clock, Heart, Activity,
-  Coffee, Moon, Sun, Check, ChevronRight, Droplets, Brush,
-  Apple, Camera
+  Calendar, MapPin, TrendingUp, Moon, Sun, Check, ChevronRight,
+  Brush, Camera
 } from "lucide-react";
 import { getCurrentStreak, getLongestStreak, getWeeklyActivity } from "../utils/streak";
 import { TranslationContext, ThemeContext } from "../App";
@@ -60,13 +59,13 @@ export default function Home({ setActiveTab, user, habitData }) {
   });
 
   const dailyTips = [
-    { id: 1, title: "Perfect Brushing Time", tip: "Brush for a full 2 minutes, spending 30 seconds in each quadrant of your mouth.", icon: <Clock className="w-4 h-4" /> },
-    { id: 2, title: "Flossing Facts", tip: "Flossing removes plaque between teeth where your toothbrush can't reach. Do it before brushing!", icon: <Activity className="w-4 h-4" /> },
-    { id: 3, title: "Mouthwash Matters", tip: "Use mouthwash after brushing and flossing to rinse away loosened debris and freshen breath.", icon: <Droplets className="w-4 h-4" /> },
-    { id: 4, title: "Replace Your Toothbrush", tip: "Change your toothbrush every 3-4 months or sooner if bristles are frayed.", icon: <Brush className="w-4 h-4" /> },
-    { id: 5, title: "Healthy Diet, Healthy Teeth", tip: "Limit sugary snacks and drinks. Crunchy fruits and veggies like apples and carrots help clean teeth naturally.", icon: <Apple className="w-4 h-4" /> },
-    { id: 6, title: "Don't Brush Too Hard", tip: "Aggressive brushing can damage gums and enamel. Use gentle, circular motions.", icon: <Heart className="w-4 h-4" /> },
-    { id: 7, title: "Stay Hydrated", tip: "Drinking water helps wash away food particles and bacteria, and prevents dry mouth.", icon: <Coffee className="w-4 h-4" /> }
+    { id: 1, title: "Perfect Brushing Time", tip: "Brush for a full 2 minutes, spending 30 seconds in each quadrant of your mouth." },
+    { id: 2, title: "Clean between teeth daily", tip: "The ADA recommends cleaning between your teeth once a day. Choose a time that fits your routine; flossing can happen before or after brushing." },
+    { id: 3, title: "Mouthwash Matters", tip: "Use mouthwash after brushing and flossing to rinse away loosened debris and freshen breath." },
+    { id: 4, title: "Replace Your Toothbrush", tip: "Change your toothbrush every 3-4 months or sooner if bristles are frayed." },
+    { id: 5, title: "Healthy Diet, Healthy Teeth", tip: "Limit sugary snacks and drinks. Crunchy fruits and veggies like apples and carrots help clean teeth naturally." },
+    { id: 6, title: "Don't Brush Too Hard", tip: "Aggressive brushing can damage gums and enamel. Use gentle, circular motions." },
+    { id: 7, title: "Stay Hydrated", tip: "Drinking water helps wash away food particles and bacteria, and prevents dry mouth." }
   ];
 
   // Derive today's completion directly from habitData so it's always in sync
@@ -116,18 +115,15 @@ export default function Home({ setActiveTab, user, habitData }) {
     const translateAll = async () => {
       setTexts({
         title: await t("SmileStreak"),
-        subtitle: await t("Build smarter dental habits with AI feedback"),
         currentStreak: await t("Current Streak"),
         days: await t("days"),
         keepItUp: await t("Keep it up!"),
         updateToday: await t("Update Today"),
-        companion: await t("Your Dental Companion"),
-        aiScan: await t("AI-powered scan feedback"),
         dailyStreak: await t("Daily streak tracking"),
         dentistFinder: await t("Dentist finder tool"),
         progressInsights: await t("Progress insights"),
         scanTeeth: await t("Scan Teeth"),
-        aiFeedback: await t("Brushing feedback"),
+        scanSummary: await t("Photo-based observations"),
         streaks: await t("Streaks"),
         trackHabits: await t("Track daily habits"),
         findDentists: await t("Find Dentists"),
@@ -137,7 +133,6 @@ export default function Home({ setActiveTab, user, habitData }) {
         longestStreak: await t("Longest Streak"),
         todayProgress: await t("Today's Progress"),
         nextMilestone: await t("Next Milestone"),
-        dailyTip: await t("Daily Tip"),
         recentScans: await t("Recent Scans"),
         viewAll: await t("View All"),
         upcomingAppointments: await t("Upcoming Appointments"),
@@ -159,7 +154,6 @@ export default function Home({ setActiveTab, user, habitData }) {
         updateRoutine: await t("Update routine"),
         done: await t("Done"),
         notYet: await t("Not yet"),
-        lastSevenDays: await t("Last seven days"),
         consistency: await t("Consistency"),
         dailyHabits: await t("Daily habits completed"),
         lessActivity: await t("Less activity"),
@@ -215,6 +209,23 @@ export default function Home({ setActiveTab, user, habitData }) {
           <p className="home-date">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</p>
         </header>
 
+        <section className="home-streak-summary" aria-label="Streak summary">
+          <div className="home-streak-primary">
+            <span className="home-eyebrow">{texts.currentStreak || "Current streak"}</span>
+            <div className="home-streak-value"><strong>{streak}</strong><span>{texts.days || "days"}</span></div>
+          </div>
+          <div className="home-streak-secondary">
+            <div><span className="home-eyebrow">{texts.personalBest || "Personal best"}</span><strong>{longestStreak}<small>d</small></strong></div>
+            <div><span className="home-eyebrow">{texts.nextMilestone || "Next milestone"}</span><strong>{nextMilestone ? `${nextMilestone} days` : "—"}</strong><small>{nextMilestone && streak ? `${Math.max(nextMilestone - streak, 0)} to go` : "Keep your routine going"}</small></div>
+            <div><span className="home-eyebrow">{texts.scanHistory || "Scan history"}</span><strong>{totalScans}</strong><small>{lastScanDate || texts.noScans || "No scans yet"}</small></div>
+          </div>
+          <div className="home-streak-progress">
+            <div className="home-progress-label"><span>{texts.today || "Today"}</span><strong>{todayPct}%</strong></div>
+            <div className="home-progress-track"><span style={{ width: `${todayPct}%` }} /></div>
+            <small>{todayDone} of 3 {texts.habitsComplete || "habits complete"}</small>
+          </div>
+        </section>
+
         <div className="home-content-grid">
           <div className="home-main-column">
             <section className="home-routine-section">
@@ -238,7 +249,7 @@ export default function Home({ setActiveTab, user, habitData }) {
 
             <section className="home-week-section" ref={weeklyChartRef}>
               <div className="home-section-heading">
-                <div><p className="home-eyebrow">{texts.lastSevenDays || "Last seven days"}</p><h3>{texts.consistency || "Consistency"}</h3></div>
+                <div><h3>{texts.consistency || "Consistency"}</h3></div>
                 <span className="home-muted-label">{texts.dailyHabits || "Daily habits completed"}</span>
               </div>
               <div className="home-week-chart">
@@ -275,7 +286,6 @@ export default function Home({ setActiveTab, user, habitData }) {
 
             {dailyTip && (
               <section className="home-tip-section">
-                <div className="home-tip-heading"><span className="home-aside-icon">{dailyTip.icon}</span><p className="home-eyebrow">{texts.dailyTip || "Daily tip"}</p></div>
                 <h3>{dailyTip.title}</h3>
                 <p>{dailyTip.tip}</p>
               </section>
@@ -283,7 +293,7 @@ export default function Home({ setActiveTab, user, habitData }) {
 
             {upcomingAppointments.length > 0 && (
               <section className="home-appointments-section">
-                <div className="home-section-heading"><div><p className="home-eyebrow">{texts.onCalendar || "On your calendar"}</p><h3>{texts.upcomingAppointments || "Upcoming appointments"}</h3></div></div>
+                <div className="home-section-heading"><div><h3>{texts.upcomingAppointments || "Upcoming appointments"}</h3></div></div>
                 {upcomingAppointments.map((appointment, i) => (
                   <div key={i} className="home-appointment-row"><div><strong>{appointment.dentist}</strong><small>{new Date(appointment.date).toLocaleDateString()}</small></div><Calendar size={16} /></div>
                 ))}
@@ -291,9 +301,9 @@ export default function Home({ setActiveTab, user, habitData }) {
             )}
 
             <nav className="home-shortcuts" aria-label="Quick actions">
-              <p className="home-eyebrow">{texts.quickAccess || "Quick access"}</p>
+              <h3>{texts.quickAccess || "Quick actions"}</h3>
               {[
-                { tab: "scan", icon: <Camera size={17} />, label: texts.scanTeeth || "Scan teeth", detail: texts.aiFeedback || "Brushing feedback" },
+                { tab: "scan", icon: <Camera size={17} />, label: texts.scanTeeth || "Scan teeth", detail: texts.scanSummary || "Photo-based observations" },
                 { tab: "dentists", icon: <MapPin size={17} />, label: texts.findDentists || "Find dentists", detail: texts.nearbyCare || "Nearby dental offices" },
                 { tab: "progress", icon: <TrendingUp size={17} />, label: texts.progress || "Progress", detail: texts.reviewImprovements || "Review your habits" },
               ].map((action) => (
@@ -305,26 +315,9 @@ export default function Home({ setActiveTab, user, habitData }) {
           </aside>
         </div>
 
-        <section className="home-streak-summary" aria-label="Streak summary">
-          <div className="home-streak-primary">
-            <span className="home-eyebrow">{texts.currentStreak || "Current streak"}</span>
-            <div className="home-streak-value"><strong>{streak}</strong><span>{texts.days || "days"}</span></div>
-          </div>
-          <div className="home-streak-secondary">
-            <div><span className="home-eyebrow">{texts.personalBest || "Personal best"}</span><strong>{longestStreak}<small>d</small></strong></div>
-            <div><span className="home-eyebrow">{texts.nextMilestone || "Next milestone"}</span><strong>{nextMilestone ? `${nextMilestone} days` : "—"}</strong><small>{nextMilestone && streak ? `${Math.max(nextMilestone - streak, 0)} to go` : "Keep your routine going"}</small></div>
-            <div><span className="home-eyebrow">{texts.scanHistory || "Scan history"}</span><strong>{totalScans}</strong><small>{lastScanDate || texts.noScans || "No scans yet"}</small></div>
-          </div>
-          <div className="home-streak-progress">
-            <div className="home-progress-label"><span>{texts.today || "Today"}</span><strong>{todayPct}%</strong></div>
-            <div className="home-progress-track"><span style={{ width: `${todayPct}%` }} /></div>
-            <small>{todayDone} of 3 {texts.habitsComplete || "habits complete"}</small>
-          </div>
-        </section>
-
         {recentScans.length > 0 && (
           <section className="home-recent-section">
-            <div className="home-section-heading"><div><p className="home-eyebrow">YOUR HISTORY</p><h3>{texts.recentScans || "Recent scans"}</h3></div><button className="home-text-link" onClick={() => go("scan")}>{texts.viewAll || "View all"}<ChevronRight size={16} /></button></div>
+            <div className="home-section-heading"><div><h3>{texts.recentScans || "Recent scans"}</h3></div><button className="home-text-link" onClick={() => go("scan")}>{texts.viewAll || "View all"}<ChevronRight size={16} /></button></div>
             <div className="home-recent-list">
               {recentScans.map((scan, i) => (
                 <div key={i} className="home-recent-row"><img src={scan.image} alt="Dental scan" /><div><strong>{scan.timestamp}</strong><small>{scan.feedback}</small></div><ChevronRight size={16} /></div>

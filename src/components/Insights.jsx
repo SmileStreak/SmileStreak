@@ -17,7 +17,7 @@ export default function Insights({ habitData }) {
     subtitle: "Patterns in your daily care routine",
     noDataTitle: "No Data Yet",
     noDataDesc: "Start tracking your dental habits to see personalized insights and analytics!",
-    healthScore: "Health Score",
+    healthScore: "Routine Score",
     scoreBreakdown: "Score Breakdown",
     completionRate: "Completion Rate",
     consistency: "Consistency",
@@ -247,27 +247,22 @@ export default function Insights({ habitData }) {
 
   const benchmarks = getBenchmarks();
 
-  // Get health score color and label
+  // Label the habit-based score without implying a clinical health assessment.
   const getScoreStatus = (score) => {
     if (score >= 90) return { 
-      label: translatedText.scoreExcellent || translationKeys.scoreExcellent, 
-      gradient: 'from-green-400 to-emerald-500' 
+      label: translatedText.scoreExcellent || translationKeys.scoreExcellent
     };
     if (score >= 75) return { 
-      label: translatedText.scoreGreat || translationKeys.scoreGreat, 
-      gradient: 'from-blue-400 to-cyan-500' 
+      label: translatedText.scoreGreat || translationKeys.scoreGreat
     };
     if (score >= 60) return { 
-      label: translatedText.scoreGood || translationKeys.scoreGood, 
-      gradient: 'from-yellow-400 to-orange-400' 
+      label: translatedText.scoreGood || translationKeys.scoreGood
     };
     if (score >= 40) return { 
-      label: translatedText.scoreFair || translationKeys.scoreFair, 
-      gradient: 'from-orange-400 to-red-400' 
+      label: translatedText.scoreFair || translationKeys.scoreFair
     };
     return { 
-      label: translatedText.scoreNeedsWork || translationKeys.scoreNeedsWork, 
-      gradient: 'from-red-400 to-pink-500' 
+      label: translatedText.scoreNeedsWork || translationKeys.scoreNeedsWork
     };
   };
 
@@ -296,67 +291,33 @@ export default function Insights({ habitData }) {
         
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <Brain className="w-6 h-6" />
             <h2 className="text-2xl font-black">{translatedText.title}</h2>
           </div>
           <p className="text-sm opacity-90">{translatedText.subtitle}</p>
         </div>
       </div>
 
-      {/* Health Score - Hero Section */}
-      <div className={`relative rounded-3xl p-8 shadow-2xl overflow-hidden bg-gradient-to-br ${scoreStatus.gradient}`}>
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16" />
-        
-        <div className="relative z-10 text-center text-white">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <svg className="w-40 h-40 transform -rotate-90">
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  stroke="white"
-                  strokeOpacity="0.2"
-                  strokeWidth="12"
-                  fill="none"
-                />
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  stroke="white"
-                  strokeWidth="12"
-                  fill="none"
-                  strokeDasharray={`${2 * Math.PI * 70}`}
-                  strokeDashoffset={`${2 * Math.PI * 70 * (1 - healthScore.total / 100)}`}
-                  className="transition-all duration-1000"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div>
-                  <p className="text-5xl font-black">{healthScore.total}</p>
-                  <p className="text-xs opacity-80">/ 100</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <h3 className="text-2xl font-black mb-2">{translatedText.healthScore}: {scoreStatus.label}</h3>
-          <p className="text-sm opacity-90">
+      {/* Habit-based score */}
+      <section className="insights-score-band">
+        <div className="insights-score-number"><strong>{healthScore.total}</strong><span>/ 100</span></div>
+        <div className="insights-score-copy">
+          <h3>{translatedText.healthScore}: {scoreStatus.label}</h3>
+          <p>
             {healthScore.total >= 80 ? (translatedText.healthDescExcellent || translationKeys.healthDescExcellent) :
              healthScore.total >= 60 ? (translatedText.healthDescGood || translationKeys.healthDescGood) :
              (translatedText.healthDescNeedsWork || translationKeys.healthDescNeedsWork)}
           </p>
-
+          <div className="insights-score-track" role="img" aria-label={`${translatedText.healthScore}: ${healthScore.total} out of 100`}>
+            <span style={{ width: `${healthScore.total}%` }} />
+          </div>
           {healthScore.streak > 0 && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+            <div className="mt-3 inline-flex items-center gap-2 text-sm text-slate-600">
               <Flame className="w-5 h-5" />
               <span className="font-bold">{healthScore.streak} {translatedText.dayStreak}</span>
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* Score Breakdown */}
       <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
@@ -364,10 +325,10 @@ export default function Insights({ habitData }) {
         
         <div className="space-y-4">
           {[
-            { label: translatedText.completionRate, value: healthScore.breakdown.completion, icon: <Target className="w-5 h-5 text-blue-500" />, desc: translatedText.completionRateDesc },
-            { label: translatedText.consistency, value: healthScore.breakdown.consistency, icon: <Activity className="w-5 h-5 text-green-500" />, desc: translatedText.consistencyDesc },
-            { label: translatedText.balance, value: healthScore.breakdown.balance, icon: <BarChart3 className="w-5 h-5 text-purple-500" />, desc: translatedText.balanceDesc },
-            { label: translatedText.improvement, value: healthScore.breakdown.improvement, icon: <TrendingUp className="w-5 h-5 text-cyan-500" />, desc: translatedText.improvementDesc }
+            { label: translatedText.completionRate, value: healthScore.breakdown.completion, icon: <Target className="w-5 h-5 text-slate-600" />, desc: translatedText.completionRateDesc },
+            { label: translatedText.consistency, value: healthScore.breakdown.consistency, icon: <Activity className="w-5 h-5 text-slate-600" />, desc: translatedText.consistencyDesc },
+            { label: translatedText.balance, value: healthScore.breakdown.balance, icon: <BarChart3 className="w-5 h-5 text-slate-600" />, desc: translatedText.balanceDesc },
+            { label: translatedText.improvement, value: healthScore.breakdown.improvement, icon: <TrendingUp className="w-5 h-5 text-slate-600" />, desc: translatedText.improvementDesc }
           ].map((metric) => (
             <div key={metric.label}>
               <div className="flex justify-between items-center mb-2">
@@ -389,26 +350,12 @@ export default function Insights({ habitData }) {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl p-4 shadow-md border border-blue-100 text-center">
-          <Calendar className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-          <p className="text-2xl font-black text-gray-900">{insights.totalDays || 0}</p>
-          <p className="text-xs text-gray-500">{translatedText.daysTracked}</p>
-        </div>
-        
-        <div className="bg-white rounded-2xl p-4 shadow-md border border-blue-100 text-center">
-          <CheckCircle2 className="w-6 h-6 text-green-500 mx-auto mb-2" />
-          <p className="text-2xl font-black text-gray-900">{insights.completedDays || 0}</p>
-          <p className="text-xs text-gray-500">{translatedText.perfectDays}</p>
-        </div>
-        
-        <div className="bg-white rounded-2xl p-4 shadow-md border border-blue-100 text-center">
-          <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-          <p className="text-2xl font-black text-gray-900">{healthScore.maxStreak}</p>
-          <p className="text-xs text-gray-500">{translatedText.bestStreak}</p>
-        </div>
-      </div>
+      {/* A compact, scan-friendly summary */}
+      <dl className="progress-stat-strip grid grid-cols-3">
+        <div><dt>{translatedText.daysTracked}</dt><dd>{insights.totalDays || 0}</dd></div>
+        <div><dt>{translatedText.perfectDays}</dt><dd>{insights.completedDays || 0}</dd></div>
+        <div><dt>{translatedText.bestStreak}</dt><dd>{healthScore.maxStreak}</dd></div>
+      </dl>
 
       {/* Task Breakdown */}
       <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
@@ -418,7 +365,7 @@ export default function Insights({ habitData }) {
           <div>
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <Sun className="w-5 h-5 text-orange-500" />
+                <Sun className="w-5 h-5 text-slate-600" />
                 <span className="font-semibold text-gray-900">{translatedText.morning}</span>
               </div>
               <span className="font-bold text-gray-900">{timePatterns.morningRate}%</span>
@@ -434,7 +381,7 @@ export default function Insights({ habitData }) {
           <div>
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <Moon className="w-5 h-5 text-indigo-500" />
+                <Moon className="w-5 h-5 text-slate-600" />
                 <span className="font-semibold text-gray-900">{translatedText.night}</span>
               </div>
               <span className="font-bold text-gray-900">{timePatterns.nightRate}%</span>
@@ -450,7 +397,7 @@ export default function Insights({ habitData }) {
           <div>
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-cyan-500" />
+                <Activity className="w-5 h-5 text-slate-600" />
                 <span className="font-semibold text-gray-900">Floss</span>
               </div>
               <span className="font-bold text-gray-900">{timePatterns.flossRate}%</span>
@@ -532,8 +479,8 @@ export default function Insights({ habitData }) {
         <button
           onClick={() => {
             navigator.share?.({
-              title: 'My Smile Streak Health Score',
-              text: `I have a health score of ${healthScore.total}%!`
+              title: 'My SmileStreak Routine Score',
+              text: `My SmileStreak routine score is ${healthScore.total}%.`
             });
           }}
           className="flex flex-col items-center gap-1 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"

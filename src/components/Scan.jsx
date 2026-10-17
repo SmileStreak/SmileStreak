@@ -422,7 +422,6 @@ return (
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-6 h-6" />
             <h2 className="text-2xl font-black">{translatedText.title}</h2>
           </div>
           <p className="text-sm opacity-90">{translatedText.subtitle}</p>
@@ -432,6 +431,7 @@ return (
           <button
             onClick={() => setShowHistory(!showHistory)}
             className="bg-white/20 backdrop-blur-sm rounded-xl p-3 hover:bg-white/30 transition-colors"
+            aria-label={showHistory ? "Close scan history" : "Open scan history"}
           >
             <History className="w-5 h-5" />
           </button>

@@ -1,5 +1,5 @@
 import { TIPS } from "../data";
-import { Lightbulb, ExternalLink, XCircle, CheckCircle, AlertCircle, BookOpen, Sparkles, TrendingUp, Newspaper, ChevronRight, RefreshCw } from "lucide-react";
+import { ExternalLink, XCircle, CheckCircle, AlertCircle, BookOpen, Sparkles, TrendingUp, Newspaper, ChevronRight, RefreshCw } from "lucide-react";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { TranslationContext } from "../App";
 
@@ -129,7 +129,6 @@ return (
 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
 <div className="relative z-10">
 <div className="flex items-center gap-2 mb-2">
-<Lightbulb className="w-6 h-6" />
 <h2 className="text-2xl font-black">{texts.dentalTips || "Dental Tips & Facts"}</h2>
 </div>
 <p className="text-sm opacity-90">{texts.expertAdvice || "Expert advice backed by science"}</p>
@@ -157,6 +156,7 @@ return (
         onClick={rotateFact}
         className="flex-shrink-0 w-8 h-8 bg-amber-200 hover:bg-amber-300 rounded-full flex items-center justify-center transition-colors"
         title={texts.newFact || "New fact"}
+        aria-label={texts.newFact || "Show another dental fact"}
       >
         <RefreshCw className="w-4 h-4 text-amber-700" />
       </button>
@@ -167,7 +167,7 @@ return (
   <div className="bg-slate-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
     <div className="flex items-center gap-2 mb-4">
       <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-        <Sparkles className="w-5 h-5 text-white" />
+        <Sparkles className="w-5 h-5 text-slate-700" />
       </div>
       <div>
         <h3 className="font-black text-gray-900">{texts.mythBusters || "Myth Busters"}</h3>
@@ -241,29 +241,23 @@ return (
         <TrendingUp className="w-5 h-5 text-white" />
       </div>
       <div>
-        <p className="font-bold text-gray-900 mb-1">💡 {texts.proTip || "Pro Tip of the Day"}</p>
+          <p className="font-bold text-gray-900 mb-1">{texts.proTip || "Pro Tip of the Day"}</p>
         <p className="text-sm text-gray-700">
-          {texts.proTipText || "Brush your teeth at a 45-degree angle toward your gumline. This removes more plaque and prevents gum disease!"}
+          {texts.proTipText || "Hold your brush at about 45 degrees to the gumline and use gentle, short strokes."}
         </p>
       </div>
     </div>
   </div>
 
   {/* Tips Grid */}
-  <div className="grid grid-cols-1 gap-4">
-    {TIPS.map((tip, index) => (
-      <div
+  <div className="divide-y divide-slate-200">
+    {TIPS.map((tip) => (
+      <article
         key={tip.id}
-        className="group bg-white p-5 rounded-2xl shadow-md border border-blue-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
-        style={{ animationDelay: `${index * 50}ms` }}
+        className="py-5 first:pt-0 last:pb-0"
       >
-        <div className="flex items-start gap-3 mb-3">
-          <div className="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform">{tip.icon}</div>
-          <div className="flex-1">
-            <h3 className="font-bold text-gray-900 mb-1">{tip.title}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{tip.content}</p>
-          </div>
-        </div>
+        <h3 className="font-bold text-gray-900 mb-1">{tip.title}</h3>
+        <p className="text-sm text-gray-600 leading-relaxed">{tip.content}</p>
         {tip.sourceLink && (
           <a href={tip.sourceLink} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium mt-2">
@@ -271,7 +265,7 @@ return (
             <ExternalLink className="w-3 h-3" />
           </a>
         )}
-      </div>
+      </article>
     ))}
   </div>
 

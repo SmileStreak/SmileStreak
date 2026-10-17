@@ -4,7 +4,7 @@ import { getReminders, saveReminders } from "../utils/reminders";
 import { requestNotificationPermission, setupFCMToken } from "../utils/notifications";
 import { savePushNotificationPreferences } from "../utils/pushNotifications";
 import { auth } from "../firebase";
-import { Bell, BellOff, Clock, Sparkles, Zap, CheckCircle2, TrendingUp, Moon, Sun, Activity, Calendar, AlertCircle } from "lucide-react";
+import { Bell, BellOff, Clock, Sparkles, Zap, CheckCircle2, Moon, Sun, Activity, Calendar, AlertCircle, Smartphone } from "lucide-react";
 import { TranslationContext } from "../App";
 
 const isIOS = /iPhone|iPad|iPo/.test(navigator.userAgent);
@@ -393,7 +393,6 @@ export default function Reminders() {
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <Bell className="w-6 h-6" />
             <h2 className="text-2xl font-black">{translatedText.title}</h2>
           </div>
           <p className="text-sm opacity-90">{translatedText.subtitle}</p>
@@ -431,7 +430,7 @@ export default function Reminders() {
       {isIOS && window.navigator.standalone !== true && (
         <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">📱</span>
+            <Smartphone className="w-5 h-5 text-slate-600 flex-shrink-0" aria-hidden="true" />
             <div>
               <p className="font-bold text-gray-900 text-sm mb-1">Enable iPhone Notifications</p>
               <p className="text-xs text-gray-600 leading-relaxed">To get reminders on iPhone:</p>
@@ -452,44 +451,35 @@ export default function Reminders() {
           <Zap className="w-5 h-5 text-blue-600" />
           <h3 className="font-bold text-gray-900">{translatedText.quickSetup}</h3>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <button onClick={quickSetMorning} className="group p-4 rounded-xl bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 hover:shadow-md hover:-translate-y-1 transition-all">
-            <Sun className="w-6 h-6 text-orange-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-semibold text-gray-700">{translatedText.morning}</p>
-            <p className="text-xs text-gray-500">8:00 AM</p>
+        <div className="reminder-quick-set grid grid-cols-3">
+          <button onClick={quickSetMorning} className="reminder-preset">
+            <span>{translatedText.morning}</span>
+            <strong>8:00 AM</strong>
           </button>
-          <button onClick={quickSetNight} className="group p-4 rounded-xl bg-slate-50 border border-indigo-200 hover:shadow-md hover:-translate-y-1 transition-all">
-            <Moon className="w-6 h-6 text-indigo-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-semibold text-gray-700">{translatedText.night}</p>
-            <p className="text-xs text-gray-500">9:00 PM</p>
+          <button onClick={quickSetNight} className="reminder-preset">
+            <span>{translatedText.night}</span>
+            <strong>9:00 PM</strong>
           </button>
-          <button onClick={quickSetFloss} className="group p-4 rounded-xl bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 hover:shadow-md hover:-translate-y-1 transition-all">
-            <Activity className="w-6 h-6 text-cyan-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-semibold text-gray-700">{translatedText.floss}</p>
-            <p className="text-xs text-gray-500">8:30 PM</p>
+          <button onClick={quickSetFloss} className="reminder-preset">
+            <span>{translatedText.floss}</span>
+            <strong>8:30 PM</strong>
           </button>
         </div>
       </div>
 
       {/* Reminder Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl p-5 shadow-md border border-blue-100">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-            <p className="text-xs text-gray-500">{translatedText.onTimeActions}</p>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{reminderStats.onTimeCount}</p>
-          <p className="text-xs text-gray-500 mt-1">{translatedText.onTimeActionsDesc}</p>
+      <dl className="reminder-stat-strip grid grid-cols-2">
+        <div>
+          <dt>{translatedText.onTimeActions}</dt>
+          <dd>{reminderStats.onTimeCount}</dd>
+          <small>{translatedText.onTimeActionsDesc}</small>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-md border border-blue-100">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
-            <p className="text-xs text-gray-500">{translatedText.reminderStreak}</p>
-          </div>
-          <p className="text-3xl font-black text-gray-900">{reminderStats.streak}</p>
-          <p className="text-xs text-gray-500 mt-1">{translatedText.reminderStreakDesc}</p>
+        <div>
+          <dt>{translatedText.reminderStreak}</dt>
+          <dd>{reminderStats.streak}</dd>
+          <small>{translatedText.reminderStreakDesc}</small>
         </div>
-      </div>
+      </dl>
 
       {/* Custom Reminders */}
       <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100 space-y-4">

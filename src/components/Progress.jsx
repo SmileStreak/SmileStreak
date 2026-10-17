@@ -2,7 +2,7 @@ import WeeklyCalendar from "./WeeklyCalendar";
 import { ACHIEVEMENTS } from "../data";
 import { calculateStreaks } from "../utils/progress";
 import { getDateKey } from "../utils/date";
-import { Trophy, Flame, Calendar, TrendingUp, Award, Lock, Sparkles } from "lucide-react";
+import { Trophy, Lock, Sparkles } from "lucide-react";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -107,7 +107,7 @@ export default function Progress({ habitData }) {
       setTexts({
         yourProgress: await t("Your Progress"),
         trackJourney: await t("Track your dental care journey"),
-        totalDays: await t("Total Days"),
+        perfectDaysLabel: await t("Perfect days"),
         completionRate: await t("completion rate"),
         currentStreak: await t("Current Streak"),
         keepGoing: await t("Keep it going!"),
@@ -147,12 +147,27 @@ export default function Progress({ habitData }) {
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-6 h-6" />
             <h2 className="text-2xl font-black">{texts.yourProgress || "Your Progress"}</h2>
           </div>
           <p className="text-sm opacity-90">{texts.trackJourney || "Track your dental care journey"}</p>
         </div>
       </div>
+
+      {/* A single data strip keeps the overview scannable without repeating cards. */}
+      <dl className="progress-stat-strip grid grid-cols-2 md:grid-cols-4">
+        {[
+          { label: texts.perfectDaysLabel || "Perfect days", value: completedDays, detail: `${completionRate}% ${texts.completionRate || "completion rate"}` },
+          { label: texts.currentStreak || "Current streak", value: currentStreak, detail: currentStreak > 0 ? (texts.keepGoing || "Keep it going!") : (texts.startToday || "Start today!") },
+          { label: texts.bestStreak || "Best streak", value: longestStreak, detail: texts.personalRecord || "Personal record" },
+          { label: texts.achievements || "Achievements", value: `${ACHIEVEMENTS.filter(a => completedDays >= a.requirement).length} / ${ACHIEVEMENTS.length}`, detail: texts.unlocked || "unlocked" },
+        ].map((stat) => (
+          <div key={stat.label}>
+            <dt>{stat.label}</dt>
+            <dd>{stat.value}</dd>
+            <small>{stat.detail}</small>
+          </div>
+        ))}
+      </dl>
 
       {/* CALENDAR */}
       <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
@@ -162,14 +177,9 @@ export default function Progress({ habitData }) {
       {/* ── ACTIVITY HEATMAP ── */}
       <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
         {/* Card Header */}
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
-            <Calendar className="w-4 h-4 text-white" />
-          </div>
-          <div>
+      <div className="mb-1">
             <p className="font-bold text-gray-900">{texts.activityHeatmap || "Activity Heatmap"}</p>
             <p className="text-xs text-gray-500">{texts.visualizeHabits || "Visualize your daily dental habits"}</p>
-          </div>
         </div>
 
         <div className="mt-4 overflow-x-auto">
@@ -318,38 +328,6 @@ export default function Progress({ habitData }) {
         </div>
       )}
 
-      {/* STATS GRID */}
-      <div className="grid grid-cols-2 gap-4">
-        <StatCard
-          icon={<Calendar className="w-5 h-5 text-blue-500" />}
-          label={texts.totalDays || "Total Days"}
-          value={completedDays}
-          color="blue"
-          subtitle={`${completionRate}% ${texts.completionRate || "completion rate"}`}
-        />
-        <StatCard
-          icon={<Flame className="w-5 h-5 text-orange-500" />}
-          label={texts.currentStreak || "Current Streak"}
-          value={currentStreak}
-          color="orange"
-          subtitle={currentStreak > 0 ? (texts.keepGoing || "Keep it going!") : (texts.startToday || "Start today!")}
-        />
-        <StatCard
-          icon={<Trophy className="w-5 h-5 text-yellow-500" />}
-          label={texts.bestStreak || "Best Streak"}
-          value={longestStreak}
-          color="yellow"
-          subtitle={texts.personalRecord || "Personal record"}
-        />
-        <StatCard
-          icon={<Award className="w-5 h-5 text-purple-500" />}
-          label={texts.achievements || "Achievements"}
-          value={ACHIEVEMENTS.filter(a => completedDays >= a.requirement).length}
-          color="purple"
-          subtitle={`/ ${ACHIEVEMENTS.length} ${texts.unlocked || "unlocked"}`}
-        />
-      </div>
-
       {/* Next Achievement Tracker */}
       {nextAchievement && (
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
@@ -486,27 +464,5 @@ export default function Progress({ habitData }) {
         </div>
       )}
     </section>
-  );
-}
-
-function StatCard({ icon, label, value, color, subtitle }) {
-  const colorClasses = {
-    blue: "bg-slate-100",
-    orange: "bg-slate-100",
-    yellow: "bg-slate-100",
-    purple: "bg-slate-100",
-  };
-
-  return (
-    <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-      <div className="flex items-center gap-2 mb-3">
-        <div className={`w-8 h-8 ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
-          {icon}
-        </div>
-      </div>
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-3xl font-black text-gray-900 mb-1">{value}</p>
-      <p className="text-xs text-gray-500">{subtitle}</p>
-    </div>
   );
 }

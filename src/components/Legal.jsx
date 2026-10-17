@@ -251,9 +251,6 @@ export default function Legal({ onAnalyticsChoice }) {
 
       {/* HERO */}
       <div className="page-heading-surface relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
-        
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <Shield className="w-6 h-6" />
@@ -266,18 +263,18 @@ export default function Legal({ onAnalyticsChoice }) {
       </div>
 
       {/* ACCORDION TERMS */}
-      <div className="bg-white rounded-3xl shadow-lg border border-blue-100 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         {sections.map((s) => (
           <div key={s.id} className="border-b last:border-none border-gray-100">
             <button
               onClick={() => toggle(s.id)}
               aria-expanded={open === s.id}
               aria-controls={`legal-section-${s.id}`}
-              className="w-full flex items-center justify-between p-5 hover:bg-blue-50 transition-colors"
+              className="w-full flex items-center justify-between p-5 text-left transition-colors duration-200 ease-out hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
             >
               <div className="flex items-center gap-3 text-left">
-                <div className="text-blue-600">{s.icon}</div>
-                <span className="font-bold text-gray-900 text-sm">
+                <div className="text-slate-500">{s.icon}</div>
+                <span className="font-semibold text-slate-900 text-sm">
                   {s.id}. {translatedText[s.titleKey]}
                 </span>
               </div>
@@ -287,7 +284,7 @@ export default function Legal({ onAnalyticsChoice }) {
             </button>
 
             {open === s.id && (
-              <div id={`legal-section-${s.id}`} className="px-5 pb-5 text-sm text-gray-700 leading-relaxed">
+              <div id={`legal-section-${s.id}`} className="px-5 pb-5 pl-14 text-sm leading-6 text-slate-700">
                 {translatedText[s.contentKey]}
               </div>
             )}
@@ -317,9 +314,8 @@ export default function Legal({ onAnalyticsChoice }) {
       </section>
 
       {/* DATA CONTROLS */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <h3 className="font-black text-gray-900 mb-4 flex items-center gap-2">
-          <Database className="w-5 h-5 text-blue-600" />
+      <div className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+        <h3 className="mb-4 font-serif text-xl font-medium tracking-tight text-slate-900">
           {translatedText.yourDataControls}
         </h3>
 
@@ -369,9 +365,8 @@ export default function Legal({ onAnalyticsChoice }) {
       </div>
 
       {/* SUPPORT FORM */}
-      <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-3xl p-6 shadow-lg">
-        <h3 className="font-black text-gray-900 mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-cyan-600" />
+      <div className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+        <h3 className="mb-4 font-serif text-xl font-medium tracking-tight text-slate-900">
           {translatedText.contactSupport}
         </h3>
 
@@ -430,7 +425,7 @@ export default function Legal({ onAnalyticsChoice }) {
       )}
 
       {/* FOOTER */}
-      <div className="text-center pt-4">
+      <div className="border-t border-slate-200 pt-4 text-center">
         <p className="text-xs text-gray-400">
           {translatedText.version} • {translatedText.lastUpdated} {new Date().toLocaleDateString()}
         </p>

@@ -421,7 +421,6 @@ const askAIAssistant = async () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <MapPin className="w-7 h-7" />
                 <h2 className="text-3xl font-black">{translatedText.title}</h2>
               </div>
               <p className="text-base opacity-90">{translatedText.subtitle}</p>
@@ -431,38 +430,41 @@ const askAIAssistant = async () => {
               <div className="grid grid-cols-2 gap-1 sm:flex sm:gap-2">
                 <button
                   onClick={() => setShowAIAssistant(!showAIAssistant)}
-                  className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105 relative"
+                  className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50 relative"
                   title="AI Assistant"
+                  aria-label="Open dental question assistant"
                 >
                   <Bot className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setShowPriceEstimator(!showPriceEstimator)}
-                  className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105"
+                  className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50"
                   title="Treatment cost questions"
+                  aria-label="Open treatment cost estimator"
                 >
                   <DollarSign className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setShowTreatmentPlanner(!showTreatmentPlanner)}
-                  className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105"
+                  className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50"
                   title="Dental visit prep"
+                  aria-label="Open dental visit planner"
                 >
                   <Calendar className="w-5 h-5" />
                 </button>
                 {selectedForCompare.length > 0 && (
-                  <button onClick={() => setShowCompare(true)} className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105 relative">
+                  <button onClick={() => setShowCompare(true)} className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Compare ${selectedForCompare.length} selected dentists`}>
                     <BarChart3 className="w-5 h-5" />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full text-xs font-bold flex items-center justify-center shadow-lg">{selectedForCompare.length}</span>
+                    <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{selectedForCompare.length}</span>
                   </button>
                 )}
                 {favorites.length > 0 && (
-                  <button onClick={() => setShowFavorites(true)} className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 hover:bg-white/30 transition-all hover:scale-105 relative">
-                    <Heart className="w-5 h-5 fill-white" />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs font-bold flex items-center justify-center shadow-lg">{favorites.length}</span>
+                  <button onClick={() => setShowFavorites(true)} className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Show ${favorites.length} saved dentists`}>
+                    <Heart className="w-5 h-5 fill-current text-slate-700" />
+                    <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{favorites.length}</span>
                   </button>
                 )}
-                <button onClick={() => setShowFilters(!showFilters)} className={`rounded-2xl p-3 transition-all hover:scale-105 ${showFilters ? 'bg-white/30' : 'bg-white/20 hover:bg-white/30'}`}>
+                <button onClick={() => setShowFilters(!showFilters)} className={`rounded-lg border border-slate-200 p-3 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label="Toggle dentist filters" aria-expanded={showFilters}>
                   <Filter className="w-5 h-5" />
                 </button>
               </div>
@@ -470,8 +472,8 @@ const askAIAssistant = async () => {
           </div>
           <div className="relative">
             <label htmlFor="dentist-search" className="sr-only">Search dentists by name</label>
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
-            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by name..." className="w-full pl-14 pr-5 py-4 bg-white/20 backdrop-blur-sm rounded-2xl text-white placeholder-white/60 focus:outline-none focus:bg-white/30 transition-all text-base" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" aria-hidden="true" />
+            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by dentist name" className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
           </div>
         </div>
       </div>
@@ -486,7 +488,7 @@ const askAIAssistant = async () => {
                 <Bot className="w-6 h-6 text-blue-600" />
                 <h3 className="text-2xl font-black text-gray-900">Dental AI Assistant</h3>
               </div>
-              <button onClick={() => { setShowAIAssistant(false); setAiResponse(""); setAiQuery(""); }} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setShowAIAssistant(false); setAiResponse(""); setAiQuery(""); }} className="text-gray-400 hover:text-gray-600" aria-label="Close dental question assistant">
                 <X className="w-6 h-6" />
               </button>
             </div>
