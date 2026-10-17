@@ -1554,7 +1554,10 @@ html.dark .legal-delete-actions .legal-delete-cancel { border-color: #47545f; co
 .legal-terms-index button { min-height: 54px; transition: background-color 180ms ease-out, transform 180ms ease-out; }
 .legal-terms-index button > div:first-child > div { display: flex; color: var(--brand); }
 .legal-terms-index button > span:last-child { min-width: 36px; text-align: right; }
-.legal-terms-index [id^="legal-section-"] { max-width: 74ch; padding-top: 0; color: var(--ink-secondary); }
+.legal-terms-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 250ms var(--motion-out); }
+.legal-terms-panel.is-open { grid-template-rows: 1fr; }
+.legal-terms-panel__inner { min-height: 0; overflow: hidden; }
+.legal-terms-panel [class*="text-sm"] { max-width: 74ch; padding-top: 0; color: var(--ink-secondary); }
 .legal-details-panel { border-radius: 8px !important; box-shadow: none !important; }
 .legal-details-panel h3 { font-family: "Newsreader Variable", Georgia, serif; font-size: 24px; font-weight: 500; }
 .legal-details-panel > div:first-of-type { max-width: 78ch; }
@@ -1572,7 +1575,7 @@ html.dark .legal-delete-actions .legal-delete-cancel { border-color: #47545f; co
   .legal-terms-index button:hover { transform: translateX(2px); }
   .legal-primary-action:hover { filter: brightness(1.05); }
 }
-@media (prefers-reduced-motion: reduce) { .legal-terms-index button, .legal-data-action, .legal-primary-action { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .legal-terms-index button, .legal-terms-panel, .legal-data-action, .legal-primary-action { transition: none; } }
 .legal-export-toast {
   position: fixed; right: 24px; bottom: 24px; z-index: 30;
   display: flex; align-items: center; gap: 9px; padding: 12px 16px;

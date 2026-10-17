@@ -344,11 +344,17 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
               </span>
             </button>
 
-            {open === s.id && (
-              <div id={`legal-section-${s.id}`} className="px-5 pb-5 pl-14 text-sm leading-6 text-slate-700">
+            <div
+              id={`legal-section-${s.id}`}
+              className={`legal-terms-panel ${open === s.id ? "is-open" : ""}`}
+              aria-hidden={open !== s.id}
+            >
+              <div className="legal-terms-panel__inner">
+                <div className="px-5 pb-5 pl-14 text-sm leading-6 text-slate-700">
                 {translatedText[s.contentKey]}
+                </div>
               </div>
-            )}
+            </div>
           </div>
         ))}
       </div>
