@@ -2,9 +2,10 @@ import { useState, useContext, useEffect } from "react";
 import { Download, Mail, TrendingUp, TrendingDown, Minus, Award, Target, Zap, FileText, Share2, Printer, AlertCircle, BarChart3, Sun, Moon, Activity } from "lucide-react";
 import { TranslationContext } from "../App";
 import { getDateFromKey, getDateKey, isDateKey } from "../utils/date";
+import { translateBatch } from "../utils/translate.js";
 
 export default function Report({ habitData }) {
-  const { t, currentLanguage, translating } = useContext(TranslationContext);
+  const { currentLanguage, translating } = useContext(TranslationContext);
   
   const [timeframe, setTimeframe] = useState("all"); // 'all', '30days', '7days'
   const [exportFormat, setExportFormat] = useState("txt"); // 'txt', 'pdf', 'email'
@@ -174,18 +175,13 @@ export default function Report({ habitData }) {
   useEffect(() => {
     let active = true;
     const loadTranslations = async () => {
-      const translations = {};
-      
-      // Load main translations
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      
-      if (active) setTranslatedText(translations);
+      const keys = Object.keys(translationKeys);
+      const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+      if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     loadTranslations().catch((error) => console.error("Could not load report translations:", error));
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   // Generate insights with translations
   const getInsights = () => {

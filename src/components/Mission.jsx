@@ -10,6 +10,7 @@ import {
 import { useState, useContext, useEffect, useRef } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
+import { translateBatch } from "../utils/translate.js";
 
 // Fallback components for icons not in your lucide-react version
 const Apple = ({ className }) => <span className={className} role="img" aria-label="Apple">🍎</span>;
@@ -23,7 +24,7 @@ const ChevronDown = ({ className }) => (
 );
 
 export default function Mission() {
-  const { t, currentLanguage, translating } = useContext(TranslationContext);
+  const { currentLanguage, translating } = useContext(TranslationContext);
   const [showFeedback, setShowFeedback] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [translatedText, setTranslatedText] = useState({});
@@ -158,16 +159,16 @@ export default function Mission() {
 
   // Load translations when language changes
   useEffect(() => {
+    let active = true;
     const loadTranslations = async () => {
-      const translations = {};
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      setTranslatedText(translations);
+      const keys = Object.keys(translationKeys);
+      const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+      if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     
     loadTranslations();
-  }, [currentLanguage, t]);
+    return () => { active = false; };
+  }, [currentLanguage]);
 
   // Features
   const features = [

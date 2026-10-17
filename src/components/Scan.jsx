@@ -10,9 +10,10 @@ BookOpen
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
+import { translateBatch } from "../utils/translate.js";
 
 export default function Scan() {
-const { t, currentLanguage, translating } = useContext(TranslationContext);
+const { currentLanguage, translating } = useContext(TranslationContext);
 
 const [mode, setMode] = useState("select"); // 'select', 'camera', 'upload', 'analyzing', 'results'
 const [image, setImage] = useState(null);
@@ -181,15 +182,13 @@ tipKey: "guidanceSteadyTip"
 useEffect(() => {
 let active = true;
 const loadTranslations = async () => {
-const translations = {};
-for (const [key, value] of Object.entries(translationKeys)) {
-translations[key] = await t(value);
-}
-if (active) setTranslatedText(translations);
+const keys = Object.keys(translationKeys);
+const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
 };
 loadTranslations().catch((error) => console.error("Could not load scan translations:", error));
 return () => { active = false; };
-}, [currentLanguage, t]);
+}, [currentLanguage]);
 
 // Load scan history from localStorage (real user data)
 useEffect(() => {

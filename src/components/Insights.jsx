@@ -7,9 +7,10 @@ import {
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import { getDateFromKey, getDateKey, isDateKey } from "../utils/date";
+import { translateBatch } from "../utils/translate.js";
 
 export default function Insights({ habitData }) {
-  const { t, currentLanguage, translating } = useContext(TranslationContext);
+  const { currentLanguage, translating } = useContext(TranslationContext);
   const [translatedText, setTranslatedText] = useState({});
   const [shareFeedback, setShareFeedback] = useState("");
 
@@ -94,15 +95,13 @@ export default function Insights({ habitData }) {
   useEffect(() => {
     let active = true;
     const loadTranslations = async () => {
-      const translations = {};
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      if (active) setTranslatedText(translations);
+      const keys = Object.keys(translationKeys);
+      const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+      if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     loadTranslations();
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   const todayKey = getDateKey();
   const trackedDateEntries = Object.entries(habitData || {})

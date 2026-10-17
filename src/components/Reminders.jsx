@@ -7,6 +7,7 @@ import { getDateFromKey, getDateKey } from "../utils/date";
 import { auth } from "../firebase";
 import { Bell, BellOff, Clock, BookOpen, Zap, CheckCircle2, Moon, Sun, Activity, Calendar, AlertCircle, Smartphone } from "lucide-react";
 import { TranslationContext } from "../App";
+import { translateBatch } from "../utils/translate.js";
 
 const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPo/.test(navigator.userAgent);
 
@@ -30,7 +31,7 @@ const shiftCalendarDate = (date, days) => {
 };
 
 export default function Reminders() {
-  const { t, currentLanguage, translating } = useContext(TranslationContext);
+  const { currentLanguage, translating } = useContext(TranslationContext);
   
   const [reminders, setReminders] = useState(getReminders());
   const [message, setMessage] = useState("");
@@ -111,15 +112,13 @@ export default function Reminders() {
   useEffect(() => {
     let active = true;
     const loadTranslations = async () => {
-      const translations = {};
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      if (active) setTranslatedText(translations);
+      const keys = Object.keys(translationKeys);
+      const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+      if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     loadTranslations().catch((error) => console.error("Could not load reminder translations:", error));
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   useEffect(() => {
     setStorageWarning(!saveReminders(reminders));
