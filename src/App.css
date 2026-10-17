@@ -1461,7 +1461,7 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .legal-delete-dialog {
   width: min(100%, 32rem); padding: 23px; border: 1px solid var(--line);
   color: var(--ink-secondary); background: var(--surface);
-  box-shadow: 0 10px 30px rgb(24 33 42 / .08);
+  box-shadow: 0 6px 18px rgb(24 33 42 / .04);
 }
 .legal-delete-eyebrow { margin: 0 0 7px; color: var(--ink-muted); font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
 .legal-delete-dialog h3 { margin: 0; color: var(--ink); font: 500 26px/1.15 "Newsreader Variable", Georgia, serif; }
@@ -2118,7 +2118,7 @@ html.dark .leaderboard-player-row.is-current { background: #223238; }
 .account-modal-backdrop { padding: 16px; }
 .account-modal {
   border: 1px solid var(--line); border-radius: 10px !important;
-  box-shadow: 0 8px 28px rgb(24 33 42 / .09) !important;
+  box-shadow: 0 6px 18px rgb(24 33 42 / .04) !important;
 }
 .account-modal-intro { margin-bottom: 22px; }
 .account-avatar { border: 1px solid var(--line-strong); box-shadow: none !important; }
@@ -2269,10 +2269,10 @@ html.dark .today-aligner-panel > div:first-child p:first-child { color: var(--in
   .press:active, .hover-lift:hover { transform: none !important; }
 }
 
-.today-toast > div { padding: 9px 13px; border: 1px solid rgb(255 255 255 / .14); border-radius: 6px !important; background: var(--ink) !important; box-shadow: 0 3px 12px rgb(42 42 42 / .12); }
+.today-toast > div { padding: 9px 13px; border: 1px solid rgb(255 255 255 / .14); border-radius: 6px !important; background: var(--ink) !important; box-shadow: 0 3px 12px rgb(42 42 42 / .04); }
 .today-dialog, .today-completion-dialog {
   border: 1px solid var(--line) !important; border-radius: 10px !important;
-  box-shadow: 0 8px 28px rgb(24 33 42 / .08) !important;
+  box-shadow: 0 6px 18px rgb(24 33 42 / .04) !important;
 }
 .today-dialog :is(input, textarea, select) { border-color: var(--line-strong) !important; border-radius: 7px !important; }
 .today-dialog :is(input, textarea, select):focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; box-shadow: none !important; }
@@ -2292,7 +2292,7 @@ html.dark .today-dialog, html.dark .today-completion-dialog { background: var(--
   width: min(100%, 520px); max-height: min(88vh, 760px); overflow-y: auto;
   border: 1px solid var(--line) !important; border-radius: 10px !important;
   background: var(--surface) !important; color: var(--ink);
-  box-shadow: 0 8px 28px rgb(24 33 42 / .08) !important;
+  box-shadow: 0 6px 18px rgb(24 33 42 / .04) !important;
 }
 .app-feedback-dialog h3 { color: var(--ink) !important; font: 500 26px/1.1 "Newsreader Variable", Georgia, serif; }
 .app-feedback-dialog > div:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
@@ -2330,7 +2330,7 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
   padding: clamp(20px, 4vw, 32px) !important;
   border-color: var(--line) !important;
   border-radius: 9px !important;
-  box-shadow: 0 8px 24px rgb(24 33 42 / .06) !important;
+  box-shadow: 0 6px 18px rgb(24 33 42 / .04) !important;
 }
 .dentists-dialog h3 { color: var(--ink) !important; font: 500 26px/1.12 "Newsreader Variable", Georgia, serif !important; }
 .dentists-dialog > div:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
