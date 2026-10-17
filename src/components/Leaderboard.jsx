@@ -7,6 +7,8 @@ import { calculateStreaks } from "../utils/progress";
 export default function Leaderboard({ user, darkMode }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [timeRemaining, setTimeRemaining] = useState({ days: 0, hours: 0, minutes: 0 });
 
@@ -42,6 +44,7 @@ export default function Leaderboard({ user, darkMode }) {
       }
 
       setLoading(true);
+      setLoadError(false);
       try {
         // Read only the signed-in user's document to determine their league.
         const currentUserSnapshot = await getDoc(doc(db, "users", user.uid));
@@ -102,13 +105,15 @@ export default function Leaderboard({ user, darkMode }) {
 
       } catch (error) {
         console.error("Unable to load the leaderboard.", error);
+        setPlayers([]);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
 
     fetchLeaguePlayers();
-  }, [user]);
+  }, [user, loadAttempt]);
 
   // ── FILTER PLAYERS BY SEARCH ──
   const filteredPlayers = players.filter(player =>
@@ -139,6 +144,16 @@ export default function Leaderboard({ user, darkMode }) {
           <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mx-auto"></div>
         </div>
       </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <section className={`leaderboard-error ${darkMode ? "is-dark" : ""}`} role="alert" aria-labelledby="leaderboard-error-title">
+        <h2 id="leaderboard-error-title">Leaderboard unavailable</h2>
+        <p>We couldn’t load this week’s rankings. Your streak and task tracking are still available.</p>
+        <button type="button" onClick={() => setLoadAttempt(attempt => attempt + 1)}>Try again</button>
+      </section>
     );
   }
 

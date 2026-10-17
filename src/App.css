@@ -1964,6 +1964,11 @@ html.dark .reminder-feature-section { border-color: var(--line); }
   border-color: var(--line) !important; border-radius: 9px !important;
   background: var(--surface) !important; box-shadow: none !important;
 }
+.leaderboard-error { max-width: 560px; padding: 22px 0; border-block: 1px solid var(--line); color: var(--ink); }
+.leaderboard-error h2 { margin: 0; font: 500 24px/1.15 "Newsreader Variable", Georgia, serif; }
+.leaderboard-error p { margin: 8px 0 14px; color: var(--ink-muted); font-size: 14px; }
+.leaderboard-error button { min-height: 38px; padding: 7px 12px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink-secondary); font-size: 13px; font-weight: 600; transition: background-color 180ms ease-out, border-color 180ms ease-out; }
+.leaderboard-error button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .leaderboard-header { border-color: var(--line) !important; }
 .leaderboard-header h2 { color: var(--ink) !important; }
 .leaderboard-header p { color: var(--ink-muted) !important; }
@@ -2016,6 +2021,7 @@ html.dark .leaderboard-overview-stats dd.is-caution { color: #c4aa85; }
 html.dark .leaderboard-player-row.is-current { background: #223238; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .leaderboard-player-row:hover { background: var(--surface-quiet); }
+  .leaderboard-error button:hover { border-color: var(--brand); background: var(--surface-quiet); }
 }
 @media (max-width: 500px) {
   .leaderboard-overview { margin-inline: 10px; padding-inline: 12px; }
