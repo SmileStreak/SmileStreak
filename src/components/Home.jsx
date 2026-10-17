@@ -376,7 +376,7 @@ export default function Home({ setActiveTab, user, habitData }) {
             <div className="home-section-heading"><div><h3>{texts.recentScans || "Recent scans"}</h3></div><button className="home-text-link" onClick={() => go("scan")}>{texts.viewAll || "View all"}<ChevronRight size={16} /></button></div>
             <div className="home-recent-list">
                 {recentScans.map((scan, i) => (
-                <div key={scan.id || i} className="home-recent-row">{scan.image ? <img src={scan.image} alt="Saved dental scan" loading="lazy" /> : <span aria-hidden="true" className="home-recent-placeholder"><Camera size={17} /></span>}<div><strong>{formatScanTimestamp(scan)}</strong><small>{scan.feedback || "No saved observation text"}</small></div><ChevronRight size={16} /></div>
+                <div key={scan.id || i} className="home-recent-row">{scan.image ? <img src={scan.image} alt="" loading="lazy" /> : <span aria-hidden="true" className="home-recent-placeholder"><Camera size={17} /></span>}<div><strong>{formatScanTimestamp(scan)}</strong><small>{scan.feedback || "No saved observation text"}</small></div></div>
               ))}
             </div>
           </section>
