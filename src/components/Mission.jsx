@@ -7,7 +7,7 @@ import {
   BookMarked, Video, Headphones, Instagram, Twitter, Linkedin, Youtube, Facebook,
   MapPin, Camera, Flame, X
 } from "lucide-react";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
 
@@ -32,6 +32,42 @@ export default function Mission() {
   const [feedbackType, setFeedbackType] = useState('general');
   const [feedbackRating, setFeedbackRating] = useState(5);
   const [feedbackEmail, setFeedbackEmail] = useState('');
+  const feedbackTriggerRef = useRef(null);
+  const feedbackDialogRef = useRef(null);
+
+  useEffect(() => {
+    if (!showFeedback) return undefined;
+    const dialog = feedbackDialogRef.current;
+    const getFocusable = () => [...(dialog?.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]') || [])]
+      .filter((element) => element.getAttribute("type") !== "hidden");
+    const first = getFocusable()[0];
+    first?.focus();
+
+    const handleDialogKeys = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setShowFeedback(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = getFocusable();
+      if (!focusable.length) return;
+      const firstElement = focusable[0];
+      const lastElement = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === firstElement || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && (document.activeElement === lastElement || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+    document.addEventListener("keydown", handleDialogKeys);
+    return () => {
+      document.removeEventListener("keydown", handleDialogKeys);
+      feedbackTriggerRef.current?.focus();
+    };
+  }, [showFeedback]);
 
   // Translation keys - only what's actually used
   const translationKeys = {
@@ -97,13 +133,13 @@ export default function Mission() {
     
     faq: "Frequently Asked Questions",
     faq1q: "Is Smile Streak really free?",
-    faq1a: "Yes! Smile Streak is completely free to use with no hidden costs. We believe dental health tools should be accessible to everyone.",
+    faq1a: "There is no in-app checkout in this version. Check the current terms for any changes to features or pricing.",
     faq2q: "How does the AI scan work?",
     faq2a: "A photo can be sent to Google's Gemini service to return educational feedback. It is not a diagnostic tool; discuss dental concerns with a licensed professional.",
     faq3q: "Where is my data stored?",
     faq3a: "Habit and profile information is kept in this browser and synced to Firebase when you sign in. Scan photos and history are stored in this browser. See Legal & Privacy for the data controls and service details.",
     faq4q: "Can I use Smile Streak with my dentist?",
-    faq4a: "Yes! You can export your habit data and share reports directly with your dentist to inform your appointments.",
+    faq4a: "You can export a report and choose whether to share it with your dentist. Review it first and send only the information you’re comfortable sharing.",
     faq5q: "How do I change my language?",
     faq5a: "Click the globe icon in the top right corner and select your preferred language from the dropdown menu.",
     
@@ -145,7 +181,7 @@ export default function Mission() {
 
   // Social links - keeping only the GitHub link which exists
   const socialLinks = [
-    { icon: <Github className="w-5 h-5" />, label: 'GitHub', url: 'https://github.com/EddieCherian/smile-streak', color: 'gray' }
+    { icon: <Github className="w-5 h-5" />, label: 'GitHub', url: 'https://github.com/SmileStreak/SmileStreak', color: 'gray' }
   ];
 
   // FAQ items
@@ -292,7 +328,7 @@ export default function Mission() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{translatedText.getInvolved}</h3>
         <div className="space-y-3">
           <button
-            onClick={() => setShowFeedback(true)}
+            onClick={(event) => { feedbackTriggerRef.current = event.currentTarget; setShowFeedback(true); }}
             className="mission-involved__action"
           >
             <div className="flex items-center gap-3">
@@ -305,7 +341,7 @@ export default function Mission() {
           </button>
 
           <a
-            href="https://github.com/EddieCherian/smile-streak"
+            href="https://github.com/SmileStreak/SmileStreak"
             target="_blank"
             rel="noopener noreferrer"
             className="mission-involved__action"
@@ -325,13 +361,13 @@ export default function Mission() {
       <Presence open={showFeedback}>
 {showFeedback && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="mission-feedback-title" className="mission-feedback-dialog bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+          <div ref={feedbackDialogRef} role="dialog" aria-modal="true" aria-labelledby="mission-feedback-title" className="mission-feedback-dialog bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-blue-600" />
                 <h3 id="mission-feedback-title" className="text-xl font-black text-gray-900">{translatedText.feedbackTitle}</h3>
               </div>
-              <button onClick={() => setShowFeedback(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <button type="button" aria-label="Close feedback form" onClick={() => setShowFeedback(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -343,10 +379,11 @@ export default function Mission() {
             >
               {/* Feedback Type */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="mission-feedback-type" className="block text-sm font-semibold text-gray-700 mb-2">
                   {translatedText.feedbackType}
                 </label>
                 <select
+                  id="mission-feedback-type"
                   name="type"
                   value={feedbackType}
                   onChange={(e) => setFeedbackType(e.target.value)}
@@ -365,7 +402,7 @@ export default function Mission() {
                 </label>
                 <div className="feedback-rating-options flex gap-2" role="radiogroup" aria-labelledby="feedback-rating-label">
                   {[1, 2, 3, 4, 5].map((rating) => (
-                    <label key={rating} className="cursor-pointer">
+                    <label key={rating} className="cursor-pointer rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-slate-700">
                       <input
                         type="radio"
                         name="rating"
@@ -394,10 +431,11 @@ export default function Mission() {
 
               {/* Email (optional) */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="mission-feedback-email" className="block text-sm font-semibold text-gray-700 mb-2">
                   {translatedText.feedbackEmail}
                 </label>
                 <input
+                  id="mission-feedback-email"
                   type="email"
                   name="email"
                   value={feedbackEmail}
@@ -409,7 +447,7 @@ export default function Mission() {
 
               {/* Message */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="feedbackBox" className="block text-sm font-semibold text-gray-700 mb-2">
                   Your Feedback <span className="text-red-500">*</span>
                 </label>
                 <textarea

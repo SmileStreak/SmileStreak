@@ -78,16 +78,7 @@ export default function Dentists() {
   const [showTreatmentPlanner, setShowTreatmentPlanner] = useState(false);
   const [symptom, setSymptom] = useState("");
   const [recommendedProcedures, setRecommendedProcedures] = useState([]);
-  const [showDentalAnxiety, setShowDentalAnxiety] = useState(false);
-  const [showFamilyKids, setShowFamilyKids] = useState(false);
-  const [showTravelMode, setShowTravelMode] = useState(false);
-  const [accessibilityFilters, setAccessibilityFilters] = useState({
-    wheelchair: false,
-    signLanguage: false,
-    largePrint: false,
-    serviceAnimal: false,
-    sensoryFriendly: false
-  });
+  const [accessibilityFilters, setAccessibilityFilters] = useState({ wheelchair: false });
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [aiQuery, setAiQuery] = useState("");
   const [aiResponse, setAiResponse] = useState("");
@@ -199,10 +190,7 @@ export default function Dentists() {
     setFilterOpenNow(false);
     setFilterMinRating(0);
     setSearchRadius(31);
-    setAccessibilityFilters({ wheelchair: false, signLanguage: false, largePrint: false, serviceAnimal: false, sensoryFriendly: false });
-    setShowFamilyKids(false);
-    setShowDentalAnxiety(false);
-    setShowTravelMode(false);
+    setAccessibilityFilters({ wheelchair: false });
   };
 
   // FIXED: AI Assistant function using Gemini with GEMINI_API_KEY
@@ -242,20 +230,11 @@ const askAIAssistant = async () => {
 
   // NEW: Filter dentists by accessibility features
   const applyAccessibilityFilters = (dentist) => {
-    if (!accessibilityFilters.wheelchair && 
-        !accessibilityFilters.signLanguage && 
-        !accessibilityFilters.largePrint && 
-        !accessibilityFilters.serviceAnimal && 
-        !accessibilityFilters.sensoryFriendly) {
+    if (!accessibilityFilters.wheelchair) {
       return true;
     }
     
-    let matches = true;
-    if (accessibilityFilters.wheelchair && !dentist.accessibility?.wheelchairEntrance) matches = false;
-    if (accessibilityFilters.signLanguage && !dentist.languages?.includes("ASL")) matches = false;
-    // Add more filters as needed
-    
-    return matches;
+    return dentist.accessibility?.wheelchairEntrance === true;
   };
 
   // Use live Google Places results only; do not replace failures with invented listings or reviews.
@@ -370,16 +349,10 @@ const askAIAssistant = async () => {
       // NEW: Apply accessibility filters
       if (!applyAccessibilityFilters(d)) return false;
       
-      // NEW: Family & Kids filter
-      if (showFamilyKids && !d.pediatricSpecialty) return false;
-      
-      // NEW: Dental Anxiety filter
-      if (showDentalAnxiety && !d.anxietyFriendly && !d.sedationOptions?.length) return false;
-      
       return true;
     });
   }, [dentists, searchQuery, filterOpenNow, filterMinRating, searchRadius, 
-      accessibilityFilters, showFamilyKids, showDentalAnxiety]);
+      accessibilityFilters]);
 
   const getSortedDentists = () => {
     let sorted = [...filteredDentists];
@@ -659,21 +632,7 @@ const askAIAssistant = async () => {
         <div className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900">Filters</h3>
-            <button onClick={() => { 
-              setFilterOpenNow(false); 
-              setFilterMinRating(0); 
-              setSearchRadius(31);
-              setAccessibilityFilters({
-                wheelchair: false,
-                signLanguage: false,
-                largePrint: false,
-                serviceAnimal: false,
-                sensoryFriendly: false
-              });
-              setShowFamilyKids(false);
-              setShowDentalAnxiety(false);
-              setShowTravelMode(false);
-            }} className="text-sm text-blue-600 hover:text-blue-700 font-semibold">Clear All</button>
+            <button onClick={clearSearchAndFilters} className="text-sm text-blue-600 hover:text-blue-700 font-semibold">Clear All</button>
           </div>
           
           <div className="space-y-6">
@@ -717,52 +676,18 @@ const askAIAssistant = async () => {
                 Accessibility Features
               </h4>
               <div className="grid grid-cols-1 gap-2">
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
+                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-lg transition-colors">
                   <input type="checkbox" checked={accessibilityFilters.wheelchair} onChange={(e) => setAccessibilityFilters(prev => ({ ...prev, wheelchair: e.target.checked }))} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700">Wheelchair Accessible</span>
+                  <span className="text-sm text-gray-700">Wheelchair-accessible entrance reported</span>
                 </label>
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={accessibilityFilters.signLanguage} onChange={(e) => setAccessibilityFilters(prev => ({ ...prev, signLanguage: e.target.checked }))} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700">Sign Language Interpreter</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={accessibilityFilters.largePrint} onChange={(e) => setAccessibilityFilters(prev => ({ ...prev, largePrint: e.target.checked }))} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700">Large Print Materials</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={accessibilityFilters.serviceAnimal} onChange={(e) => setAccessibilityFilters(prev => ({ ...prev, serviceAnimal: e.target.checked }))} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700">Service Animal Friendly</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={accessibilityFilters.sensoryFriendly} onChange={(e) => setAccessibilityFilters(prev => ({ ...prev, sensoryFriendly: e.target.checked }))} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700">Sensory-Friendly Environment</span>
-                </label>
+                <p className="px-2 text-xs leading-5 text-slate-600">This filter shows only offices Google explicitly lists as having an accessible entrance. Missing listing details don’t confirm whether a location is accessible.</p>
               </div>
             </div>
 
-            {/* Specialized Care - Card Style */}
+            {/* The current directory source does not provide searchable specialty or travel details. */}
             <div className="bg-gray-50 rounded-xl p-4">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Specialized Care</h4>
-              <div className="grid grid-cols-1 gap-2">
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={showFamilyKids} onChange={(e) => setShowFamilyKids(e.target.checked)} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700 flex items-center gap-1">
-                    <Baby className="w-4 h-4 text-pink-500" /> Pediatric / Family Dentistry
-                  </span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={showDentalAnxiety} onChange={(e) => setShowDentalAnxiety(e.target.checked)} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700 flex items-center gap-1">
-                    <Heart className="w-4 h-4 text-red-500" /> Anxiety-Friendly / Sedation
-                  </span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white rounded-xl transition-colors">
-                  <input type="checkbox" checked={showTravelMode} onChange={(e) => setShowTravelMode(e.target.checked)} className="w-5 h-5 rounded accent-blue-600" />
-                  <span className="text-sm text-gray-700 flex items-center gap-1">
-                    <Plane className="w-4 h-4 text-purple-500" /> Travel-Friendly (Near Airports/Hotels)
-                  </span>
-                </label>
-              </div>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">Details to confirm with an office</h4>
+              <p className="text-sm leading-5 text-slate-600">The listing source doesn’t provide reliable filters for interpreters, sensory needs, family care, sedation, or travel access. Use each office’s call or website link to check these details before visiting.</p>
             </div>
           </div>
         </div>
