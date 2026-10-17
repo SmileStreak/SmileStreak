@@ -1507,6 +1507,13 @@ html.dark .dentist-result { border-bottom-color: var(--line); }
 .scan-privacy-note, .scan-privacy-error { margin: 10px 0 0; font-size: 12px; line-height: 1.5; }
 .scan-privacy-note { color: var(--ink-muted); }
 .scan-privacy-error { color: #855b58; }
+.scan-inline-notice { margin: 0; padding: 10px 12px; border-left: 2px solid var(--line-strong); color: var(--ink-secondary); background: var(--surface); font-size: 13px; line-height: 1.5; }
+.scan-inline-notice--error { border-color: #a56f69; color: #754641; }
+.scan-inline-notice--status { border-color: #6f8b78; color: #405a48; }
+.scan-inline-field-error { margin: 6px 0 0; color: #855b58; font-size: 12px; }
+html.dark .scan-inline-notice { background: #1c2630; color: #d8e0e5; }
+html.dark .scan-inline-notice--error, html.dark .scan-inline-field-error { color: #e5aaa4; }
+html.dark .scan-inline-notice--status { color: #b6d0bc; }
 .scan-how-note {
   padding: 13px 0 13px 15px;
   border-left: 2px solid var(--brand);
@@ -1552,6 +1559,9 @@ html.dark .scan-privacy-controls { background: #1c2630; border-color: #34404c; }
 .scan-export-option svg { color: var(--brand) !important; }
 .scan-history-row { padding: 12px 0 !important; border-bottom: 1px solid var(--line); border-radius: 0 !important; background: transparent !important; }
 .scan-history-row > img { border-radius: 6px !important; }
+.scan-history-undo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink-secondary); background: var(--surface-quiet); font-size: 12px; }
+.scan-history-undo button { min-height: 32px; padding: 4px 9px; border: 1px solid var(--line-strong); border-radius: 5px; color: var(--brand); background: var(--surface); font-size: 12px; font-weight: 650; }
+.scan-history-undo button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .scan-comparison-panel, .scan-analyzing-panel, .scan-result-panel {
   padding: 18px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
   border-bottom: 1px solid var(--line) !important; border-radius: 0 !important;

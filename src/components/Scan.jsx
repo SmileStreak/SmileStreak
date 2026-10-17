@@ -21,9 +21,12 @@ const [feedback, setFeedback] = useState(null);
 const [cameraActive, setCameraActive] = useState(false);
 const [guidanceStep, setGuidanceStep] = useState(0);
 const [scanHistory, setScanHistory] = useState([]);
+const [deletedScan, setDeletedScan] = useState(null);
 const [scanConsent, setScanConsent] = useState(false);
 const [saveScansLocally, setSaveScansLocally] = useState(false);
 const [consentError, setConsentError] = useState("");
+const [scanNotice, setScanNotice] = useState(null);
+const [shareEmailError, setShareEmailError] = useState("");
 const [historySaveFailed, setHistorySaveFailed] = useState(false);
 const [showHistory, setShowHistory] = useState(false);
 const [captureQuality, setCaptureQuality] = useState(null);
@@ -38,6 +41,8 @@ const [shareNotes, setShareNotes] = useState("");
 const videoRef = useRef(null);
 const canvasRef = useRef(null);
 const streamRef = useRef(null);
+const mountedRef = useRef(true);
+const undoScanButtonRef = useRef(null);
 
 // Translation keys - only what's actually used
 const translationKeys = {
@@ -80,6 +85,7 @@ scanHistory: "Scan History",
 noScans: "No scans yet",
 viewDetails: "View Details",
 delete: "Delete",
+undo: "Undo",
 imageTooDark: "Image is too dark",
 imageTooBright: "Image is too bright",
 goodLighting: "Good lighting!",
@@ -98,7 +104,7 @@ emailResults: "Email Results",
 addNotes: "Add notes for your dentist",
 
 shareTitle: "Share with Your Dentist",
-shareDesc: "Email your scan results directly to your dentist",
+shareDesc: "Open a prefilled email draft to share your scan notes with your dentist.",
 emailPlaceholder: "Dentist's email address",
 notesPlaceholder: "Add any notes or questions for your dentist...",
 sendEmail: "Send Email",
@@ -139,20 +145,28 @@ tip: "When you're ready, tap the capture button below"
 
 // Load translations
 useEffect(() => {
+let active = true;
 const loadTranslations = async () => {
 const translations = {};
 for (const [key, value] of Object.entries(translationKeys)) {
 translations[key] = await t(value);
 }
-setTranslatedText(translations);
+if (active) setTranslatedText(translations);
 };
-loadTranslations();
+loadTranslations().catch((error) => console.error("Could not load scan translations:", error));
+return () => { active = false; };
 }, [currentLanguage, t]);
 
 // Load scan history from localStorage (real user data)
 useEffect(() => {
-const history = JSON.parse(localStorage.getItem('scanHistory') || '[]');
-setScanHistory(history);
+try {
+  const history = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+  if (!Array.isArray(history)) throw new TypeError("Scan history is not a list");
+  setScanHistory(history);
+} catch (error) {
+  console.error("Could not read saved scan history:", error);
+  setScanNotice({ type: "error", message: "Saved scan history couldn’t be opened. It hasn’t been removed." });
+}
 }, []);
 
 // Save scan to history (real user data)
@@ -176,9 +190,13 @@ try {
 }
 };
 
-useEffect(() => () => {
-  streamRef.current?.getTracks().forEach((track) => track.stop());
-  streamRef.current = null;
+useEffect(() => {
+  mountedRef.current = true;
+  return () => {
+    mountedRef.current = false;
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  };
 }, []);
 
 // Compare note wording only. This is not a measure of oral health change.
@@ -215,6 +233,7 @@ if (!scanConsent) {
   return;
 }
 setConsentError("");
+setScanNotice(null);
 setMode('camera');
 try {
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -224,18 +243,30 @@ width: { ideal: 1280 },
 height: { ideal: 720 }
 }
 });
+if (!mountedRef.current) {
+  stream.getTracks().forEach((track) => track.stop());
+  return;
+}
+streamRef.current = stream;
 // Wait for video element to mount in DOM
 await new Promise(resolve => setTimeout(resolve, 100));
-if (videoRef.current) {
+if (mountedRef.current && videoRef.current) {
 videoRef.current.srcObject = stream;
-streamRef.current = stream;
 setCameraActive(true);
 setGuidanceStep(0);
+} else {
+  stream.getTracks().forEach((track) => track.stop());
+  streamRef.current = null;
+  if (mountedRef.current) {
+    setMode("select");
+    setScanNotice({ type: "error", message: "The camera preview couldn’t start. Please try again." });
+  }
 }
 } catch (err) {
+if (!mountedRef.current) return;
 console.error("Camera error:", err);
 setMode('select');
-alert(translatedText.cameraError || translationKeys.cameraError);
+setScanNotice({ type: "error", message: translatedText.cameraError || translationKeys.cameraError });
 }
 };
 
@@ -281,7 +312,7 @@ if (canvas && video && video.videoWidth > 0 && video.videoHeight > 0) {
     if (videoRef.current && videoRef.current.videoWidth > 0) {
       capturePhoto();
     } else {
-      alert("Camera not ready. Please try again.");
+      setScanNotice({ type: "error", message: "Camera isn’t ready yet. Keep the preview open and try again." });
     }
   }, 500);
 }
@@ -391,6 +422,7 @@ setGuidanceStep(guidanceStep + 1);
 const reset = () => {
 setImage(null);
 setFeedback(null);
+setScanNotice(null);
 setMode('select');
 setCaptureQuality(null);
 setShowComparison(false);
@@ -408,10 +440,37 @@ setShowHistory(false);
 
 // Delete scan from history
 const deleteScan = (scanId) => {
-const updated = scanHistory.filter(s => s.id !== scanId);
-setScanHistory(updated);
-localStorage.setItem('scanHistory', JSON.stringify(updated));
+const index = scanHistory.findIndex((scan) => scan.id === scanId);
+if (index < 0) return;
+const scan = scanHistory[index];
+const updated = scanHistory.filter((item) => item.id !== scanId);
+try {
+  localStorage.setItem('scanHistory', JSON.stringify(updated));
+  setScanHistory(updated);
+  setDeletedScan({ scan, index });
+} catch (error) {
+  console.error("Could not update saved scan history:", error);
+  setScanNotice({ type: "error", message: "This scan couldn’t be deleted from saved history. Try again." });
+}
 };
+
+const undoDeleteScan = () => {
+if (!deletedScan) return;
+const restored = [...scanHistory];
+restored.splice(Math.min(deletedScan.index, restored.length), 0, deletedScan.scan);
+try {
+  localStorage.setItem('scanHistory', JSON.stringify(restored));
+  setScanHistory(restored);
+  setDeletedScan(null);
+} catch (error) {
+  console.error("Could not restore saved scan:", error);
+  setScanNotice({ type: "error", message: "This scan couldn’t be restored. Your saved history is unchanged." });
+}
+};
+
+useEffect(() => {
+if (deletedScan) undoScanButtonRef.current?.focus();
+}, [deletedScan]);
 
 // Export results as text (real export)
 const exportAsText = () => {
@@ -427,13 +486,14 @@ const a = document.createElement('a');
 a.href = url;
 a.download = `scan-results-${new Date().toISOString().split('T')[0]}.json`;
 a.click();
-URL.revokeObjectURL(url);
+window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
 // Share with dentist via email
 const shareWithDentist = () => {
-if (!shareEmail) {
-alert('Please enter an email address');
+const email = shareEmail.trim();
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+setShareEmailError("Enter a valid email address.");
 return;
 }
 
@@ -441,11 +501,18 @@ const subject = encodeURIComponent('Dental Scan Results from Smile Streak');
 const body = encodeURIComponent(
   `Scan Results:\n\n${feedback}\n\nDate: ${new Date().toLocaleDateString()}\n\n${shareNotes ? `Notes: ${shareNotes}\n\n` : ''}`
 );
-window.location.href = `mailto:${shareEmail}?subject=${subject}&body=${body}`;
+window.location.href = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
 
 setShowShareModal(false);
+setShareEmailError("");
 setShareEmail('');
 setShareNotes('');
+setScanNotice({ type: "status", message: "Your email app should open with a draft. Review it before sending." });
+};
+
+const openShareModal = () => {
+setShareEmailError("");
+setShowShareModal(true);
 };
 
 // Show loading state while translating
@@ -491,6 +558,8 @@ return (
     </div>
   </div>
 
+  {scanNotice && <p className={`scan-inline-notice scan-inline-notice--${scanNotice.type}`} role={scanNotice.type === "error" ? "alert" : "status"}>{scanNotice.message}</p>}
+
   {/* Scan History Modal - Shows real user data */}
   <Presence open={showHistory}>
 {showHistory && (
@@ -501,12 +570,18 @@ return (
             <History className="w-5 h-5 text-blue-600" />
             <h3 id="scan-history-title" className="font-black text-gray-900">{translatedText.scanHistory}</h3>
           </div>
-          <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-600">
+          <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-600" aria-label="Close scan history">
             <X className="w-5 h-5" />
           </button>
         </div>
         
         <div className="p-4 overflow-y-auto max-h-[60vh] space-y-3">
+          {deletedScan && (
+            <div className="scan-history-undo" role="status">
+              <span>Scan removed from this browser.</span>
+              <button ref={undoScanButtonRef} type="button" onClick={undoDeleteScan}>{translatedText.undo || "Undo"}</button>
+            </div>
+          )}
           {scanHistory.length === 0 ? (
             <p className="text-center text-gray-500 py-8">{translatedText.noScans}</p>
           ) : (
@@ -561,7 +636,7 @@ return (
       <div role="dialog" aria-modal="true" aria-labelledby="scan-share-title" className="scan-dialog bg-white rounded-3xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 id="scan-share-title" className="text-xl font-black text-gray-900">{translatedText.shareTitle}</h3>
-          <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-gray-600">
+          <button onClick={() => { setShowShareModal(false); setShareEmailError(""); }} className="text-gray-400 hover:text-gray-600" aria-label="Close share dialog">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -575,11 +650,15 @@ return (
           <input
             id="scan-share-email"
             type="email"
+            required
             value={shareEmail}
-            onChange={(e) => setShareEmail(e.target.value)}
+            onChange={(e) => { setShareEmail(e.target.value); setShareEmailError(""); }}
+            aria-invalid={Boolean(shareEmailError)}
+            aria-describedby={shareEmailError ? "scan-share-email-error" : undefined}
             placeholder="dentist@example.com"
             className="w-full p-3 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none"
           />
+          {shareEmailError && <p id="scan-share-email-error" className="scan-inline-field-error" role="alert">{shareEmailError}</p>}
         </div>
         
         <div className="mb-4">
@@ -613,7 +692,7 @@ return (
       <div role="dialog" aria-modal="true" aria-labelledby="scan-export-title" className="scan-dialog bg-white rounded-3xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 id="scan-export-title" className="text-xl font-black text-gray-900">{translatedText.exportTitle}</h3>
-          <button onClick={() => setShowExportOptions(false)} className="text-gray-400 hover:text-gray-600">
+          <button onClick={() => setShowExportOptions(false)} className="text-gray-400 hover:text-gray-600" aria-label="Close export options">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -632,7 +711,7 @@ return (
           <button
             onClick={() => {
               setShowExportOptions(false);
-              setShowShareModal(true);
+              openShareModal();
             }}
             className="scan-export-option w-full flex items-center gap-3 p-4 bg-green-50 rounded-xl transition-colors"
           >
@@ -664,6 +743,7 @@ return (
         <button
           onClick={() => setShowComparison(false)}
           className="text-gray-400 hover:text-gray-600"
+          aria-label="Close scan comparison"
         >
           <X className="w-5 h-5" />
         </button>
@@ -996,7 +1076,7 @@ return (
         </button>
 
         <button
-          onClick={() => setShowShareModal(true)}
+          onClick={openShareModal}
           className="scan-result-action bg-green-50 border-2 border-green-200 text-green-700 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
           <Mail className="w-5 h-5" />
