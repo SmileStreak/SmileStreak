@@ -8,10 +8,11 @@ import { auth, db, provider } from "../firebase";
 import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 import { TranslationContext } from "../App";
 import { calculateStreaks } from "../utils/progress";
+import { translateBatch } from "../utils/translate.js";
 import Presence from "./Presence";
 
 export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyticsChoice = false, consentCopy = {} }) {
-  const { t, currentLanguage, translating } = useContext(TranslationContext);
+  const { currentLanguage, translating } = useContext(TranslationContext);
   const [open, setOpen] = useState(null);
   const [exported, setExported] = useState(false);
   const [exportError, setExportError] = useState(false);
@@ -138,16 +139,16 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
 
   // Load translations when language changes
   useEffect(() => {
+    let active = true;
     const loadTranslations = async () => {
-      const translations = {};
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      setTranslatedText(translations);
+      const keys = Object.keys(translationKeys);
+      const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+      if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     
     loadTranslations();
-  }, [currentLanguage, t]);
+    return () => { active = false; };
+  }, [currentLanguage]);
 
   useEffect(() => {
     if (!showDeleteConfirm) return undefined;

@@ -9,6 +9,7 @@ import {
   Thermometer, Plane, GraduationCap, MessageCircle, Brain, Moon
 } from "lucide-react";
 import { TranslationContext } from "../App";
+import { translateBatch } from "../utils/translate.js";
 import Presence from "./Presence";
 
 const Wheelchair = ({ className }) => (
@@ -49,21 +50,21 @@ const handleDentistPhotoError = (event) => {
 const discussionTopics = ["Tooth pain", "Sensitivity", "Chipped tooth", "Missing tooth", "Tooth color", "Bleeding gums", "Bad breath", "Jaw discomfort"];
 
 const dentistComparisonRows = [
-  { label: "Rating", value: (d) => d.rating ? `${d.rating} / 5${d.review_count ? ` · ${d.review_count} reviews` : ""}` : "Not listed" },
-  { label: "Distance", value: (d) => d.distance ? `${d.distance} mi` : "Not listed" },
-  { label: "Open now", value: (d) => typeof d.openNow === "boolean" ? (d.openNow ? "Open" : "Closed") : "Not listed" },
-  { label: "Phone", value: (d) => d.phone ? <a href={`tel:${d.phone}`}>{d.phone}</a> : "Not listed" },
-  { label: "Medicaid", value: (d) => d.specialDesignations?.medicaidProvider ? "Provider listed" : "Not listed" },
-  { label: "Orthodontics", value: (d) => d.specialDesignations?.orthoProvider ? "Provider listed" : "Not listed" },
-  { label: "Kids friendly", value: (d) => d.pediatricSpecialty ? "Listed" : "Not listed" },
-  { label: "Anxiety friendly", value: (d) => d.anxietyFriendly ? "Listed" : "Not listed" },
-  { label: "Sedation", value: (d) => d.sedationOptions?.length ? d.sedationOptions.join(", ") : "Not listed" },
-  { label: "Cards accepted", value: (d) => d.paymentOptions?.creditCards ? "Listed" : "Not listed" },
-  { label: "Wheelchair access", value: (d) => d.accessibility?.wheelchairEntrance ? "Listed" : "Not listed" },
+  { labelKey: "ratingLabel", fallbackLabel: "Rating", value: (d, text) => d.rating != null ? `${d.rating} / 5${d.review_count ? ` · ${d.review_count} ${text.reviews || "reviews"}` : ""}` : text.notListed || "Not listed" },
+  { labelKey: "distanceLabel", fallbackLabel: "Distance", value: (d, text) => d.distance != null ? `${d.distance} mi` : text.notListed || "Not listed" },
+  { labelKey: "openNowLabel", fallbackLabel: "Open now", value: (d, text) => typeof d.openNow === "boolean" ? (d.openNow ? text.openNow || "Open now" : text.closed || "Closed") : text.notListed || "Not listed" },
+  { labelKey: "phoneLabel", fallbackLabel: "Phone", value: (d, text) => d.phone ? <a href={`tel:${d.phone}`}>{d.phone}</a> : text.notListed || "Not listed" },
+  { labelKey: "medicaidLabel", fallbackLabel: "Medicaid", value: (d, text) => d.specialDesignations?.medicaidProvider ? text.providerListed || "Provider listed" : text.notListed || "Not listed" },
+  { labelKey: "orthodonticsLabel", fallbackLabel: "Orthodontics", value: (d, text) => d.specialDesignations?.orthoProvider ? text.providerListed || "Provider listed" : text.notListed || "Not listed" },
+  { labelKey: "kidsFriendlyLabel", fallbackLabel: "Kids friendly", value: (d, text) => d.pediatricSpecialty ? text.listed || "Listed" : text.notListed || "Not listed" },
+  { labelKey: "anxietyFriendlyLabel", fallbackLabel: "Anxiety friendly", value: (d, text) => d.anxietyFriendly ? text.listed || "Listed" : text.notListed || "Not listed" },
+  { labelKey: "sedationLabel", fallbackLabel: "Sedation", value: (d, text) => d.sedationOptions?.length ? d.sedationOptions.join(", ") : text.notListed || "Not listed" },
+  { labelKey: "cardsAcceptedLabel", fallbackLabel: "Cards accepted", value: (d, text) => d.paymentOptions?.creditCards ? text.listed || "Listed" : text.notListed || "Not listed" },
+  { labelKey: "wheelchairAccessLabel", fallbackLabel: "Wheelchair access", value: (d, text) => d.accessibility?.wheelchairEntrance ? text.listed || "Listed" : text.notListed || "Not listed" },
 ];
 
 export default function Dentists() {
-  const { t, currentLanguage } = useContext(TranslationContext);
+  const { currentLanguage } = useContext(TranslationContext);
   
   const [dentists, setDentists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -123,21 +124,25 @@ export default function Dentists() {
     dentistLoadFailed: "Dentists couldn’t be loaded right now. Check your connection and retry.",
     noMatchingDentists: "No dentists match this search.",
     noMatchingDentistsDesc: "Clear the name search and filters to see the full list again.",
-    clearSearchAndFilters: "Clear search and filters"
+    clearSearchAndFilters: "Clear search and filters",
+    compareTitle: "Compare dentists", detailsLabel: "Details", actionsLabel: "Actions",
+    ratingLabel: "Rating", distanceLabel: "Distance", openNowLabel: "Open now", phoneLabel: "Phone",
+    medicaidLabel: "Medicaid", orthodonticsLabel: "Orthodontics", kidsFriendlyLabel: "Kids friendly",
+    anxietyFriendlyLabel: "Anxiety friendly", sedationLabel: "Sedation", cardsAcceptedLabel: "Cards accepted",
+    wheelchairAccessLabel: "Wheelchair access", reviews: "reviews", notListed: "Not listed",
+    listed: "Listed", providerListed: "Provider listed", remove: "Remove"
   };
 
   useEffect(() => {
     let active = true;
     const loadTranslations = async () => {
-      const translations = {};
-      for (const [key, value] of Object.entries(translationKeys)) {
-        translations[key] = await t(value);
-      }
-      if (active) setTranslatedText(translations);
+      const keys = Object.keys(translationKeys);
+      const values = await translateBatch(Object.values(translationKeys), currentLanguage, "en");
+      if (active) setTranslatedText(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
     };
     loadTranslations().catch((error) => console.error("Could not load dentist finder translations:", error));
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   useEffect(() => {
     const titleId = showPhotoModal ? null : showAIAssistant ? "dentist-assistant-title" : showPriceEstimator ? "treatment-cost-title" : showTreatmentPlanner ? "visit-prep-title" : selectedDentist ? "dentist-details-title" : showCompare ? "compare-dentists-title" : showFavorites ? "saved-dentists-title" : null;
@@ -1256,14 +1261,14 @@ const askAIAssistant = async () => {
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="dentists-dialog bg-white rounded-[2rem] max-w-4xl w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="compare-dentists-title">
             <div className="flex items-center justify-between mb-6">
-              <h3 id="compare-dentists-title" className="text-2xl font-black text-gray-900">Compare dentists</h3>
+              <h3 id="compare-dentists-title" className="text-2xl font-black text-gray-900">{translatedText.compareTitle || "Compare dentists"}</h3>
               <button aria-label="Close dentist comparison" onClick={() => setShowCompare(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
             </div>
             <div className="dentist-compare-scroll" role="region" aria-label="Dentist comparison" tabIndex={0}>
               <table className="dentist-compare-table" style={{ minWidth: `${180 + 190 * selectedForCompare.length}px` }}>
                 <thead>
                   <tr>
-                    <th scope="col">Details</th>
+                    <th scope="col">{translatedText.detailsLabel || "Details"}</th>
                     {selectedForCompare.map((d) => (
                       <th scope="col" key={d.id}>{d.name}</th>
                     ))}
@@ -1271,18 +1276,18 @@ const askAIAssistant = async () => {
                 </thead>
                 <tbody>
                   {dentistComparisonRows.map((row) => (
-                    <tr key={row.label}>
-                      <th scope="row">{row.label}</th>
+                    <tr key={row.labelKey}>
+                      <th scope="row">{translatedText[row.labelKey] || row.fallbackLabel}</th>
                       {selectedForCompare.map((d) => (
-                        <td key={d.id}>{row.value(d)}</td>
+                        <td key={d.id}>{row.value(d, translatedText)}</td>
                       ))}
                     </tr>
                   ))}
                   <tr>
-                    <th scope="row">Actions</th>
+                    <th scope="row">{translatedText.actionsLabel || "Actions"}</th>
                     {selectedForCompare.map((d) => (
                       <td key={d.id}>
-                        <button type="button" aria-label={`Remove ${d.name} from comparison`} onClick={() => toggleCompare(d)} className="dentist-compare-remove">Remove</button>
+                        <button type="button" aria-label={`${translatedText.remove || "Remove"} ${d.name} from comparison`} onClick={() => toggleCompare(d)} className="dentist-compare-remove">{translatedText.remove || "Remove"}</button>
                       </td>
                     ))}
                   </tr>
