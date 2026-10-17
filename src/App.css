@@ -132,6 +132,31 @@ header.sticky {
   backdrop-filter: saturate(120%) blur(10px);
 }
 html.dark header.sticky { background: rgb(17 24 32 / 0.96) !important; border-color: #303a45 !important; }
+.app-header-control {
+  min-height: 36px; border-color: var(--line) !important; border-radius: 7px !important;
+  background: var(--surface) !important; color: var(--ink-secondary) !important;
+  box-shadow: none !important; transition: transform 180ms ease-out, color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out;
+}
+.app-header-control:focus-visible, .app-account-control:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.app-account-control { border-radius: 7px; transition: opacity 180ms ease-out, transform 180ms ease-out; }
+.app-account-control img { border-color: var(--line-strong) !important; box-shadow: none !important; }
+.app-header-menu { border-radius: 8px !important; border-color: var(--line) !important; box-shadow: 0 4px 14px rgb(42 42 42 / .04) !important; }
+.app-header-menu > div:first-child { border-color: var(--line) !important; }
+.app-header-menu button { min-height: 40px; color: var(--ink-secondary); }
+.app-header-menu button:hover { background: var(--surface-quiet) !important; }
+.app-header-menu button[class*="bg-blue-50"], .app-header-menu button[class*="bg-gray-700"] { background: var(--surface-quiet) !important; }
+.app-header-menu button svg { color: var(--ink-muted); }
+#language-menu button[role="menuitem"]:has(svg) svg { color: var(--brand); }
+html.dark .app-header-menu { background: var(--surface) !important; border-color: var(--line) !important; box-shadow: none !important; }
+html.dark .app-header-menu :is(p,span) { color: var(--ink-secondary); }
+html.dark .app-header-menu button:hover { background: #26323c !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .app-header-control:hover { transform: translateY(-1px); border-color: var(--line-strong) !important; background: var(--surface-quiet) !important; }
+  .app-account-control:hover { transform: translateY(-1px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-header-control, .app-account-control { transition: none; }
+}
 main { min-height: 58vh; }
 .app-tabs { border-color: var(--line) !important; }
 .app-tabs .app-tab {

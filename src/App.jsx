@@ -659,7 +659,9 @@ export default function App() {
                     {user && (
                       <button
                         onClick={() => setShowLeaderboard(!showLeaderboard)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
+                        aria-label="Toggle leaderboard"
+                        aria-expanded={showLeaderboard}
+                        className={`app-header-control flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                           showLeaderboard
                             ? darkMode
                               ? 'bg-gray-700 border-gray-600 text-gray-100'
@@ -670,14 +672,15 @@ export default function App() {
                         }`}
                         title="Leaderboard"
                       >
-                        <Trophy className={`w-4 h-4 ${showLeaderboard ? 'text-yellow-500' : ''}`} />
+                        <Trophy className={`w-4 h-4 ${showLeaderboard ? 'text-[var(--brand)]' : ''}`} />
                         <span className="hidden sm:inline">Leaderboard</span>
                       </button>
                     )}
 
                     <button
                       onClick={toggleDarkMode}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
+                      aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                      className={`app-header-control flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                         darkMode
                           ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
                           : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
@@ -701,10 +704,11 @@ export default function App() {
                       <button
                         id="language-menu-trigger"
                         onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+                        aria-label={`Change language. Current language: ${LANGUAGES[currentLanguage].name}`}
                         aria-haspopup="menu"
                         aria-expanded={showLanguageMenu}
                         aria-controls="language-menu"
-                        className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
+                        className={`app-header-control flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-sm font-medium ${
                           darkMode
                             ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
@@ -718,7 +722,7 @@ export default function App() {
 
                       <Presence open={showLanguageMenu}>
                       {showLanguageMenu && (
-                        <div id="language-menu" role="menu" data-origin="top-right" className={`t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 max-h-96 overflow-y-auto ${
+                        <div id="language-menu" role="menu" data-origin="top-right" className={`app-header-menu t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 max-h-96 overflow-y-auto ${
                           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                         }`}>
                           <div className={`px-4 py-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
@@ -736,7 +740,7 @@ export default function App() {
                               }`}
                             >
                               <div className="flex items-center gap-3">
-                                <span className="text-2xl">{lang.flag}</span>
+                                <span className="text-base">{lang.flag}</span>
                                 <div className="text-left">
                                   <p className={`text-sm font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>{lang.nativeName}</p>
                                   <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{lang.name}</p>
@@ -757,10 +761,11 @@ export default function App() {
                         <button
                           id="account-menu-trigger"
                           onClick={() => setShowAccountMenu(!showAccountMenu)}
+                          aria-label="Open account menu"
                           aria-haspopup="menu"
                           aria-expanded={showAccountMenu}
                           aria-controls="account-menu"
-                          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                          className="app-account-control flex items-center gap-3 hover:opacity-80 transition-opacity"
                         >
                           <div className="hidden sm:block text-right">
                             <p className={`text-sm font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>{user.displayName}</p>
@@ -771,13 +776,13 @@ export default function App() {
                           <img
                             src={user.photoURL}
                             alt={user.displayName}
-                            className="w-10 h-10 rounded-full border-2 border-blue-200 shadow-md cursor-pointer"
+                            className="w-10 h-10 rounded-full border border-slate-300 shadow-none cursor-pointer"
                           />
                         </button>
 
                         <Presence open={showAccountMenu}>
                         {showAccountMenu && (
-                          <div id="account-menu" role="menu" data-origin="top-right" className={`t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 ${
+                          <div id="account-menu" role="menu" data-origin="top-right" className={`app-header-menu t-dropdown absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border py-2 z-50 ${
                             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                           }`}>
                             <div className={`px-4 py-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
@@ -785,7 +790,7 @@ export default function App() {
                                 <img
                                   src={user.photoURL}
                                   alt={user.displayName}
-                                  className="w-12 h-12 rounded-full border-2 border-blue-200"
+                                  className="w-12 h-12 rounded-full border border-slate-300"
                                 />
                                 <div className="flex-1 overflow-hidden">
                                   <p className={`font-bold truncate ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>{user.displayName}</p>
@@ -865,7 +870,8 @@ export default function App() {
                     ) : (
                       <button
                         onClick={login}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors font-medium text-sm ${
+                        aria-label="Sign in with Google"
+                        className={`app-header-control flex items-center gap-2 px-4 py-2 rounded-md border transition-colors font-medium text-sm ${
                           darkMode
                             ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
                             : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
