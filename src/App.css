@@ -2023,6 +2023,8 @@ html.dark .reminder-feedback--success p { color: #c3d6c8 !important; }
 .app-page--dentists .dentist-result { padding: 22px 12px; border-radius: 0; }
 .app-page--dentists .dentist-result:nth-child(even) { background: rgb(241 244 245 / .32); }
 .app-page--dentists .dentist-result.is-selected { background: #eef3f2; }
+html.dark .app-page--dentists .dentist-result:nth-child(even) { background: rgb(32 43 53 / .55); }
+html.dark .app-page--dentists .dentist-result.is-selected { background: #263a3f; }
 .app-page--dentists .dentist-result__photos button,
 .app-page--dentists .t-modal-backdrop button { border-radius: 7px !important; }
 .app-page--dentists .t-modal-backdrop > div[class*="rounded-"] {
