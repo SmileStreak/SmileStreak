@@ -1,5 +1,5 @@
 import {
-  Heart, Target, Users, Lightbulb, Mail, Github, Award, Sparkles,
+  Heart, Target, Users, Mail, Github, Award, Sparkles,
   CheckCircle2, Globe, Star, TrendingUp, Clock, Zap, Brain, BookOpen, Code,
   Coffee, Palette, Rocket, Smile, ThumbsUp, HelpCircle, MessageCircle, Share2,
   Download, ExternalLink, Lock, Eye, EyeOff, Bell, Calendar, Filter, RefreshCw,
@@ -250,12 +250,7 @@ export default function Mission() {
 
       {/* The Problem We're Solving */}
       <section className="mission-problem">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="mt-1 flex-shrink-0 text-slate-500">
-            <Lightbulb className="w-5 h-5" />
-          </div>
-          <h3 className="text-xl font-black text-gray-900">{translatedText.problemTitle}</h3>
-        </div>
+        <h3 className="mb-4 text-xl font-black text-gray-900">{translatedText.problemTitle}</h3>
         <p className="mb-3 max-w-3xl text-sm leading-6 text-slate-700">
           {translatedText.problemDesc1}
         </p>
