@@ -6,6 +6,7 @@ import {
   Sun, Moon, Share2, Download, Printer
 } from "lucide-react";
 import { TranslationContext } from "../App";
+import { getDateFromKey, getDateKey, isDateKey } from "../utils/date";
 
 export default function Insights({ habitData }) {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
@@ -103,8 +104,13 @@ export default function Insights({ habitData }) {
     return () => { active = false; };
   }, [currentLanguage, t]);
 
-  // Safety check for habitData
-  if (!habitData || Object.keys(habitData).length === 0) {
+  const todayKey = getDateKey();
+  const trackedDateEntries = Object.entries(habitData || {})
+    .filter(([key]) => isDateKey(key) && key <= todayKey)
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  // Show the empty state when only settings or schedules are saved.
+  if (trackedDateEntries.length === 0) {
     return (
       <div className="space-y-6 pb-8">
         <div className="page-heading-surface relative overflow-hidden">
@@ -131,7 +137,7 @@ export default function Insights({ habitData }) {
     );
   }
 
-  const insights = generateInsights(habitData);
+  const insights = generateInsights(habitData, currentLanguage);
 
   // Calculate REAL health score based on actual data
   const calculateHealthScore = () => {
@@ -146,7 +152,7 @@ export default function Insights({ habitData }) {
       const completionScore = insights.completionRate || 0;
       
       // Consistency: longest streak
-      const dates = Object.keys(habitData).filter(k => !k.startsWith("__")).sort();
+      const dates = trackedDateEntries.map(([date]) => date);
       
       if (dates.length === 0) {
         return {
@@ -159,18 +165,31 @@ export default function Insights({ habitData }) {
       
       let maxStreak = 0;
       let tempStreak = 0;
-      
+      let previousDate = null;
       dates.forEach(date => {
         const d = habitData[date];
         if (d?.morning && d?.night && d?.floss) {
-          tempStreak++;
+          const currentDate = getDateFromKey(date);
+          const consecutive = previousDate && Math.round((currentDate - previousDate) / (1000 * 60 * 60 * 24)) === 1;
+          tempStreak = consecutive ? tempStreak + 1 : 1;
           maxStreak = Math.max(maxStreak, tempStreak);
         } else {
           tempStreak = 0;
         }
+        previousDate = getDateFromKey(date);
       });
       
-      const currentStreak = tempStreak;
+      const today = getDateFromKey(getDateKey());
+      if (!(habitData[getDateKey(today)]?.morning && habitData[getDateKey(today)]?.night && habitData[getDateKey(today)]?.floss)) {
+        today.setDate(today.getDate() - 1);
+      }
+      let currentStreak = 0;
+      for (let i = 0; i < 365; i += 1) {
+        const entry = habitData[getDateKey(today)];
+        if (!(entry?.morning && entry?.night && entry?.floss)) break;
+        currentStreak += 1;
+        today.setDate(today.getDate() - 1);
+      }
       const consistencyScore = Math.min((maxStreak / 30) * 100, 100);
 
       // Balance: task distribution
@@ -182,18 +201,19 @@ export default function Insights({ habitData }) {
       const balanceScore = Math.max(100 - variance, 0);
 
       // Improvement: recent vs older
-      const recentDays = dates.slice(-7);
-      const olderDays = dates.slice(-14, -7);
-      
-      const recentCompletion = recentDays.length > 0 ? (recentDays.filter(d => {
-        const day = habitData[d];
-        return day?.morning && day?.night && day?.floss;
-      }).length / recentDays.length * 100) : 0;
-      
-      const olderCompletion = olderDays.length > 0 ? (olderDays.filter(d => {
-        const day = habitData[d];
-        return day?.morning && day?.night && day?.floss;
-      }).length / olderDays.length * 100) : recentCompletion;
+      const completionForLastDays = (firstDayOffset, periodLength) => {
+        const anchor = getDateFromKey(getDateKey());
+        let complete = 0;
+        for (let offset = firstDayOffset; offset < firstDayOffset + periodLength; offset += 1) {
+          const cursor = new Date(anchor);
+          cursor.setDate(anchor.getDate() - offset);
+          const day = habitData[getDateKey(cursor)];
+          if (day?.morning && day?.night && day?.floss) complete += 1;
+        }
+        return (complete / periodLength) * 100;
+      };
+      const recentCompletion = completionForLastDays(0, 7);
+      const olderCompletion = completionForLastDays(7, 7);
       
       const improvementScore = Math.min(Math.max(50 + (recentCompletion - olderCompletion), 0), 100);
 
@@ -231,7 +251,7 @@ export default function Insights({ habitData }) {
   // REAL time-of-day analysis
   const getTimePatterns = () => {
     try {
-      const dates = Object.keys(habitData).filter(k => !k.startsWith("__"));
+      const dates = trackedDateEntries.map(([date]) => date);
       
       if (dates.length === 0) {
         return { morningRate: 0, nightRate: 0, flossRate: 0, betterTime: 'morning' };

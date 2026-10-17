@@ -1,7 +1,7 @@
 import { logEvent } from "firebase/analytics";
 import { analytics } from "../firebase";
 import { useEffect, useState, useContext, useRef, useCallback } from "react";
-import { getDateKey, getYesterdayKey } from "../utils/date.js";
+import { getDateFromKey, getDateKey, getYesterdayKey } from "../utils/date.js";
 import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
@@ -277,7 +277,7 @@ setHabitData(prev => ({
 __aligner: {
 tray: parseInt(alignerTrayInput),
 totalTrays: parseInt(alignerTotalTraysInput),
-startDate: alignerStartDateInput || new Date().toISOString().split("T")[0],
+startDate: alignerStartDateInput || getDateKey(),
 daysPerTray: parseInt(alignerDaysPerTrayInput) || 14,
 setupDate: new Date().toISOString(),
 },
@@ -287,9 +287,10 @@ setShowAlignerSetup(false);
 
 const getAlignerTrayProgress = () => {
 if (!alignerData) return null;
-const start = new Date(alignerData.startDate);
-const now = new Date();
-const daysSinceStart = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+const start = getDateFromKey(alignerData.startDate);
+if (!Number.isFinite(start.getTime())) return null;
+const now = getDateFromKey(getDateKey());
+const daysSinceStart = Math.max(0, Math.round((now - start) / (1000 * 60 * 60 * 24)));
 const currentTray = Math.min(alignerData.tray + Math.floor(daysSinceStart / alignerData.daysPerTray), alignerData.totalTrays);
 const daysOnCurrentTray = daysSinceStart % alignerData.daysPerTray;
 const daysUntilSwitch = alignerData.daysPerTray - daysOnCurrentTray;
@@ -489,7 +490,7 @@ setCopied(true); setTimeout(() => setCopied(false), 2500);
 };
 
 const openDentistModal = () => {
-setLastVisitDateInput(new Date().toISOString().split("T")[0]);
+setLastVisitDateInput(getDateKey());
 setNextCustomMonths(6);
 setNextDateInput("");
 setShowDentistModal(true);
@@ -1097,7 +1098,7 @@ onClick={e => e.stopPropagation()}>
     </div>
     <div className="mb-5 p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
       <label htmlFor="today-last-visit-date" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Last visit date</label>
-      <input id="today-last-visit-date" type="date" max={new Date().toISOString().split("T")[0]} value={lastVisitDateInput}
+      <input id="today-last-visit-date" type="date" max={getDateKey()} value={lastVisitDateInput}
         onChange={e => setLastVisitDateInput(e.target.value)}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white"
         style={{maxWidth:"100%",boxSizing:"border-box",WebkitAppearance:"none",MozAppearance:"none",appearance:"none"}} />
@@ -1125,7 +1126,7 @@ onClick={e => e.stopPropagation()}>
       </div>
       <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
         <label htmlFor="today-next-visit-date" className="block text-xs font-medium text-gray-500 mb-2">Pick a specific date</label>
-        <input id="today-next-visit-date" type="date" min={new Date().toISOString().split("T")[0]} value={nextDateInput}
+        <input id="today-next-visit-date" type="date" min={getDateKey()} value={nextDateInput}
           onChange={e => setNextDateInput(e.target.value)}
           className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
       </div>
@@ -1187,7 +1188,7 @@ onClick={e => e.stopPropagation()}>
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
       <label htmlFor="today-aligner-start-date" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Treatment start date</label>
-      <input id="today-aligner-start-date" type="date" max={new Date().toISOString().split("T")[0]} value={alignerStartDateInput}
+      <input id="today-aligner-start-date" type="date" max={getDateKey()} value={alignerStartDateInput}
         onChange={e => setAlignerStartDateInput(e.target.value)}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>

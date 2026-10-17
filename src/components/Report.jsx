@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { Download, Mail, TrendingUp, TrendingDown, Minus, Award, Target, Zap, FileText, Share2, Printer, AlertCircle, BarChart3, Sun, Moon, Activity } from "lucide-react";
 import { TranslationContext } from "../App";
+import { getDateFromKey, getDateKey, isDateKey } from "../utils/date";
 
 export default function Report({ habitData }) {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
@@ -75,20 +76,16 @@ export default function Report({ habitData }) {
 
   // Filter data by timeframe
   const getFilteredDates = () => {
-    const dates = Object.keys(habitData).filter((k) => !k.startsWith("__"));
+    const dates = Object.keys(habitData || {}).filter(isDateKey).sort();
     
-    if (timeframe === "all") return dates;
+    const todayKey = getDateKey();
+    if (timeframe === "all") return dates.filter((date) => date <= todayKey);
     
-    const now = new Date();
-    const cutoff = new Date();
-    
-    if (timeframe === "7days") {
-      cutoff.setDate(now.getDate() - 7);
-    } else if (timeframe === "30days") {
-      cutoff.setDate(now.getDate() - 30);
-    }
-    
-    return dates.filter(date => new Date(date) >= cutoff);
+    const periodDays = timeframe === "7days" ? 7 : 30;
+    const cutoff = getDateFromKey(todayKey);
+    cutoff.setDate(cutoff.getDate() - (periodDays - 1));
+    const cutoffKey = getDateKey(cutoff);
+    return dates.filter((date) => date >= cutoffKey && date <= todayKey);
   };
 
   const dates = getFilteredDates();
@@ -119,14 +116,15 @@ export default function Report({ habitData }) {
     else skippedDays++;
 
     // Weekly tracking
-    const weekKey = getWeekKey(new Date(date));
+    const dateValue = getDateFromKey(date);
+    const weekKey = getWeekKey(dateValue);
     if (!weeklyData[weekKey]) weeklyData[weekKey] = { perfect: 0, partial: 0, skipped: 0 };
     if (completedTasks === 3) weeklyData[weekKey].perfect++;
     else if (completedTasks > 0) weeklyData[weekKey].partial++;
     else weeklyData[weekKey].skipped++;
 
     // Monthly tracking
-    const monthKey = new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    const monthKey = dateValue.toLocaleDateString(currentLanguage, { month: 'short', year: 'numeric' });
     if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
     if (completedTasks === 3) monthlyData[monthKey]++;
   });
@@ -144,25 +142,17 @@ export default function Report({ habitData }) {
   const getPreviousPeriodComparison = () => {
     if (timeframe === "all") return null;
     
-    const now = new Date();
-    const currentPeriodStart = new Date();
-    const previousPeriodStart = new Date();
-    const previousPeriodEnd = new Date();
-    
-    if (timeframe === "7days") {
-      currentPeriodStart.setDate(now.getDate() - 7);
-      previousPeriodStart.setDate(now.getDate() - 14);
-      previousPeriodEnd.setDate(now.getDate() - 7);
-    } else {
-      currentPeriodStart.setDate(now.getDate() - 30);
-      previousPeriodStart.setDate(now.getDate() - 60);
-      previousPeriodEnd.setDate(now.getDate() - 30);
-    }
+    const periodDays = timeframe === "7days" ? 7 : 30;
+    const currentPeriodStart = getDateFromKey(getDateKey());
+    currentPeriodStart.setDate(currentPeriodStart.getDate() - (periodDays - 1));
+    const previousPeriodEndKey = getDateKey(currentPeriodStart);
+    const previousPeriodStart = new Date(currentPeriodStart);
+    previousPeriodStart.setDate(previousPeriodStart.getDate() - periodDays);
+    const previousPeriodStartKey = getDateKey(previousPeriodStart);
 
-    const allDates = Object.keys(habitData).filter((k) => !k.startsWith("__"));
+    const allDates = Object.keys(habitData || {}).filter(isDateKey);
     const previousDates = allDates.filter(date => {
-      const d = new Date(date);
-      return d >= previousPeriodStart && d < previousPeriodEnd;
+      return date >= previousPeriodStartKey && date < previousPeriodEndKey;
     });
 
     let prevPerfect = 0;

@@ -1,6 +1,8 @@
 // src/utils/insights.js
 // We intentionally gate insights behind minimum data thresholds
 // to avoid premature or misleading behavioral conclusions.
+import { getDateFromKey, getDateKey, isDateKey } from "./date";
+
 const TASKS = ["morning", "night", "floss"];
 const REFLECTION_KEYWORDS = [
   "tired",
@@ -17,10 +19,9 @@ const REFLECTION_KEYWORDS = [
 const MIN_DAYS_FOR_PATTERNS = 7;
 const MIN_DAYS_FOR_REFLECTIONS = 3;
 
-export function generateInsights(habitData) {
-  const dates = Object.keys(habitData).filter(
-    (k) => k.match(/^\d{4}-\d{2}-\d{2}$/)
-  );
+export function generateInsights(habitData, locale = "en-US") {
+  const todayKey = getDateKey();
+  const dates = Object.keys(habitData || {}).filter((key) => isDateKey(key) && key <= todayKey);
 
   let totalDays = dates.length;
   let completedDays = 0;
@@ -48,7 +49,7 @@ export function generateInsights(habitData) {
       });
 
       // track weekday misses
-      const weekday = new Date(dateKey).toLocaleDateString("en-US", {
+      const weekday = getDateFromKey(dateKey).toLocaleDateString(locale, {
         weekday: "long"
       });
       weekdayMisses[weekday] = (weekdayMisses[weekday] || 0) + 1;

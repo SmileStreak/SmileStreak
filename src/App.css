@@ -786,6 +786,18 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
   object-fit: cover;
 }
 
+.home-recent-placeholder {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--home-line);
+  border-radius: 6px;
+  background: var(--home-surface-quiet);
+  color: var(--home-muted);
+}
+
 .home-footer-note {
   margin-top: 30px;
   color: var(--home-muted);

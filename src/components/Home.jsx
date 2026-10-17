@@ -9,6 +9,7 @@ import {
 import { getCurrentStreak, getLongestStreak, getWeeklyActivity } from "../utils/streak";
 import { TranslationContext, ThemeContext } from "../App";
 import { storage } from "../utils/storage";
+import { getDateFromKey, getDateKey } from "../utils/date";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -69,7 +70,7 @@ export default function Home({ setActiveTab, user, habitData }) {
   ];
 
   // Derive today's completion directly from habitData so it's always in sync
-  const todayKey = new Date().toISOString().split("T")[0];
+  const todayKey = getDateKey();
   const todayEntry = habitData?.[todayKey] || {};
   const todayDone = ["morning", "night", "floss"].filter(k => todayEntry[k]).length;
   const todayPct = todayDone === 0 ? 0 : todayDone === 1 ? 33 : todayDone === 2 ? 67 : 100;
@@ -91,17 +92,30 @@ export default function Home({ setActiveTab, user, habitData }) {
     const milestones = [7, 30, 60, 90, 180, 365];
     const next = milestones.find(m => m > currentStreak) || 365;
     setNextMilestone(next);
-    const scanHistory = JSON.parse(localStorage.getItem("scanHistory") || "[]");
-    setRecentScans(scanHistory.slice(0, 3));
-    setTotalScans(scanHistory.length);
-    if (scanHistory.length > 0) {
-      const lastScan = new Date(scanHistory[0].date);
-      const today2 = new Date();
-      const diffDays = Math.floor((today2 - lastScan) / (1000 * 60 * 60 * 24));
-      setLastScanDate(diffDays === 0 ? "Today" : diffDays === 1 ? "Yesterday" : `${diffDays} days ago`);
+    let scanHistory = [];
+    try {
+      const savedScans = JSON.parse(localStorage.getItem("scanHistory") || "[]");
+      if (Array.isArray(savedScans)) scanHistory = savedScans;
+    } catch (error) {
+      console.warn("Could not read recent scan history:", error);
     }
-    const appointments = storage.get("appointments", []);
+    setRecentScans(scanHistory.filter((scan) => scan && typeof scan === "object").slice(0, 3));
+    setTotalScans(scanHistory.length);
+    if (scanHistory.length > 0 && scanHistory[0]?.date) {
+      const lastScan = new Date(scanHistory[0].date);
+      if (Number.isFinite(lastScan.getTime())) {
+        const diffDays = Math.round((getDateFromKey(getDateKey()) - getDateFromKey(getDateKey(lastScan))) / (1000 * 60 * 60 * 24));
+        setLastScanDate(diffDays === 0 ? "Today" : diffDays === 1 ? "Yesterday" : diffDays > 1 ? `${diffDays} days ago` : "Recently");
+      } else {
+        setLastScanDate("Date unavailable");
+      }
+    } else {
+      setLastScanDate(null);
+    }
+    const savedAppointments = storage.get("appointments", []);
+    const appointments = Array.isArray(savedAppointments) ? savedAppointments : [];
     const upcoming = appointments
+      .filter((apt) => apt && apt.date && Number.isFinite(new Date(apt.date).getTime()))
       .filter(apt => new Date(apt.date) > new Date())
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, 2);
@@ -256,7 +270,7 @@ export default function Home({ setActiveTab, user, habitData }) {
                 {weeklyActivity.map((day, i) => {
                   const date = new Date();
                   date.setDate(date.getDate() - (6 - i));
-                  const key = date.toISOString().split("T")[0];
+                  const key = getDateKey(date);
                   const entry = habitData?.[key];
                   const done = entry ? ["morning", "night", "floss"].filter((habit) => entry[habit]).length : 0;
                   const percent = done === 0 ? 0 : done === 1 ? 33 : done === 2 ? 67 : 100;
@@ -325,8 +339,8 @@ export default function Home({ setActiveTab, user, habitData }) {
           <section className="home-recent-section">
             <div className="home-section-heading"><div><h3>{texts.recentScans || "Recent scans"}</h3></div><button className="home-text-link" onClick={() => go("scan")}>{texts.viewAll || "View all"}<ChevronRight size={16} /></button></div>
             <div className="home-recent-list">
-              {recentScans.map((scan, i) => (
-                <div key={i} className="home-recent-row"><img src={scan.image} alt="Dental scan" /><div><strong>{scan.timestamp}</strong><small>{scan.feedback}</small></div><ChevronRight size={16} /></div>
+                {recentScans.map((scan, i) => (
+                <div key={scan.id || i} className="home-recent-row">{scan.image ? <img src={scan.image} alt="Saved dental scan" loading="lazy" /> : <span aria-hidden="true" className="home-recent-placeholder"><Camera size={17} /></span>}<div><strong>{scan.timestamp || "Saved scan"}</strong><small>{scan.feedback || "No saved observation text"}</small></div><ChevronRight size={16} /></div>
               ))}
             </div>
           </section>

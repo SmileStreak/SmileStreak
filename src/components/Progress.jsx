@@ -1,7 +1,7 @@
 import WeeklyCalendar from "./WeeklyCalendar";
 import { ACHIEVEMENTS } from "../data";
 import { calculateStreaks } from "../utils/progress";
-import { getDateKey } from "../utils/date";
+import { getDateKey, isDateKey } from "../utils/date";
 import { Trophy, Lock, Sparkles, CheckCircle2, Sun, Moon, Brush } from "lucide-react";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { TranslationContext } from "../App";
@@ -22,7 +22,9 @@ export default function Progress({ habitData }) {
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [tooltip?.pinned]);
 
-  const days = Object.values(habitData || {});
+  const todayKey = getDateKey();
+  const habitEntries = Object.entries(habitData || {}).filter(([key]) => isDateKey(key) && key <= todayKey);
+  const days = habitEntries.map(([, day]) => day);
 
   const completedDays = days.filter(
     (d) => d?.morning && d?.night && d?.floss
@@ -30,7 +32,7 @@ export default function Progress({ habitData }) {
 
   const { currentStreak, longestStreak } = calculateStreaks(habitData || {});
 
-  const totalDays = Object.keys(habitData || {}).filter(k => k !== "__lastRecoveryUsed").length;
+  const totalDays = habitEntries.length;
   const completionRate = totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0;
 
   const nextAchievement = ACHIEVEMENTS.find(a => completedDays < a.requirement);
@@ -87,7 +89,7 @@ export default function Progress({ habitData }) {
       if (firstCell) {
         const m = firstCell.date.getMonth();
         if (m !== lastMonth) {
-          monthLabels.push({ weekIndex: wi, label: firstCell.date.toLocaleDateString("en-US", { month: "short" }) });
+          monthLabels.push({ weekIndex: wi, label: firstCell.date.toLocaleDateString(currentLanguage, { month: "short" }) });
           lastMonth = m;
         }
       }
@@ -98,7 +100,7 @@ export default function Progress({ habitData }) {
     const yearContributions = cells.filter(c => c.date >= yearStart && c.count > 0).length;
 
     return { weeks, monthLabels, yearContributions };
-  }, [habitData]);
+  }, [habitData, currentLanguage]);
 
   const getCellColor = (cell) => {
     if (cell.isFuture || cell.count === 0) return "heatmap-cell--0";
@@ -108,7 +110,7 @@ export default function Progress({ habitData }) {
   };
 
   const formatTooltipDate = (date) =>
-    date.toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" });
+    date.toLocaleDateString(currentLanguage, { weekday: "short", month: "long", day: "numeric", year: "numeric" });
 
   useEffect(() => {
     const translateAll = async () => {
@@ -224,7 +226,8 @@ export default function Progress({ habitData }) {
                       role={cell.isFuture ? undefined : "button"}
                       tabIndex={cell.isFuture ? -1 : 0}
                       aria-label={`${formatTooltipDate(cell.date)}: ${cell.count} of 3 habits completed`}
-                      className={`heatmap-cell w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer ${getCellColor(cell)} ${cell.isToday ? "ring-1 ring-[#52777b] ring-offset-1" : ""}`}
+                      aria-pressed={cell.isFuture ? undefined : !!(tooltip?.pinned && tooltip.cell.key === cell.key)}
+                      className={`heatmap-cell w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 ${getCellColor(cell)} ${cell.isToday ? "ring-1 ring-[#52777b] ring-offset-1" : ""}`}
                       onMouseEnter={(e) => {
                         if (!cell.isFuture) {
                           const rect = e.currentTarget.getBoundingClientRect();
@@ -240,7 +243,7 @@ export default function Progress({ habitData }) {
                       onKeyDown={(e) => {
                         if (!cell.isFuture && (e.key === "Enter" || e.key === " ")) {
                           e.preventDefault();
-                          setTooltip(tooltip?.cell?.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
+                          setTooltip(current => current?.pinned && current.cell.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
                         }
                       }}
                     />
@@ -320,7 +323,7 @@ export default function Progress({ habitData }) {
       {tooltip && !tooltip.pinned && (
         <div
           className="fixed z-50 pointer-events-none"
-          style={{ top: tooltip.y - 130, left: Math.min(tooltip.x, window.innerWidth - 180) }}
+          style={{ top: Math.max(8, tooltip.y - 130), left: Math.max(8, Math.min(tooltip.x, window.innerWidth - 188)) }}
         >
           <div className="progress-day-tooltip bg-gray-900 text-white rounded-xl p-3 shadow-xl w-44" aria-hidden="true">
             <p className="text-[10px] font-bold mb-1.5">{formatTooltipDate(tooltip.cell.date)}</p>
