@@ -33,17 +33,13 @@ export default function Tips() {
 const { t, currentLanguage } = useContext(TranslationContext);
 const [texts, setTexts] = useState({});
 const [revealedMyths, setRevealedMyths] = useState(new Set());
-const [didYouKnowIndex, setDidYouKnowIndex] = useState(0);
+const [didYouKnowIndex, setDidYouKnowIndex] = useState(() => Math.floor(Math.random() * DID_YOU_KNOW.length));
 const [factAnimating, setFactAnimating] = useState(false);
 const [visibleMythCount, setVisibleMythCount] = useState(4);
 const factTimerRef = useRef(null);
 
 useEffect(() => {
-const idx = Math.floor(Math.random() * DID_YOU_KNOW.length);
-setDidYouKnowIndex(idx);
-}, []);
-
-useEffect(() => {
+let active = true;
 const translateAll = async () => {
 const translations = {
 dentalTips: await t("Dental Tips & Facts"),
@@ -75,9 +71,12 @@ for (const myth of MYTHS) {
 translations[`myth${myth.id}`] = await t(myth.myth);
 translations[`truth${myth.id}`] = await t(myth.truth);
 }
-setTexts(translations);
+if (active) setTexts(translations);
 };
-translateAll();
+translateAll().catch((error) => {
+console.error("Could not load dental tip translations:", error);
+});
+return () => { active = false; };
 }, [currentLanguage, t]);
 
 const handleMythClick = (mythId) => {
@@ -172,7 +171,7 @@ return (
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-sm mb-2">{item.myth}</p>
                 {isRevealed ? (
-                    <div className={`tips-myth-answer flex items-start gap-2 p-3 rounded-xl ${item.isMyth ? "bg-red-100" : "bg-green-100"}`}>
+                    <div className={`tips-myth-answer flex items-start gap-2 p-3 rounded-xl ${item.isMyth ? "bg-red-100" : "bg-green-100"}`} role="status" aria-live="polite">
                     {item.isMyth ? (
                       <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                     ) : (
