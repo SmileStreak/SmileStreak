@@ -30,6 +30,16 @@ const shiftCalendarDate = (date, days) => {
   return shifted;
 };
 
+const formatPresetTime = (value, locale) => {
+  const [hours, minutes] = value.split(":").map(Number);
+  const date = new Date(2000, 0, 1, hours, minutes);
+  try {
+    return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(date);
+  } catch {
+    return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(date);
+  }
+};
+
 export default function Reminders() {
   const { currentLanguage, translating } = useContext(TranslationContext);
   
@@ -596,15 +606,15 @@ export default function Reminders() {
         <div className="reminder-quick-set grid grid-cols-3">
           <button type="button" onClick={quickSetMorning} aria-pressed={reminders.morning === "08:00"} className="reminder-preset">
             <span>{translatedText.morning}</span>
-            <strong>8:00 AM</strong>
+            <strong>{formatPresetTime("08:00", currentLanguage)}</strong>
           </button>
           <button type="button" onClick={quickSetNight} aria-pressed={reminders.night === "21:00"} className="reminder-preset">
             <span>{translatedText.night}</span>
-            <strong>9:00 PM</strong>
+            <strong>{formatPresetTime("21:00", currentLanguage)}</strong>
           </button>
           <button type="button" onClick={quickSetFloss} aria-pressed={reminders.floss === "20:30"} className="reminder-preset">
             <span>{translatedText.floss}</span>
-            <strong>8:30 PM</strong>
+            <strong>{formatPresetTime("20:30", currentLanguage)}</strong>
           </button>
         </div>
       </div>
