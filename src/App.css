@@ -133,6 +133,18 @@ header.sticky {
 }
 html.dark header.sticky { background: rgb(17 24 32 / 0.96) !important; border-color: #303a45 !important; }
 main { min-height: 58vh; }
+.app-tabs { border-color: var(--line) !important; }
+.app-tabs .app-tab {
+  color: var(--ink-muted);
+  background: transparent;
+  transition: color 180ms ease-out, border-color 180ms ease-out, background-color 180ms ease-out;
+}
+.app-tabs .app-tab:hover { color: var(--ink); background: var(--surface-quiet); }
+.app-tabs .app-tab.is-active { color: var(--brand); border-color: var(--brand); }
+.app-tabs .t-dropdown { border-color: var(--line); background: var(--surface) !important; }
+.app-tabs .app-tab-menu-item { color: var(--ink-secondary); background: transparent; text-align: left; }
+.app-tabs .app-tab-menu-item:hover { color: var(--ink); background: var(--surface-quiet); }
+.app-tabs .app-tab-menu-item.is-active { color: var(--brand); background: var(--surface-quiet); }
 main :is(h1,h2,h3) { color: var(--ink); letter-spacing: -0.025em; }
 html.dark main :is(h1,h2,h3) { color: #e5e9ed; }
 main h1, main h2, main .app-page h1, main .app-page h2 { font-family: "Newsreader Variable", Georgia, serif; font-weight: 520; letter-spacing: -0.025em; }

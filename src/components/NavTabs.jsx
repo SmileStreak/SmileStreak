@@ -39,20 +39,19 @@ export default function NavTabs({ activeTab, setActiveTab }) {
  }, [showMore]);
 
  return (
-   <div className="w-full overflow-x-auto border-b border-gray-200">
+   <nav aria-label="Primary navigation" className="app-tabs w-full overflow-x-auto border-b border-gray-200">
      <div className="flex min-w-max items-end gap-6 px-1">
        {primaryTabs.map((tab) => {
          const active = activeTab === tab.toLowerCase();
          return (
            <button
-             key={tab}
+           key={tab}
+             type="button"
              onClick={() => handleTab(tab)}
+             aria-current={active ? "page" : undefined}
              className={`
-               relative px-1 py-3 text-sm font-medium whitespace-nowrap
-               transition-colors duration-200 border-b-2
-               ${active
-                 ? "text-blue-700 border-blue-700"
-                 : "text-gray-600 border-transparent hover:text-gray-900"}
+               app-tab relative px-1 py-3 text-sm font-medium whitespace-nowrap border-b-2
+               ${active ? "is-active" : ""}
              `}
            >
              {tab}
@@ -63,16 +62,13 @@ export default function NavTabs({ activeTab, setActiveTab }) {
        <div ref={moreRef} className="relative">
          <button
            id="more-tabs-trigger"
+           type="button"
            onClick={() => setShowMore((prev) => !prev)}
-           aria-haspopup="menu"
            aria-expanded={showMore}
            aria-controls="more-tabs-menu"
            className={`
-             inline-flex items-center gap-1 px-1 py-3 text-sm font-medium whitespace-nowrap
-             transition-colors duration-200 border-b-2
-             ${isMoreActive || showMore
-               ? "text-blue-700 border-blue-700"
-               : "text-gray-600 border-transparent hover:text-gray-900"}
+             app-tab inline-flex items-center gap-1 px-1 py-3 text-sm font-medium whitespace-nowrap border-b-2
+             ${isMoreActive || showMore ? "is-active" : ""}
            `}
          >
            {isMoreActive
@@ -84,7 +80,6 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          {showMore && (
            <div
             id="more-tabs-menu"
-            role="menu"
             data-origin="bottom-left"
             className="t-dropdown fixed z-[9999] bg-white rounded-lg border border-gray-200 p-2 flex flex-col gap-1 min-w-[160px]"
              style={{
@@ -101,14 +96,12 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                return (
                  <button
                    key={tab}
+                   type="button"
                    onClick={() => handleTab(tab)}
-                   role="menuitem"
+                   aria-current={active ? "page" : undefined}
                    className={`
-                     px-3 py-2.5 rounded-md text-sm font-medium text-left
-                     transition-colors duration-200
-                     ${active
-                       ? "bg-slate-100 text-blue-700"
-                       : "text-gray-600 hover:bg-gray-50"}
+                     app-tab-menu-item px-3 py-2.5 rounded-md text-sm font-medium text-left
+                     ${active ? "is-active" : ""}
                    `}
                  >
                    {tab}
@@ -120,6 +113,6 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          </Presence>
        </div>
      </div>
-   </div>
+   </nav>
  );
 }
