@@ -15,6 +15,11 @@ const RECOVERY_KEY = "__lastRecoveryUsed";
 const WATER_GOAL_OZ = 64;
 const ALIGNER_GOAL_HOURS = 22;
 
+const parseCalendarDate = (value) => {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return getDateFromKey(value);
+  return new Date(value);
+};
+
 // ── LEADERBOARD POINTS HELPER ──
 const updateLeaderboardPoints = async (userId, dayData, habitData) => {
   if (!userId) return;
@@ -358,7 +363,7 @@ for (let i = 6; i >= 0; i--) {
 const d = new Date(); d.setDate(d.getDate() - i);
 const day = habitData[getDateKey(d)];
 const done = day ? ["morning","night","floss"].filter(k => day[k]).length : 0;
-dots.push({ label: d.toLocaleDateString("en-US", { weekday:"short" }).slice(0,1), fullLabel: d.toLocaleDateString("en-US", { weekday:"long" }), done, isToday: i === 0 });
+dots.push({ label: d.toLocaleDateString(currentLanguage, { weekday:"short" }).slice(0,1), fullLabel: d.toLocaleDateString(currentLanguage, { weekday:"long" }), done, isToday: i === 0 });
 }
 setWeekDots(dots);
 const scores = [];
@@ -386,7 +391,7 @@ const next = milestones.find(m => m > current) || 365;
 setStreakMilestones([{ current, next, remaining: next - current }]);
 setCurrentMood(todayData.mood || null);
 setReflectionText(todayData.reflection || "");
-}, [habitData]);
+}, [habitData, currentLanguage]);
 
 const formatTime = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,"0")}`;
 
@@ -519,19 +524,23 @@ setShowDentistModal(false);
 
 const getDaysUntilNextVisit = () => {
 if (!nextDentistVisit) return null;
-const diff = new Date(nextDentistVisit) - new Date();
-return Math.ceil(diff / (1000 * 60 * 60 * 24));
+const visitDate = parseCalendarDate(nextDentistVisit);
+if (!Number.isFinite(visitDate.getTime())) return null;
+return Math.round((getDateFromKey(getDateKey(visitDate)) - getDateFromKey(today)) / (1000 * 60 * 60 * 24));
 };
 
 const formatVisitDate = (iso) => {
 if (!iso) return "";
-return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+const date = parseCalendarDate(iso);
+return Number.isFinite(date.getTime())
+  ? date.toLocaleDateString(currentLanguage, { month: "long", day: "numeric", year: "numeric" })
+  : "Date unavailable";
 };
 
 const completedCount = ["morning","night","floss"].filter(k => todayData[k]).length;
 const percent = Math.round((completedCount / 3) * 100);
 const { current, longest } = calculateStreaks(habitData);
-const dayLabel = new Date().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+const dayLabel = new Date().toLocaleDateString(currentLanguage, { weekday:"long", month:"long", day:"numeric" });
 const tip = translatedTips[tipIndex];
 const alignerTrayProgress = getAlignerTrayProgress();
 
@@ -639,7 +648,7 @@ return (
     </div>
     <div className="today-week-chart flex justify-between items-end gap-2" role="group" aria-label="Weekly routine completion">
       {weekDots.map((d, i) => (
-        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-label={`${d.fullLabel}: ${d.done} of 3 tasks complete${d.isToday ? ", today" : ""}`}>
+        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-current={d.isToday ? "date" : undefined} aria-label={`${d.fullLabel}: ${d.done} of 3 tasks complete${d.isToday ? ", today" : ""}`}>
           <div className="today-week-day-bars w-full flex flex-col gap-0.5" aria-hidden="true">
             {[2,1,0].map(slot => (
               <div key={slot} className={`h-2 rounded-sm transition-colors duration-200 ${d.done > slot ? "bg-blue-600" : "bg-slate-100"}`} />

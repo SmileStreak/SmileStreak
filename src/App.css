@@ -2168,6 +2168,25 @@ html.dark .account-username-modal button[class*="bg-blue-50"], html.dark .accoun
   border-color: var(--line) !important; border-radius: 9px !important;
   background: var(--surface) !important; box-shadow: none !important;
 }
+.today-page-content { width: min(100%, 760px); margin-inline: auto; }
+.today-page-content > * { min-width: 0; }
+.today-week-day { min-width: 0; padding: 8px 4px 5px; border-radius: 6px; transition: background-color 180ms ease-out; }
+.today-week-day[aria-current="date"] { background: var(--surface-quiet); }
+.today-week-day-bars { max-width: 52px; }
+.today-week-day > span { color: var(--ink-muted); font-size: 11px; }
+.today-week-day > span.text-blue-700 { color: var(--brand) !important; }
+.today-task-panel > .flex:first-child > .flex-1 p:first-child { color: var(--ink); font-size: 16px; font-weight: 600; }
+.today-task-panel > .flex:first-child > .flex-1 p + p { color: var(--ink-muted); }
+.today-task-panel > .flex:first-child > button { min-height: 36px; border: 1px solid var(--line-strong); border-radius: 6px !important; background: var(--surface) !important; color: var(--ink-secondary) !important; box-shadow: none !important; }
+.today-task-panel > .flex:first-child > button[aria-pressed="true"] { border-color: var(--brand); color: var(--brand) !important; background: var(--surface-quiet) !important; }
+.today-task-button { border-radius: 6px; }
+.today-task-row.is-running { background: var(--surface-quiet); }
+.today-aligner-panel button[aria-pressed="true"] { border-color: var(--brand) !important; background: var(--brand) !important; color: white !important; }
+.today-aligner-panel button[aria-pressed="true"]:hover { background: var(--brand-hover) !important; }
+.today-dialog :is(button, input, textarea, select) { min-height: 40px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .today-week-day:hover { background: var(--surface-quiet); }
+}
 .today-task-panel > .flex:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
 .today-task-progress { flex: 0 0 52px !important; width: 52px !important; height: 52px !important; }
 .today-task-progress svg circle:first-child { stroke: var(--line) !important; }
