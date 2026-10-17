@@ -476,7 +476,7 @@ export default function Reminders() {
       </dl>
 
       {/* Custom Reminders */}
-      <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100 space-y-4">
+      <section className="reminder-feature-section space-y-4">
         <div className="flex items-center gap-2 mb-2">
           <Clock className="w-5 h-5 text-blue-600" />
           <h3 className="font-bold text-gray-900">{translatedText.customTimes}</h3>
@@ -484,17 +484,16 @@ export default function Reminders() {
         <ReminderRow label={translatedText.morningBrush} icon={<Sun className="w-5 h-5 text-slate-600" />} time={reminders.morning} onChange={(v) => updateTime("morning", v)} />
         <ReminderRow label={translatedText.nightBrush}   icon={<Moon className="w-5 h-5 text-slate-600" />} time={reminders.night}   onChange={(v) => updateTime("night", v)} />
         <ReminderRow label={translatedText.flossTime}    icon={<Activity className="w-5 h-5 text-slate-600" />} time={reminders.floss}  onChange={(v) => updateTime("floss", v)} />
-      </div>
+      </section>
 
       {/* ── ALIGNER TRAY SWAP REMINDER ── */}
-      <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100 space-y-4">
+      <section className="reminder-feature-section space-y-4">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-lg">😁</span>
           <h3 className="font-bold text-gray-900">Aligner Tray Swap Reminder</h3>
         </div>
 
         {!alignerData ? (
-          <div className="rounded-xl p-4 border-2 border-dashed border-blue-200 bg-blue-50 text-center">
+          <div className="reminder-empty-state">
             <p className="text-sm text-blue-600 font-medium">No aligner treatment set up yet</p>
             <p className="text-xs text-blue-400 mt-1">Set up your treatment on the Today page to enable swap reminders</p>
           </div>
@@ -537,6 +536,10 @@ export default function Reminders() {
               </div>
               <button
                 onClick={handleAlignerReminderToggle}
+                type="button"
+                role="switch"
+                aria-checked={alignerReminderEnabled}
+                aria-label="Aligner tray swap reminders"
                 className={`relative w-12 h-6 rounded-full transition-all duration-300 ${alignerReminderEnabled ? "bg-blue-500" : "bg-gray-300"}`}
               >
                 <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${alignerReminderEnabled ? "left-6" : "left-0.5"}`} />
@@ -587,10 +590,10 @@ export default function Reminders() {
             )}
           </>
         )}
-      </div>
+      </section>
 
       {/* ── DENTIST VISIT REMINDER ── */}
-      <div className="bg-white rounded-3xl p-5 shadow-lg border border-teal-100 space-y-4">
+      <section className="reminder-feature-section space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <Calendar className="w-5 h-5 text-teal-600" />
           <h3 className="font-bold text-gray-900">Dentist Visit Reminder</h3>
@@ -616,7 +619,7 @@ export default function Reminders() {
             </div>
           </div>
         ) : (
-          <div className="rounded-xl p-4 border-2 border-dashed border-teal-200 bg-teal-50 text-center">
+          <div className="reminder-empty-state">
             <p className="text-sm text-teal-600 font-medium">No dentist visit logged yet</p>
             <p className="text-xs text-teal-500 mt-1">Log a visit on the Today page to enable reminders</p>
           </div>
@@ -634,6 +637,10 @@ export default function Reminders() {
           </div>
           <button
             onClick={handleDentistReminderToggle}
+            type="button"
+            role="switch"
+            aria-checked={dentistReminderEnabled}
+            aria-label="Dentist visit reminders"
             disabled={!nextDentistVisit}
             className={`relative w-12 h-6 rounded-full transition-all duration-300 ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"} ${!nextDentistVisit ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
           >
@@ -667,7 +674,7 @@ export default function Reminders() {
             <p className="text-xs text-gray-500">Enable the toggle above to get reminders 1 month, 2 weeks, and 1 week before your visit.</p>
           </div>
         )}
-      </div>
+      </section>
 
       {/* Enable Button */}
       {!notificationsEnabled && (
