@@ -1127,7 +1127,7 @@ export default function App() {
               <span>SmileStreak</span>
               <div className="flex items-center gap-4">
                 <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.privacyTerms}</button>
-                <button onClick={() => { setAnalyticsPreferenceNotice(""); setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.preferences}</button>
+                <button onClick={() => { setAnalyticsPreferenceNotice(""); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.preferences}</button>
                 <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title={analyticsConsentCopy.giveFeedback}>
                   <MessageCircle className="w-4 h-4" />
                   <span>{analyticsConsentCopy.sendFeedback}</span>
