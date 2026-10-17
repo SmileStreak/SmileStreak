@@ -66,7 +66,10 @@ export default function App() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState("idle");
   const [analyticsChoice, setAnalyticsChoice] = useState(() => {
-    try { return localStorage.getItem("smilestreak-analytics-consent"); }
+    try {
+      const saved = localStorage.getItem("smilestreak-analytics-consent");
+      return saved === "granted" || saved === "denied" ? saved : null;
+    }
     catch { return null; }
   });
   const [analyticsPreferenceNotice, setAnalyticsPreferenceNotice] = useState("");
