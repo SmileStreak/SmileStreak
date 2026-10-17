@@ -87,6 +87,7 @@ export default function App() {
     statusOff: "Off",
     statusUnknown: "Not enabled",
     updatingLanguage: "Updating language…",
+    loadingPage: "Loading page…",
     privacyTerms: "Privacy & terms",
     sendFeedback: "Send feedback",
     giveFeedback: "Give Feedback",
@@ -230,6 +231,7 @@ export default function App() {
       statusOff: "Off",
       statusUnknown: "Not enabled",
       updatingLanguage: "Updating language…",
+      loadingPage: "Loading page…",
       privacyTerms: "Privacy & terms",
       sendFeedback: "Send feedback",
       giveFeedback: "Give Feedback",
@@ -1073,7 +1075,7 @@ export default function App() {
               </Presence>
 
               <div className={`app-page app-page--${activeTab}`} style={{ viewTransitionName: "page-content" }}>
-                <Suspense fallback={<div className="page-loading" role="status">Loading page…</div>}>
+                <Suspense fallback={<div className="page-loading" role="status">{analyticsConsentCopy.loadingPage}</div>}>
                   {activeTab === "home" && <Home setActiveTab={navigateToTab} user={user} habitData={habitData} />}
                   {activeTab === "today" && <Today habitData={habitData} setHabitData={setHabitData} user={user} />}
                   {activeTab === "progress" && <Progress habitData={habitData} />}
