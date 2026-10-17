@@ -13,6 +13,15 @@ export default function Progress({ habitData }) {
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [tooltip, setTooltip] = useState(null);
 
+  useEffect(() => {
+    if (!tooltip?.pinned) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setTooltip(null);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [tooltip?.pinned]);
+
   const days = Object.values(habitData || {});
 
   const completedDays = days.filter(
@@ -222,10 +231,10 @@ export default function Progress({ habitData }) {
                           setTooltip({ cell, x: rect.left, y: rect.top });
                         }
                       }}
-                      onMouseLeave={() => setTooltip(null)}
+                      onMouseLeave={() => setTooltip(current => current?.pinned ? current : null)}
                       onClick={() => {
                         if (!cell.isFuture) {
-                          setTooltip(tooltip?.cell?.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
+                          setTooltip(current => current?.pinned && current.cell.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
                         }
                       }}
                       onKeyDown={(e) => {
@@ -401,14 +410,14 @@ export default function Progress({ habitData }) {
       <Presence open={selectedAchievement}>
 {selectedAchievement && (
         <div
-          className="t-modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-[fadeIn_0.2s_ease-out]"
+          className="t-modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedAchievement(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="achievement-dialog-title"
-            className="progress-achievement-dialog bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-[scaleBounce_0.3s_ease-out]"
+            className="progress-achievement-dialog bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
