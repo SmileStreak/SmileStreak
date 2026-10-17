@@ -53,6 +53,7 @@ return Number.isFinite(date.getTime())
 
 // Translation keys - only what's actually used
 const translationKeys = {
+loading: "Loading…",
 title: "Photo observations",
 subtitle: "General habit feedback from a single photo",
 howItWorks: "How it works",
@@ -90,6 +91,8 @@ trackProgress: "Track Your Progress",
 trackProgressDesc: "Save notes if you want to compare feedback over time.",
 scanHistory: "Scan History",
 noScans: "No scans yet",
+scanRemoved: "Scan removed from this browser.",
+exportJson: "Export as JSON",
 viewDetails: "View Details",
 delete: "Delete",
 undo: "Undo",
@@ -122,7 +125,11 @@ currentScan: "Current Scan",
 previousScan: "Previous Scan",
 
 exportTitle: "Export Options",
-exportDesc: "Download or share your scan results"
+exportDesc: "Download or share your scan results",
+tapCapture: "Tap to take photo",
+historySaveFailed: "Your browser could not save this scan. The feedback is still available until you leave this page.",
+historyNotSaved: "This photo and feedback were not saved to this browser.",
+privacyNote: "You can get feedback without saving it here. Optional copies stay in this browser until you delete them or clear site data. Google processes submitted photos under its Gemini API terms. Don’t send sensitive, confidential, or identifying photos."
 };
 
 // Camera guidance steps
@@ -529,7 +536,7 @@ return (
 <div className="page-heading-surface">
 <div className="animate-pulse flex items-center gap-2">
 <Camera className="w-6 h-6" aria-hidden="true" />
-<h2 className="text-2xl font-black">Loading…</h2>
+        <h2 className="text-2xl font-black">{translatedText.loading || translationKeys.loading}</h2>
 </div>
 </div>
 </div>
@@ -585,7 +592,7 @@ return (
         <div className="p-4 overflow-y-auto max-h-[60vh] space-y-3">
           {deletedScan && (
             <div className="scan-history-undo" role="status">
-              <span>Scan removed from this browser.</span>
+              <span>{translatedText.scanRemoved || translationKeys.scanRemoved}</span>
               <button ref={undoScanButtonRef} type="button" onClick={undoDeleteScan}>{translatedText.undo || "Undo"}</button>
             </div>
           )}
@@ -712,7 +719,7 @@ return (
             className="scan-export-option w-full flex items-center gap-3 p-4 bg-blue-50 rounded-xl transition-colors"
           >
             <Download className="w-5 h-5 text-blue-600" />
-            <span className="font-semibold text-gray-900">Export as JSON</span>
+            <span className="font-semibold text-gray-900">{translatedText.exportJson || translationKeys.exportJson}</span>
           </button>
           
           <button
@@ -826,7 +833,7 @@ return (
           <span>{translatedText.photoStorageConsent}</span>
         </label>
         {consentError && <p className="scan-privacy-error" role="alert">{consentError}</p>}
-        <p className="scan-privacy-note">You can use photo feedback without saving it here. An optional saved copy stays in this browser until you delete it or clear site data. Google processes the image under its Gemini API terms; SmileStreak does not show whether its API quota is paid or unpaid. Don’t send sensitive, confidential, or identifying photos.</p>
+        <p className="scan-privacy-note">{translatedText.privacyNote || translationKeys.privacyNote}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -951,7 +958,7 @@ return (
             className="scan-capture-action"
           >
             <span aria-hidden="true" />
-            <p className="absolute -bottom-8 text-xs text-gray-500 font-medium whitespace-nowrap">Tap to take photo</p>
+            <p className="absolute -bottom-8 text-xs text-gray-500 font-medium whitespace-nowrap">{translatedText.tapCapture || translationKeys.tapCapture}</p>
           </button>
         )}
       </div>
@@ -1051,9 +1058,9 @@ return (
       </div>
 
       {historySaveFailed ? (
-        <p className="text-xs leading-5 text-amber-800" role="status">Your browser could not save this scan. The feedback is still available until you leave this page.</p>
+        <p className="text-xs leading-5 text-amber-800" role="status">{translatedText.historySaveFailed || translationKeys.historySaveFailed}</p>
       ) : !saveScansLocally ? (
-        <p className="text-xs leading-5 text-slate-500">This photo and feedback were not saved to this browser.</p>
+        <p className="text-xs leading-5 text-slate-500">{translatedText.historyNotSaved || translationKeys.historyNotSaved}</p>
       ) : null}
 
       {/* Action Buttons */}
