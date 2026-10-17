@@ -4,6 +4,15 @@ import "@fontsource-variable/source-sans-3";
 import "./entry.css";
 
 const App = lazy(() => import("./App.jsx"));
+const AGE_CONFIRMATION_KEY = "smilestreak-age-confirmed";
+
+function hasSavedAdultConfirmation() {
+  try {
+    return localStorage.getItem(AGE_CONFIRMATION_KEY) === "18+";
+  } catch {
+    return false;
+  }
+}
 
 function ageOnDate(date, today = new Date()) {
   let age = today.getFullYear() - date.getFullYear();
@@ -27,7 +36,16 @@ function AgeGate({ onSubmit }) {
       return setError("Enter a valid date of birth.");
     }
     setError("");
-    onSubmit(ageOnDate(date) >= 18 ? "adult" : "younger");
+    const isAdult = ageOnDate(date) >= 18;
+    if (isAdult) {
+      try {
+        // Persist only the self-reported eligibility result, never the birth date.
+        localStorage.setItem(AGE_CONFIRMATION_KEY, "18+");
+      } catch {
+        // Continue for this visit if browser storage is unavailable.
+      }
+    }
+    onSubmit(isAdult ? "adult" : "younger");
   }
 
   return (
@@ -66,7 +84,7 @@ function YoungerTips() {
 }
 
 function Root() {
-  const [audience, setAudience] = useState(null);
+  const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : null);
 
   useEffect(() => {
     if (audience !== "adult" || !("serviceWorker" in navigator)) return;

@@ -31,4 +31,11 @@
   .entry-input {
     transition-duration: 1ms !important;
   }
+  .entry-button:hover,
+  .entry-page button:hover,
+  .entry-button:active,
+  .entry-page button:active {
+    transform: none;
+    box-shadow: none;
+  }
 }
