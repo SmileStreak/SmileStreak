@@ -1314,6 +1314,7 @@ html.dark .weekly-calendar__today { background: #2a3940; }
 
 .reminder-preset:last-child { border-right: 0; }
 .reminder-preset:hover { background: var(--surface-quiet); }
+.reminder-preset:focus-visible, .reminder-toggle:focus-visible, .reminder-adjust-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .reminder-preset span { font-size: 12px; }
 .reminder-preset strong { color: var(--ink); font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .reminder-quick-setup { padding: 0 0 4px; }
@@ -1678,6 +1679,7 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-feature-section > div:first-child h3 { margin: 0; color: var(--ink); font-size: 16px; font-weight: 600; }
 .reminder-feature-section .bg-gradient-to-r { border-color: var(--line); }
 .reminder-feature-section button[role="switch"] { flex: 0 0 auto; outline-offset: 3px; }
+.reminder-feature-section button[role="switch"][aria-checked="true"] { background: var(--brand-action) !important; }
 .reminder-notification-status { border-radius: 8px !important; box-shadow: none !important; }
 .reminder-time-row {
   padding: 12px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
@@ -1703,6 +1705,9 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-adjust-action { min-height: 36px; border-color: var(--line-strong) !important; border-radius: 6px !important; background: var(--surface) !important; color: var(--brand) !important; }
 .reminder-enable-action { min-height: 46px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
 .reminder-enable-action:disabled, .reminder-toggle:disabled { cursor: wait; opacity: .62; }
+.reminder-ios-notice { padding: 14px !important; border: 1px solid var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; }
+.reminder-ios-notice > div > div > p:first-child { color: var(--ink-secondary) !important; }
+.reminder-ios-notice > div > div > :is(p, ol) { color: var(--ink-muted) !important; }
 .reminder-feedback { padding: 11px 14px !important; border-color: var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; text-align: left !important; }
 .reminder-feedback--error { border-color: #c6a5a1 !important; background: #f7f2f1 !important; }
 .reminder-feedback--error p { color: #754641 !important; }
@@ -1714,10 +1719,10 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-help-note ul { padding-left: 16px; list-style: disc; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .reminder-adjust-action:hover { border-color: var(--brand) !important; background: var(--surface-quiet) !important; }
-  .reminder-enable-action:hover { filter: brightness(1.05); }
+  .reminder-enable-action:hover { background: var(--brand-hover) !important; transform: translateY(-1px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reminder-toggle, .reminder-toggle > div { transition: none !important; }
+  .reminder-toggle, .reminder-toggle > div, .reminder-enable-action { transition: none !important; }
 }
 .reminder-empty-state { padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .reminder-empty-state p { margin: 0; }

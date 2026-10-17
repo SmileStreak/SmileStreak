@@ -530,7 +530,7 @@ export default function Reminders() {
 
       {/* iOS Home Screen Notice — only show if on iOS and NOT standalone */}
       {isIOS && window.navigator.standalone !== true && (
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
+        <div className="reminder-ios-notice bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
           <div className="flex items-start gap-3">
             <Smartphone className="w-5 h-5 text-slate-600 flex-shrink-0" aria-hidden="true" />
             <div>
