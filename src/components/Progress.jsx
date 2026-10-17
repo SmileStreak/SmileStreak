@@ -2,7 +2,7 @@ import WeeklyCalendar from "./WeeklyCalendar";
 import { ACHIEVEMENTS } from "../data";
 import { calculateStreaks } from "../utils/progress";
 import { getDateKey } from "../utils/date";
-import { Trophy, Lock, Sparkles, CheckCircle2 } from "lucide-react";
+import { Trophy, Lock, Sparkles, CheckCircle2, Sun, Moon, Brush } from "lucide-react";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -276,21 +276,24 @@ export default function Progress({ habitData }) {
           onClick={() => setTooltip(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 w-64 mx-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="progress-day-title"
+            className="progress-day-dialog bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 w-64 mx-4"
             onClick={e => e.stopPropagation()}
           >
-            <p className="text-xs font-black text-gray-900 mb-2">{formatTooltipDate(tooltip.cell.date)}</p>
+            <p id="progress-day-title" className="text-xs font-black text-gray-900 mb-2">{formatTooltipDate(tooltip.cell.date)}</p>
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">🪥 Morning</span>
+                <span className="flex items-center gap-2 text-xs text-gray-600"><Sun size={14} aria-hidden="true" /> Morning</span>
                 <span className={`text-xs font-bold ${tooltip.cell.morning ? "text-green-600" : "text-red-400"}`}>{tooltip.cell.morning ? "✓" : "✗"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">🌙 Night</span>
+                <span className="flex items-center gap-2 text-xs text-gray-600"><Moon size={14} aria-hidden="true" /> Night</span>
                 <span className={`text-xs font-bold ${tooltip.cell.night ? "text-green-600" : "text-red-400"}`}>{tooltip.cell.night ? "✓" : "✗"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">🧵 Floss</span>
+                <span className="flex items-center gap-2 text-xs text-gray-600"><Brush size={14} aria-hidden="true" /> Floss</span>
                 <span className={`text-xs font-bold ${tooltip.cell.floss ? "text-green-600" : "text-red-400"}`}>{tooltip.cell.floss ? "✓" : "✗"}</span>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-gray-100">
@@ -298,7 +301,7 @@ export default function Progress({ habitData }) {
                 <span className="text-xs font-black text-blue-600">{tooltip.cell.count}/3</span>
               </div>
             </div>
-            <button onClick={() => setTooltip(null)} className="w-full mt-3 py-2 text-xs text-gray-400 hover:bg-gray-50 rounded-xl font-semibold">Close</button>
+            <button onClick={() => setTooltip(null)} className="progress-tooltip-close w-full mt-3 py-2 text-xs text-gray-600 hover:bg-gray-50 rounded-xl font-semibold">Close</button>
           </div>
         </div>
       )}
@@ -310,19 +313,19 @@ export default function Progress({ habitData }) {
           className="fixed z-50 pointer-events-none"
           style={{ top: tooltip.y - 130, left: Math.min(tooltip.x, window.innerWidth - 180) }}
         >
-          <div className="bg-gray-900 text-white rounded-xl p-3 shadow-xl w-44">
+          <div className="progress-day-tooltip bg-gray-900 text-white rounded-xl p-3 shadow-xl w-44" aria-hidden="true">
             <p className="text-[10px] font-bold mb-1.5">{formatTooltipDate(tooltip.cell.date)}</p>
             <div className="space-y-1">
               <div className="flex justify-between text-[10px]">
-                <span>🪥 Morning</span>
+                <span className="flex items-center gap-1.5"><Sun size={12} aria-hidden="true" /> Morning</span>
                 <span className={tooltip.cell.morning ? "text-green-400" : "text-red-400"}>{tooltip.cell.morning ? "✓" : "✗"}</span>
               </div>
               <div className="flex justify-between text-[10px]">
-                <span>🌙 Night</span>
+                <span className="flex items-center gap-1.5"><Moon size={12} aria-hidden="true" /> Night</span>
                 <span className={tooltip.cell.night ? "text-green-400" : "text-red-400"}>{tooltip.cell.night ? "✓" : "✗"}</span>
               </div>
               <div className="flex justify-between text-[10px]">
-                <span>🧵 Floss</span>
+                <span className="flex items-center gap-1.5"><Brush size={12} aria-hidden="true" /> Floss</span>
                 <span className={tooltip.cell.floss ? "text-green-400" : "text-red-400"}>{tooltip.cell.floss ? "✓" : "✗"}</span>
               </div>
               <div className="flex justify-between text-[10px] pt-1 border-t border-white/20">
@@ -402,12 +405,15 @@ export default function Progress({ habitData }) {
           onClick={() => setSelectedAchievement(null)}
         >
           <div
-            className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-[scaleBounce_0.3s_ease-out]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="achievement-dialog-title"
+            className="progress-achievement-dialog bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-[scaleBounce_0.3s_ease-out]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
               <CheckCircle2 className="mx-auto mb-3 h-7 w-7 text-[var(--brand)]" aria-hidden="true" />
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">{selectedAchievement.label}</h3>
+              <h3 id="achievement-dialog-title" className="text-xl font-semibold text-slate-900 mb-2">{selectedAchievement.label}</h3>
               <p className="mb-4 text-sm text-slate-600">
                 {texts.unlocked || "Unlocked"} after {selectedAchievement.requirement} {texts.days || "days"}
               </p>

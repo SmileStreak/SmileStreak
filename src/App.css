@@ -1203,6 +1203,19 @@ html.dark .today-week-section .bg-slate-100 {
 
 .heatmap-cell { transition: transform 160ms var(--motion-out), background-color 160ms ease-out; }
 .heatmap-cell:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.progress-day-dialog, .progress-achievement-dialog { border-radius: 9px !important; box-shadow: 0 6px 20px rgb(0 0 0 / .04) !important; }
+.progress-day-dialog { max-width: min(100%, 320px); }
+.progress-day-dialog > p, .progress-achievement-dialog h3 { font-family: "Newsreader Variable", Georgia, serif; font-size: 20px; font-weight: 500; }
+.progress-tooltip-close { border: 1px solid var(--line); border-radius: 6px !important; }
+.progress-day-tooltip { border: 1px solid rgb(255 255 255 / .14); border-radius: 7px !important; box-shadow: none !important; }
+.progress-achievement-dialog button { border-radius: 7px !important; box-shadow: none !important; }
+html.dark .progress-day-tooltip { border-color: #43505a; background: #202b34 !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .progress-tooltip-close:hover, .progress-achievement-dialog button:hover { filter: brightness(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heatmap-cell, .progress-achievement-dialog button { transition: none; }
+}
 .heatmap-cell--0 { background: #edf0ef; }
 .heatmap-cell--1 { background: #d6e1df; }
 .heatmap-cell--2 { background: #a9c1bf; }
