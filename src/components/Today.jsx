@@ -6,7 +6,8 @@ import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
 Clock, CheckCircle2, Circle, Share2, Heart, BookOpen, Zap, Sun, Moon, Brush,
-ShieldCheck, Crown, Trophy, Sparkles, Star, CalendarDays, Calendar, Smile
+ShieldCheck, Crown, Trophy, Sparkles, Star, CalendarDays, Calendar, Smile,
+RotateCcw, Ruler, Timer, Apple, Droplets, Activity, CircleDot
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -115,14 +116,14 @@ timestamp: Date.now(),
 };
 
 const DENTAL_TIPS_EN = [
-{ title: "Circular Motion",    body: "Use small circular strokes rather than scrubbing — gentler on enamel and reaches the gum line better.", icon: "🔄" },
-{ title: "45° Angle",          body: "Tilt your brush at 45° to the gum line so bristles slip just under the gums where plaque hides.", icon: "📐" },
-{ title: "Two Full Minutes",   body: "Spend 30 seconds per quadrant. Most people only brush for 45 seconds — a timer makes a real difference.", icon: "⏱️" },
-{ title: "Brush Your Tongue",  body: "Your tongue harbours bacteria that cause bad breath. Give it a gentle brush or scrape each time.", icon: "👅" },
-{ title: "Wait After Eating",  body: "Wait 30 minutes after meals before brushing — acidic food softens enamel and brushing too soon wears it away.", icon: "🍎" },
-{ title: "Stay Hydrated",      body: "Water washes away food particles and prevents dry mouth, a leading cause of cavities.", icon: "💧" },
-{ title: "Replace Your Brush", body: "Swap your toothbrush every 3–4 months or when bristles splay — a worn brush cleans far less effectively.", icon: "🪥" },
-{ title: "Clean between teeth daily", body: "The ADA recommends cleaning between your teeth once a day. Flossing can happen before or after brushing.", icon: "🧵" },
+{ title: "Circular Motion",    body: "Use small circular strokes rather than scrubbing — gentler on enamel and reaches the gum line better.", icon: RotateCcw },
+{ title: "45° Angle",          body: "Tilt your brush at 45° to the gum line so bristles slip just under the gums where plaque hides.", icon: Ruler },
+{ title: "Two Full Minutes",   body: "Spend 30 seconds per quadrant. Most people only brush for 45 seconds — a timer makes a real difference.", icon: Timer },
+{ title: "Brush Your Tongue",  body: "Your tongue harbours bacteria that cause bad breath. Give it a gentle brush or scrape each time.", icon: Smile },
+{ title: "Wait After Eating",  body: "Wait 30 minutes after meals before brushing — acidic food softens enamel and brushing too soon wears it away.", icon: Apple },
+{ title: "Stay Hydrated",      body: "Water washes away food particles and prevents dry mouth, a leading cause of cavities.", icon: Droplets },
+{ title: "Replace Your Brush", body: "Swap your toothbrush every 3–4 months or when bristles splay — a worn brush cleans far less effectively.", icon: Brush },
+{ title: "Clean between teeth daily", body: "The ADA recommends cleaning between your teeth once a day. Flossing can happen before or after brushing.", icon: CircleDot },
 ];
 
 const MOOD_OPTIONS = [
@@ -1033,7 +1034,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
         <p>{T("Tip of the Day")}</p>
       </div>
       <div className="today-tip-note__body">
-        <span aria-hidden="true">{tip.icon}</span>
+        <tip.icon className="today-tip-icon" aria-hidden="true" />
         <div>
           <h3>{tip.title}</h3>
           <p>{tip.body}</p>
@@ -1045,7 +1046,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 <div className="today-brushing-accordion bg-white rounded-3xl shadow-lg border border-blue-100 overflow-hidden">
     <button aria-expanded={tipsOpen} aria-controls="today-brushing-tips" className="w-full p-5 flex items-center justify-between press group" onClick={() => setTipsOpen(!tipsOpen)}>
       <div className="flex items-center gap-2">
-        <span className="text-xl">🪥</span>
+        <Brush className="today-section-icon" aria-hidden="true" />
         <p className="font-bold text-gray-900">{T("All Brushing Tips")}</p>
       </div>
       <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
@@ -1058,7 +1059,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
       <div id="today-brushing-tips" className="today-tips-list">
         {translatedTips.map((tip, i) => (
           <div key={i} className="today-tip-row">
-            <span aria-hidden="true">{tip.icon}</span>
+            <tip.icon className="today-tip-icon" aria-hidden="true" />
             <div>
               <h3>{tip.title}</h3>
               <p>{tip.body}</p>

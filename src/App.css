@@ -1003,7 +1003,7 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   align-items: flex-start;
   gap: 12px;
 }
-.today-tip-note__body > span { flex: 0 0 auto; font-size: 20px; line-height: 1.2; }
+.today-tip-icon { flex: 0 0 17px; width: 17px; height: 17px; margin-top: 2px; color: var(--brand); stroke-width: 1.7; }
 .today-tip-note__body h3 { margin: 0; color: var(--ink-secondary); font-size: 15px; font-weight: 600; }
 .today-tip-note__body p { margin: 4px 0 0; color: var(--ink-muted); font-size: 13px; line-height: 1.55; }
 .today-tips-list {
@@ -1023,7 +1023,7 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
   border-bottom: 1px solid var(--line);
 }
 .today-tip-row:last-child { border-bottom: 0; }
-.today-tip-row > span { flex: 0 0 auto; font-size: 18px; }
+.today-tip-row > .today-tip-icon { margin-top: 1px; }
 .today-tip-row h3 { margin: 0; color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
 .today-tip-row p { margin: 3px 0 0; color: var(--ink-muted); font-size: 12px; line-height: 1.55; }
 @media (prefers-reduced-motion: reduce) {
