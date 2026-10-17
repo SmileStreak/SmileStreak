@@ -37,6 +37,14 @@ const getInsuranceEstimate = () => ({
 
 const procedures = ["cleaning", "filling", "crown", "rootCanal", "extraction", "implant", "whitening"];
 
+const dentistPhotoFallback = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#f1f4f5"/><g fill="none" stroke="#74828a" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"><rect x="128" y="116" width="144" height="112" rx="8"/><circle cx="174" cy="154" r="13"/><path d="m136 214 48-43 37 32 21-19 22 24"/></g><text x="200" y="278" fill="#626b73" font-family="Arial,sans-serif" font-size="20" text-anchor="middle">Photo unavailable</text></svg>`)}`;
+
+const handleDentistPhotoError = (event) => {
+  event.currentTarget.onerror = null;
+  event.currentTarget.alt = "Photo unavailable";
+  event.currentTarget.src = dentistPhotoFallback;
+};
+
 // Procedure recommendations based on symptoms
 const discussionTopics = ["Tooth pain", "Sensitivity", "Chipped tooth", "Missing tooth", "Tooth color", "Bleeding gums", "Bad breath", "Jaw discomfort"];
 
@@ -829,10 +837,7 @@ const askAIAssistant = async () => {
                         return photoUrl ? (
                           <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setSelectedPhotoGoogleMapsUri(photo.googleMapsUri || null); setShowPhotoModal(true); }} className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden hover:scale-105 transition-transform">
                             <img src={photoUrl} alt={`${d.name} photo ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" 
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "https://via.placeholder.com/400x400/4f46e5/ffffff?text=Dental+Clinic";
-                              }}
+                              onError={handleDentistPhotoError}
                             />
                           </button>
                         ) : null;
@@ -1176,10 +1181,7 @@ const askAIAssistant = async () => {
                       return photoUrl ? (
                         <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setSelectedPhotoGoogleMapsUri(photo.googleMapsUri || null); setShowPhotoModal(true); }} className="aspect-square rounded-xl overflow-hidden hover:scale-105 transition-transform">
                           <img src={photoUrl} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" 
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "https://via.placeholder.com/400x400/4f46e5/ffffff?text=Dental+Clinic";
-                            }}
+                                onError={handleDentistPhotoError}
                           />
                         </button>
                       ) : null;
