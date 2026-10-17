@@ -1455,7 +1455,7 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .mission-heading h2 {
   margin: 0 0 5px;
   color: var(--ink);
-  font-family: "Newsreader", Georgia, serif;
+  font-family: "Newsreader Variable", Georgia, serif;
   font-size: 34px;
   font-weight: 500;
   letter-spacing: -0.035em;
@@ -1472,7 +1472,7 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .mission-editorial h3, .mission-features h3, .mission-principles h3,
 .mission-research h3, .mission-involved h3 {
   color: var(--ink);
-  font-family: "Newsreader", Georgia, serif;
+  font-family: "Newsreader Variable", Georgia, serif;
   font-size: 22px;
   font-weight: 500;
   letter-spacing: -0.02em;
