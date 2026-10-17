@@ -73,6 +73,7 @@ export default function App() {
     catch { return null; }
   });
   const [analyticsPreferenceNotice, setAnalyticsPreferenceNotice] = useState("");
+  const [savingAnalyticsChoice, setSavingAnalyticsChoice] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -163,6 +164,8 @@ export default function App() {
   };
 
   const chooseAnalytics = async (allowed) => {
+    if (savingAnalyticsChoice) return;
+    setSavingAnalyticsChoice(true);
     setAnalyticsPreferenceNotice("");
     try {
       const saved = await setAnalyticsConsent(allowed);
@@ -178,6 +181,8 @@ export default function App() {
       setAnalyticsPreferenceNotice(allowed
         ? "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
         : "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
+    } finally {
+      setSavingAnalyticsChoice(false);
     }
   };
 
@@ -986,7 +991,7 @@ export default function App() {
                   {activeTab === "report" && <Report habitData={habitData} />}
                   {activeTab === "insights" && <Insights habitData={habitData} />}
                   {activeTab === "mission" && <Mission />}
-                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} analyticsChoice={analyticsChoice} />}
+                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} analyticsChoice={analyticsChoice} savingAnalyticsChoice={savingAnalyticsChoice} />}
                 </Suspense>
               </div>
             </main>
@@ -1013,10 +1018,11 @@ export default function App() {
                       SmileStreak stores app settings and progress in your browser. Optional Firebase Analytics may use analytics cookies or identifiers to understand app use; it stays off unless you allow it. You can change your choice in Cookie preferences.
                     </p>
                     {analyticsPreferenceNotice && <p role="status" className="mt-2 text-sm">{analyticsPreferenceNotice}</p>}
+                    {savingAnalyticsChoice && <p role="status" className="mt-2 text-sm">Saving your preference…</p>}
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">
-                    <button type="button" onClick={() => chooseAnalytics(false)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Reject optional analytics</button>
-                    <button type="button" onClick={() => chooseAnalytics(true)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Accept optional analytics</button>
+                    <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => chooseAnalytics(false)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 disabled:cursor-wait disabled:opacity-60 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Reject optional analytics</button>
+                    <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => chooseAnalytics(true)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 disabled:cursor-wait disabled:opacity-60 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Accept optional analytics</button>
                   </div>
                 </div>
               </aside>
