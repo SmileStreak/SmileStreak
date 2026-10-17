@@ -2116,6 +2116,22 @@ html.dark .reminder-feedback--success p { color: #c3d6c8 !important; }
 .dentists-heading > div:first-child p { max-width: 52ch; line-height: 1.5; }
 .dentists-toolbar { min-width: 0; }
 .dentists-toolbar__items { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.dentists-tools-menu { position: relative; }
+.dentists-tools-menu > summary { list-style: none; cursor: pointer; }
+.dentists-tools-menu > summary::-webkit-details-marker { display: none; }
+.dentists-tools-menu > summary > svg { transition: transform 180ms ease-out; }
+.dentists-tools-menu[open] > summary { border-color: var(--brand) !important; background: var(--surface-quiet) !important; color: var(--brand) !important; }
+.dentists-tools-menu[open] > summary > svg { transform: rotate(180deg); }
+.dentists-tools-menu__panel {
+  position: absolute; z-index: 5; top: calc(100% + 6px); right: 0; width: max-content; min-width: 200px;
+  padding: 4px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface);
+  box-shadow: 0 4px 12px rgb(42 42 42 / .04); animation: dentists-filter-enter 140ms var(--motion-out) both;
+}
+.dentists-tools-menu__item { display: flex; width: 100%; min-height: 38px; align-items: center; gap: 9px; padding: 8px 9px; border: 0; border-radius: 4px; background: transparent; color: var(--ink-secondary); font-size: 12px; text-align: left; cursor: pointer; }
+.dentists-tools-menu__item svg { width: 15px; height: 15px; color: var(--ink-muted); }
+.dentists-tools-menu__item:hover { background: var(--surface-quiet); }
+.dentists-tools-menu__item:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.dentists-tools-menu summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .dentists-tool-button {
   display: inline-flex; min-height: 38px; align-items: center; justify-content: center;
   gap: 7px; padding: 7px 10px; border: 1px solid var(--line) !important; border-radius: 6px !important;
@@ -2596,5 +2612,5 @@ html.dark .dentist-feature-badge, html.dark .dentist-detail-chip { border-color:
   .dentists-dialog button { transition: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dentists-tool-button, .dentists-filter-panel, .dentists-filter-panel button, .app-page--dentists .dentist-result__photos button { transition: none; animation: none !important; }
+  .dentists-tool-button, .dentists-tools-menu__panel, .dentists-tools-menu > summary > svg, .dentists-filter-panel, .dentists-filter-panel button, .app-page--dentists .dentist-result__photos button { transition: none; animation: none !important; }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useMemo, useRef } from "react";
 import {
-  MapPin, Star, Clock, Heart, Phone, ChevronRight, TrendingUp, Award,
+  MapPin, Star, Clock, Heart, Phone, ChevronRight, ChevronDown, TrendingUp, Award,
   Navigation, X, CheckCircle2, AlertCircle, Calendar, Users,
   DollarSign, Filter, Search, Sliders, Globe, Car,
   Menu, BarChart3, Sparkles, Shield, HelpCircle, AlertTriangle,
@@ -134,7 +134,7 @@ export default function Dentists() {
     askQuestion: "Ask a question", costQuestions: "Cost questions", planVisit: "Plan a visit", compareLabel: "Compare",
     compareSelected: "selected dentists for comparison", savedDentistsAction: "Show saved dentists",
     toggleFilters: "Toggle dentist filters", searchDentists: "Search dentists by name",
-    searchPlaceholder: "Search by dentist name", directoryActions: "Dentist directory actions",
+    searchPlaceholder: "Search by dentist name", directoryActions: "Dentist directory actions", moreTools: "More tools",
     savedShortLabel: "Saved",
     clearAllFilters: "Clear All", minRatingLabel: "Minimum Rating",
     basicFilters: "Basic Filters", accessibilityFeatures: "Accessibility Features",
@@ -529,30 +529,28 @@ const askAIAssistant = async () => {
             </div>
             <div className="dentists-toolbar" role="group" aria-label={translatedText.directoryActions || "Dentist directory actions"}>
               <div className="dentists-toolbar__items">
-                <button
-                  onClick={() => setShowAIAssistant(!showAIAssistant)}
-                  className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative"
-                  title={translatedText.askQuestion || "Ask a question"}
-                  aria-label={translatedText.askQuestion || "Ask a question"}
-                >
-                  <Bot className="w-4 h-4" /><span>{translatedText.askQuestion || "Ask a question"}</span>
-                </button>
-                <button
-                  onClick={() => setShowPriceEstimator(!showPriceEstimator)}
-                  className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50"
-                  title={translatedText.costQuestions || "Cost questions"}
-                  aria-label={translatedText.costQuestions || "Cost questions"}
-                >
-                  <DollarSign className="w-4 h-4" /><span>{translatedText.costQuestions || "Cost questions"}</span>
-                </button>
-                <button
-                  onClick={() => setShowTreatmentPlanner(!showTreatmentPlanner)}
-                  className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50"
-                  title={translatedText.planVisit || "Plan a visit"}
-                  aria-label={translatedText.planVisit || "Plan a visit"}
-                >
-                  <Calendar className="w-4 h-4" /><span>{translatedText.planVisit || "Plan a visit"}</span>
-                </button>
+                <details className="dentists-tools-menu" onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    event.currentTarget.open = false;
+                    event.currentTarget.querySelector("summary")?.focus();
+                  }
+                }}>
+                  <summary className="dentists-tool-button">
+                    <span>{translatedText.moreTools || "More tools"}</span><ChevronDown aria-hidden="true" />
+                  </summary>
+                  <div className="dentists-tools-menu__panel">
+                    <button type="button" className="dentists-tools-menu__item" onClick={(event) => { setShowAIAssistant(!showAIAssistant); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+                      <Bot aria-hidden="true" /><span>{translatedText.askQuestion || "Ask a question"}</span>
+                    </button>
+                    <button type="button" className="dentists-tools-menu__item" onClick={(event) => { setShowPriceEstimator(!showPriceEstimator); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+                      <DollarSign aria-hidden="true" /><span>{translatedText.costQuestions || "Cost questions"}</span>
+                    </button>
+                    <button type="button" className="dentists-tools-menu__item" onClick={(event) => { setShowTreatmentPlanner(!showTreatmentPlanner); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+                      <Calendar aria-hidden="true" /><span>{translatedText.planVisit || "Plan a visit"}</span>
+                    </button>
+                  </div>
+                </details>
                 {selectedForCompare.length > 0 && (
                   <button onClick={() => setShowCompare(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`${selectedForCompare.length} ${translatedText.compareSelected || "selected dentists for comparison"}`}>
                     <BarChart3 className="w-4 h-4" /><span>{translatedText.compareLabel || "Compare"}</span>
