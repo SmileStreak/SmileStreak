@@ -7,6 +7,7 @@ const moreTabs = ["Tips", "Scan", "Dentists", "Insights", "Report", "Mission", "
 
 export default function NavTabs({ activeTab, setActiveTab }) {
  const [showMore, setShowMore] = useState(false);
+ const [moreMenuPosition, setMoreMenuPosition] = useState({ top: 0, left: 0 });
  const moreRef = useRef(null);
 
  const isMoreActive = moreTabs.map(t => t.toLowerCase()).includes(activeTab);
@@ -35,6 +36,21 @@ export default function NavTabs({ activeTab, setActiveTab }) {
    return () => {
      document.removeEventListener("mousedown", handleClickOutside);
      document.removeEventListener("keydown", handleEscape);
+   };
+ }, [showMore]);
+
+ useEffect(() => {
+   if (!showMore) return;
+   const updatePosition = () => {
+     const rect = moreRef.current?.querySelector("#more-tabs-trigger")?.getBoundingClientRect();
+     if (rect) setMoreMenuPosition({ top: rect.bottom + 8, left: rect.left });
+   };
+   updatePosition();
+   window.addEventListener("resize", updatePosition);
+   window.addEventListener("scroll", updatePosition, true);
+   return () => {
+     window.removeEventListener("resize", updatePosition);
+     window.removeEventListener("scroll", updatePosition, true);
    };
  }, [showMore]);
 
@@ -81,15 +97,8 @@ export default function NavTabs({ activeTab, setActiveTab }) {
            <div
             id="more-tabs-menu"
             data-origin="bottom-left"
-            className="t-dropdown fixed z-[9999] bg-white rounded-lg border border-gray-200 p-2 flex flex-col gap-1 min-w-[160px]"
-             style={{
-               top: moreRef.current
-                 ? moreRef.current.getBoundingClientRect().bottom + 8
-                 : 0,
-               left: moreRef.current
-                 ? moreRef.current.getBoundingClientRect().left
-                 : 0,
-             }}
+             className="t-dropdown fixed z-[9999] max-h-[min(70dvh,420px)] min-w-[160px] overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-white p-2 flex flex-col gap-1"
+             style={moreMenuPosition}
            >
              {moreTabs.map((tab) => {
                const active = activeTab === tab.toLowerCase();
