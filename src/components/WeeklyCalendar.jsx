@@ -2,19 +2,25 @@ import { useContext, useEffect, useState } from "react";
 import { TranslationContext } from "../App";
 import { getDateKey } from "../utils/date";
 import { Check } from "lucide-react";
+import { translateBatch } from "../utils/translate.js";
 
 export default function WeeklyCalendar({ habitData }) {
-  const { t, currentLanguage } = useContext(TranslationContext);
+  const { currentLanguage } = useContext(TranslationContext);
   const [title, setTitle] = useState("Last 7 days");
+  const [completionSummary, setCompletionSummary] = useState("of 3 habits completed");
   const today = new Date();
 
   useEffect(() => {
     let active = true;
-    t("Last 7 days").then((translated) => {
-      if (active) setTitle(translated);
-    }).catch((error) => console.warn("Could not translate weekly calendar heading:", error));
+    translateBatch(["Last 7 days", "of 3 habits completed"], currentLanguage, "en")
+      .then(([translatedTitle, translatedSummary]) => {
+        if (!active) return;
+        setTitle(translatedTitle);
+        setCompletionSummary(translatedSummary);
+      })
+      .catch((error) => console.warn("Could not translate weekly calendar labels:", error));
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   const days = [...Array(7)].map((_, i) => {
     const d = new Date();
@@ -54,8 +60,8 @@ export default function WeeklyCalendar({ habitData }) {
             <div
               key={key}
               role="group"
-              aria-label={`${dateLabel}: ${completedCount} of 3 habits completed`}
-              title={`${dateLabel} · ${completedCount} of 3 habits`}
+              aria-label={`${dateLabel}: ${completedCount} ${completionSummary}`}
+              title={`${dateLabel} · ${completedCount} ${completionSummary}`}
               className={`flex min-w-0 flex-col items-center gap-1.5 rounded-lg px-1 py-2 ${isToday ? "weekly-calendar__today" : "bg-transparent"}`}
             >
               <span className={`text-[11px] ${isToday ? "font-semibold text-slate-900" : "text-slate-600"}`}>
