@@ -130,7 +130,16 @@ export default function Dentists() {
     medicaidLabel: "Medicaid", orthodonticsLabel: "Orthodontics", kidsFriendlyLabel: "Kids friendly",
     anxietyFriendlyLabel: "Anxiety friendly", sedationLabel: "Sedation", cardsAcceptedLabel: "Cards accepted",
     wheelchairAccessLabel: "Wheelchair access", reviews: "reviews", notListed: "Not listed",
-    listed: "Listed", providerListed: "Provider listed", remove: "Remove"
+    listed: "Listed", providerListed: "Provider listed", remove: "Remove",
+    askQuestion: "Ask a question", costQuestions: "Cost questions", planVisit: "Plan a visit", compareLabel: "Compare",
+    compareSelected: "selected dentists for comparison", savedDentistsAction: "Show saved dentists",
+    toggleFilters: "Toggle dentist filters", searchDentists: "Search dentists by name",
+    closeQuestionAssistant: "Close dental question assistant", closeCostQuestions: "Close treatment cost questions",
+    closeVisitPrep: "Close dental visit prep", dentalOfficePhoto: "Dental office photo",
+    closeOfficePhoto: "Close dental office photo", officePhotoFromMaps: "Dental office photo from Google Maps",
+    photoBy: "Photo by", closeDentistDetails: "Close dentist details",
+    closeSavedDentists: "Close saved dentists", closeComparison: "Close dentist comparison",
+    comparisonRegion: "Dentist comparison", insurancePlanNote: "Google Maps lists insurance payments; ask the office whether your specific plan is accepted."
   };
 
   useEffect(() => {
@@ -512,47 +521,47 @@ const askAIAssistant = async () => {
                 <button
                   onClick={() => setShowAIAssistant(!showAIAssistant)}
                   className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative"
-                  title="AI Assistant"
-                  aria-label="Open dental question assistant"
+                  title={translatedText.askQuestion || "Ask a question"}
+                  aria-label={translatedText.askQuestion || "Ask a question"}
                 >
-                  <Bot className="w-4 h-4" /><span>Ask a question</span>
+                  <Bot className="w-4 h-4" /><span>{translatedText.askQuestion || "Ask a question"}</span>
                 </button>
                 <button
                   onClick={() => setShowPriceEstimator(!showPriceEstimator)}
                   className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50"
-                  title="Treatment cost questions"
-                  aria-label="Open treatment cost estimator"
+                  title={translatedText.costQuestions || "Cost questions"}
+                  aria-label={translatedText.costQuestions || "Cost questions"}
                 >
-                  <DollarSign className="w-4 h-4" /><span>Cost questions</span>
+                  <DollarSign className="w-4 h-4" /><span>{translatedText.costQuestions || "Cost questions"}</span>
                 </button>
                 <button
                   onClick={() => setShowTreatmentPlanner(!showTreatmentPlanner)}
                   className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50"
-                  title="Dental visit prep"
-                  aria-label="Open dental visit planner"
+                  title={translatedText.planVisit || "Plan a visit"}
+                  aria-label={translatedText.planVisit || "Plan a visit"}
                 >
-                  <Calendar className="w-4 h-4" /><span>Plan a visit</span>
+                  <Calendar className="w-4 h-4" /><span>{translatedText.planVisit || "Plan a visit"}</span>
                 </button>
                 {selectedForCompare.length > 0 && (
-                  <button onClick={() => setShowCompare(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Compare ${selectedForCompare.length} selected dentists`}>
-                    <BarChart3 className="w-4 h-4" /><span>Compare</span>
+                  <button onClick={() => setShowCompare(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`${selectedForCompare.length} ${translatedText.compareSelected || "selected dentists for comparison"}`}>
+                    <BarChart3 className="w-4 h-4" /><span>{translatedText.compareLabel || "Compare"}</span>
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{selectedForCompare.length}</span>
                   </button>
                 )}
                 {favorites.length > 0 && (
-                  <button onClick={() => setShowFavorites(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Show ${favorites.length} saved dentists`}>
+                  <button onClick={() => setShowFavorites(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`${translatedText.savedDentistsAction || "Show saved dentists"}: ${favorites.length}`}>
                     <Heart className="w-4 h-4 fill-current text-slate-700" /><span>Saved</span>
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{favorites.length}</span>
                   </button>
                 )}
-                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label="Toggle dentist filters" aria-expanded={showFilters}>
+                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label={translatedText.toggleFilters || "Toggle dentist filters"} aria-expanded={showFilters}>
                   <Filter className="w-4 h-4" /><span>Filters</span>
                 </button>
               </div>
             </div>
           </div>
           <div className="dentists-search relative">
-            <label htmlFor="dentist-search" className="sr-only">Search dentists by name</label>
+            <label htmlFor="dentist-search" className="sr-only">{translatedText.searchDentists || "Search dentists by name"}</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" aria-hidden="true" />
             <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by dentist name" className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
           </div>
@@ -575,7 +584,7 @@ const askAIAssistant = async () => {
                 <Bot className="w-6 h-6 text-blue-600" />
                 <h3 id="dentist-assistant-title" className="text-2xl font-black text-gray-900">Dental AI Assistant</h3>
               </div>
-              <button onClick={() => { setShowAIAssistant(false); setAiResponse(""); setAiQuery(""); }} className="text-gray-400 hover:text-gray-600" aria-label="Close dental question assistant">
+              <button onClick={() => { setShowAIAssistant(false); setAiResponse(""); setAiQuery(""); }} className="text-gray-400 hover:text-gray-600" aria-label={translatedText.closeQuestionAssistant || "Close dental question assistant"}>
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -628,7 +637,7 @@ const askAIAssistant = async () => {
                 <DollarSign className="w-6 h-6 text-blue-600" />
                 <h3 id="treatment-cost-title" className="text-2xl font-black text-gray-900">Treatment cost questions</h3>
               </div>
-              <button aria-label="Close treatment cost questions" onClick={() => setShowPriceEstimator(false)} className="text-gray-400 hover:text-gray-600">
+              <button aria-label={translatedText.closeCostQuestions || "Close treatment cost questions"} onClick={() => setShowPriceEstimator(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -673,7 +682,7 @@ const askAIAssistant = async () => {
                 <Calendar className="w-6 h-6 text-blue-600" />
                 <h3 id="visit-prep-title" className="text-2xl font-black text-gray-900">Dental visit prep</h3>
               </div>
-              <button aria-label="Close dental visit prep" onClick={() => setShowTreatmentPlanner(false)} className="text-gray-400 hover:text-gray-600">
+              <button aria-label={translatedText.closeVisitPrep || "Close dental visit prep"} onClick={() => setShowTreatmentPlanner(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -946,7 +955,7 @@ const askAIAssistant = async () => {
                       </span>
                     )}
                       {d.paymentOptions?.insurance && (
-                      <span title="Google Maps lists insurance payments; ask the office whether your specific plan is accepted." className="dentist-feature-badge">
+                      <span title={translatedText.insurancePlanNote || "Google Maps lists insurance payments; ask the office whether your specific plan is accepted."} className="dentist-feature-badge">
                         <Shield className="w-3 h-3" /> Insurance payment listed
                       </span>
                     )}
@@ -1013,13 +1022,13 @@ const askAIAssistant = async () => {
       {/* PHOTO MODAL */}
       <Presence open={showPhotoModal && selectedPhoto}>
 {showPhotoModal && selectedPhoto && (
-        <div className="t-modal-backdrop fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center gap-3 p-4" role="dialog" aria-modal="true" aria-label="Dental office photo" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}>
-          <button aria-label="Close dental office photo" className="absolute top-4 right-4 text-white hover:text-gray-300" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}><X className="w-8 h-8" /></button>
-          <img onClick={(event) => event.stopPropagation()} src={selectedPhoto} alt="Dental office photo from Google Maps" className="max-w-full max-h-[82vh] rounded-xl" />
+        <div className="t-modal-backdrop fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center gap-3 p-4" role="dialog" aria-modal="true" aria-label={translatedText.dentalOfficePhoto || "Dental office photo"} onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}>
+          <button aria-label={translatedText.closeOfficePhoto || "Close dental office photo"} className="absolute top-4 right-4 text-white hover:text-gray-300" onClick={() => { setShowPhotoModal(false); setSelectedPhoto(null); }}><X className="w-8 h-8" /></button>
+          <img onClick={(event) => event.stopPropagation()} src={selectedPhoto} alt={translatedText.officePhotoFromMaps || "Dental office photo from Google Maps"} className="max-w-full max-h-[82vh] rounded-xl" />
           <p className="max-w-full text-center text-sm text-white">
             {selectedPhotoAttributions.length ? selectedPhotoAttributions.map((author, index) => (
               <React.Fragment key={`${author.displayName}-${index}`}>
-                {index > 0 ? ", " : "Photo by "}
+                {index > 0 ? ", " : `${translatedText.photoBy || "Photo by"} `}
                 {author.uri ? <a href={author.uri} target="_blank" rel="noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a> : author.displayName}
               </React.Fragment>
             )) : ""} · {selectedPhotoGoogleMapsUri ? <a href={selectedPhotoGoogleMapsUri} target="_blank" rel="noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>View on Google Maps</a> : "Google Maps"}
@@ -1035,7 +1044,7 @@ const askAIAssistant = async () => {
           <div className="dentists-dialog bg-white rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl my-8" role="dialog" aria-modal={!showPhotoModal} aria-hidden={showPhotoModal} inert={showPhotoModal} aria-labelledby="dentist-details-title">
             <div className="flex items-center justify-between mb-6">
               <h3 id="dentist-details-title" className="text-2xl font-black text-gray-900">{selectedDentist.name}</h3>
-              <button aria-label="Close dentist details" onClick={() => setSelectedDentist(null)} className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100"><X className="w-6 h-6" /></button>
+              <button aria-label={translatedText.closeDentistDetails || "Close dentist details"} onClick={() => setSelectedDentist(null)} className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100"><X className="w-6 h-6" /></button>
             </div>
             <div className="space-y-6">
               {/* Basic Info */}
@@ -1227,7 +1236,7 @@ const askAIAssistant = async () => {
           <div className="dentists-dialog bg-white rounded-[2rem] max-w-lg w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="saved-dentists-title">
             <div className="flex items-center justify-between mb-6">
               <h3 id="saved-dentists-title" className="text-2xl font-black text-gray-900">{translatedText.savedDentists}</h3>
-              <button aria-label="Close saved dentists" onClick={() => setShowFavorites(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
+              <button aria-label={translatedText.closeSavedDentists || "Close saved dentists"} onClick={() => setShowFavorites(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
             </div>
             {favorites.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No saved dentists yet</p>
@@ -1262,9 +1271,9 @@ const askAIAssistant = async () => {
           <div className="dentists-dialog bg-white rounded-[2rem] max-w-4xl w-full p-8 max-h-[80vh] overflow-y-auto shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="compare-dentists-title">
             <div className="flex items-center justify-between mb-6">
               <h3 id="compare-dentists-title" className="text-2xl font-black text-gray-900">{translatedText.compareTitle || "Compare dentists"}</h3>
-              <button aria-label="Close dentist comparison" onClick={() => setShowCompare(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
+              <button aria-label={translatedText.closeComparison || "Close dentist comparison"} onClick={() => setShowCompare(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
             </div>
-            <div className="dentist-compare-scroll" role="region" aria-label="Dentist comparison" tabIndex={0}>
+            <div className="dentist-compare-scroll" role="region" aria-label={translatedText.comparisonRegion || "Dentist comparison"} tabIndex={0}>
               <table className="dentist-compare-table" style={{ minWidth: `${180 + 190 * selectedForCompare.length}px` }}>
                 <thead>
                   <tr>
