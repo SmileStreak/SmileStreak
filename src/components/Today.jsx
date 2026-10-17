@@ -147,6 +147,10 @@ const UI_STRINGS = [
 "Day Complete!", "Recovery streak saved!", "Today's Routine",
 "This Week", "Recovery Day!", "Complete all 3 tasks to restore your streak.",
 "Daily Tasks", "of 3 completed", "Use Timer", "Timer On",
+"Weekly routine completion", "of 3 tasks complete", "Daily tasks complete",
+"Today's aligner wear time", "Aligner treatment progress", "Aligner care reminders",
+"Progress toward next streak milestone", "days remaining", "Months until next appointment",
+"Custom days per tray",
 "Morning Brushing", "Night Brushing", "Interdental Care",
 "Brush in circular motions…", "Completed", "2 minutes recommended",
 "Floss", "Water Pick", "Interdental Brush",
@@ -746,9 +750,9 @@ return (
       <h3>{T("This Week")}</h3>
       <span>{T("Daily Tasks")}</span>
     </div>
-    <div className="today-week-chart flex justify-between items-end gap-2" role="group" aria-label="Weekly routine completion">
+    <div className="today-week-chart flex justify-between items-end gap-2" role="group" aria-label={T("Weekly routine completion")}>
       {weekDots.map((d, i) => (
-        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-current={d.isToday ? "date" : undefined} aria-label={`${d.fullLabel}: ${d.done} of 3 tasks complete${d.isToday ? ", today" : ""}`}>
+        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-current={d.isToday ? "date" : undefined} aria-label={`${d.fullLabel}: ${d.done} ${T("of 3 tasks complete")}${d.isToday ? `, ${T("Today")}` : ""}`}>
           <div className="today-week-day-bars w-full flex flex-col gap-0.5" aria-hidden="true">
             {[2,1,0].map(slot => (
               <div key={slot} className={`h-2 rounded-sm transition-colors duration-200 ${d.done > slot ? "bg-blue-600" : "bg-slate-100"}`} />
@@ -777,7 +781,7 @@ return (
 {/* ── DAILY TASKS ── */}
   <div className="today-task-panel bg-white rounded-3xl p-5 shadow-lg border border-blue-100 space-y-3">
     <div className="flex items-center gap-4 mb-2">
-      <div className="today-task-progress relative w-14 h-14 flex-shrink-0" role="progressbar" aria-label="Daily tasks complete" aria-valuemin="0" aria-valuemax="3" aria-valuenow={completedCount} aria-valuetext={`${completedCount} of 3 tasks complete`}>
+      <div className="today-task-progress relative w-14 h-14 flex-shrink-0" role="progressbar" aria-label={T("Daily tasks complete")} aria-valuemin="0" aria-valuemax="3" aria-valuenow={completedCount} aria-valuetext={`${completedCount} ${T("of 3 tasks complete")}`}>
         <svg className="w-full h-full -rotate-90" viewBox="0 0 56 56" aria-hidden="true">
           <circle cx="28" cy="28" r="22" fill="none" stroke="#e4eceb" strokeWidth="5" />
           <circle cx="28" cy="28" r="22" fill="none" stroke="#35666c" strokeWidth="5" strokeLinecap="round"
@@ -910,7 +914,7 @@ Log Dentist Visit
             {formatAlignerTime(alignerWornSeconds)} / {ALIGNER_GOAL_HOURS}h
           </span>
         </div>
-        <div className="today-aligner-track h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100 mb-1" role="progressbar" aria-label="Today's aligner wear time" aria-valuemin="0" aria-valuemax={ALIGNER_GOAL_HOURS} aria-valuenow={Math.min(ALIGNER_GOAL_HOURS, alignerWornHours)} aria-valuetext={`${formatAlignerTime(alignerWornSeconds)} of ${ALIGNER_GOAL_HOURS} hours`}>
+        <div className="today-aligner-track h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100 mb-1" role="progressbar" aria-label={T("Today's aligner wear time")} aria-valuemin="0" aria-valuemax={ALIGNER_GOAL_HOURS} aria-valuenow={Math.min(ALIGNER_GOAL_HOURS, alignerWornHours)} aria-valuetext={`${formatAlignerTime(alignerWornSeconds)} of ${ALIGNER_GOAL_HOURS} hours`}>
           <div className="h-full rounded-full transition-all duration-500" aria-hidden="true"
             style={{width:`${alignerPct}%`, background: alignerGoalReached ? "#708b79" : "#35666c"}} />
         </div>
@@ -940,7 +944,7 @@ Log Dentist Visit
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Treatment Progress</span>
             <span className="text-xs font-black text-blue-600">{alignerTrayProgress.treatmentPct}% complete</span>
           </div>
-          <div className="today-tray-track h-2 bg-blue-100 rounded-full overflow-hidden mb-3" role="progressbar" aria-label="Aligner treatment progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={alignerTrayProgress.treatmentPct}>
+          <div className="today-tray-track h-2 bg-blue-100 rounded-full overflow-hidden mb-3" role="progressbar" aria-label={T("Aligner treatment progress")} aria-valuemin="0" aria-valuemax="100" aria-valuenow={alignerTrayProgress.treatmentPct}>
             <div className="h-full rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-700" aria-hidden="true"
               style={{width:`${alignerTrayProgress.treatmentPct}%`}} />
           </div>
@@ -961,7 +965,7 @@ Log Dentist Visit
         </div>
       )}
 
-      <ul className="today-aligner-care-list" aria-label="Aligner care reminders">
+      <ul className="today-aligner-care-list" aria-label={T("Aligner care reminders")}>
         <li><strong>Clean aligners</strong><span>When removed</span></li>
         <li><strong>Rinse before inserting</strong><span>Use cool water</span></li>
         <li><strong>Remove for hot drinks</strong><span>Protect the trays</span></li>
@@ -1019,7 +1023,7 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 <span className="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-lg">{current} → {streakMilestones[0].next} days</span>
 </div>
 </div>
-<div className="today-milestone-track h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100" role="progressbar" aria-label="Progress toward next streak milestone" aria-valuemin="0" aria-valuemax={streakMilestones[0].next} aria-valuenow={Math.min(current, streakMilestones[0].next)} aria-valuetext={`${streakMilestones[0].remaining} days remaining`}>
+<div className="today-milestone-track h-3 bg-blue-50 rounded-full overflow-hidden border border-blue-100" role="progressbar" aria-label={T("Progress toward next streak milestone")} aria-valuemin="0" aria-valuemax={streakMilestones[0].next} aria-valuenow={Math.min(current, streakMilestones[0].next)} aria-valuetext={`${streakMilestones[0].remaining} ${T("days remaining")}`}>
 <div className="h-full rounded-full transition-all duration-700" aria-hidden="true"
 style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,background:"#35666c"}} />
 </div>
@@ -1225,7 +1229,7 @@ onClick={e => e.stopPropagation()}>
         ))}
       </div>
       <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-200 mb-4">
-        <input type="number" aria-label="Months until next appointment" min="1" max="24" value={nextCustomMonths}
+      <input type="number" aria-label={T("Months until next appointment")} min="1" max="24" value={nextCustomMonths}
           onChange={e => { setNextCustomMonths(Math.max(1, Math.min(24, parseInt(e.target.value) || 1))); setNextDateInput(""); }}
           className="w-16 text-center border border-blue-200 rounded-lg py-2 text-sm font-bold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
         <span className="text-sm text-gray-600">months from today</span>
@@ -1293,7 +1297,7 @@ onClick={e => e.stopPropagation()}>
           </button>
         ))}
       </div>
-      <input type="number" aria-label="Custom days per tray" min="1" max="30" aria-describedby={alignerSetupError?.field === "days" ? "today-aligner-setup-error" : undefined} aria-invalid={alignerSetupError?.field === "days"} value={alignerDaysPerTrayInput}
+      <input type="number" aria-label={T("Custom days per tray")} min="1" max="30" aria-describedby={alignerSetupError?.field === "days" ? "today-aligner-setup-error" : undefined} aria-invalid={alignerSetupError?.field === "days"} value={alignerDaysPerTrayInput}
         onChange={e => { setAlignerDaysPerTrayInput(e.target.value); setAlignerSetupError(null); }}
         className="w-full border border-blue-200 rounded-xl px-3 py-2 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
