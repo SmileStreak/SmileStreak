@@ -1532,6 +1532,7 @@ html.dark .legal-delete-dialog h3 { color: #edf2f4; }
 html.dark .legal-delete-dialog > p:not(.legal-delete-eyebrow) { color: #bcc6ce; }
 html.dark .legal-delete-dialog .legal-delete-error { color: #efbbb5; background: #302627; }
 html.dark .legal-delete-actions .legal-delete-cancel { border-color: #47545f; color: #d9e0e4; background: #1c2630; }
+.legal-page { width: min(100%, 920px); margin-inline: auto; }
 .legal-page > h2 { margin: 0; }
 .legal-terms-index { border-radius: 8px !important; box-shadow: none !important; }
 .legal-terms-index > div { border-color: var(--line) !important; }
