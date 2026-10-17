@@ -12,8 +12,9 @@
   --paper: #f7f8f6;
   --surface: #ffffff;
   --surface-quiet: #f1f4f5;
-  --brand: #1d4ed8;
-  --brand-hover: #1e40af;
+  --brand: #35666c;
+  --brand-action: #35666c;
+  --brand-hover: #2b5459;
   --motion-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -44,11 +45,18 @@ main [class*="bg-gradient-to-"] {
   background-image: none !important;
   background-color: var(--surface-quiet);
 }
-main [class*="bg-gradient-to-"].text-white,
-main [class*="bg-gradient-to-"]:has(.text-white) { color: var(--ink) !important; }
-main [class*="bg-gradient-to-"].text-white :is(h1,h2,h3,p,span),
-main [class*="bg-gradient-to-"]:has(.text-white) :is(h1,h2,h3,p,span) { color: var(--ink-secondary) !important; }
-main button[class*="bg-gradient-to-"] { background: var(--brand) !important; color: #fff !important; }
+/* Gradient utilities also appear on data fills. Keep the readout meaningful
+   while using the same single accent as the rest of the interface. */
+main [class*="bg-gradient-to-"][style*="width"],
+main [class*="bg-gradient-to-"][style*="height"] {
+  background-image: none !important;
+  background-color: var(--brand-action) !important;
+}
+main [class*="bg-gradient-to-"].text-white:not(button),
+main [class*="bg-gradient-to-"]:has(.text-white):not(button) { color: var(--ink) !important; }
+main [class*="bg-gradient-to-"].text-white:not(button) :is(h1,h2,h3,p,span),
+main [class*="bg-gradient-to-"]:has(.text-white):not(button) :is(h1,h2,h3,p,span) { color: var(--ink-secondary) !important; }
+main button[class*="bg-gradient-to-"] { background: var(--brand-action) !important; color: #fff !important; }
 main [class*="bg-gradient-to-"].text-white:has(h1),
 main [class*="bg-gradient-to-"].text-white:has(h2) {
   padding: 0 0 20px !important;
@@ -62,6 +70,40 @@ main [class*="bg-gradient-to-"]:has([class*="bg-white/"]) > [class*="bg-white/"]
 .text-red-700, .text-red-600, .text-red-500, .text-rose-700, .text-rose-600, .text-rose-500 { color: #855b58 !important; }
 .text-amber-700, .text-amber-600, .text-orange-700, .text-orange-600, .text-yellow-700, .text-yellow-600 { color: #766447 !important; }
 .text-purple-700, .text-purple-600, .text-violet-700, .text-violet-600, .text-pink-600, .text-cyan-700, .text-cyan-600 { color: #5e6272 !important; }
+main :is([class*="text-blue-700"], [class*="text-blue-600"], [class*="text-blue-500"], [class*="text-cyan-700"], [class*="text-cyan-600"]) { color: var(--brand) !important; }
+main :is([class*="text-cyan-500"], [class*="text-teal-700"], [class*="text-teal-600"], [class*="text-teal-500"]) { color: var(--brand) !important; }
+main :is([class*="text-purple-500"], [class*="text-violet-500"], [class*="text-pink-500"]) { color: #656875 !important; }
+main :is([class*="text-orange-500"], [class*="text-amber-500"], [class*="text-yellow-500"]) { color: #806c46 !important; }
+main :is([class*="text-green-500"], [class*="text-emerald-500"]) { color: #567361 !important; }
+main :is([class*="text-red-500"], [class*="text-rose-500"]) { color: #8b625e !important; }
+main :is([class*="bg-blue-500"], [class*="bg-blue-600"], [class*="bg-cyan-500"], [class*="bg-cyan-600"], [class*="bg-teal-500"], [class*="bg-teal-600"]) { background-color: var(--brand-action) !important; }
+main :is([class*="bg-green-400"], [class*="bg-green-500"], [class*="bg-emerald-400"], [class*="bg-emerald-500"]) { background-color: #708b79 !important; }
+main :is([class*="bg-orange-400"], [class*="bg-orange-500"], [class*="bg-amber-400"], [class*="bg-yellow-400"]) { background-color: #a58b5c !important; }
+main :is([class*="bg-purple-500"], [class*="bg-violet-500"], [class*="bg-pink-500"]) { background-color: #777b87 !important; }
+main :is(button, a)[class*="bg-blue-500"], main :is(button, a)[class*="bg-blue-600"], main :is(button, a)[class*="bg-blue-700"],
+main :is(button, a)[class*="bg-cyan-500"], main :is(button, a)[class*="bg-cyan-600"], main :is(button, a)[class*="bg-cyan-700"] {
+  background-color: var(--brand-action) !important;
+  color: #fff !important;
+}
+/* A clinic action should read as one product action, whatever legacy utility
+   color it used to have. Keep red reserved for destructive controls. */
+main .app-page :is(button, a)[class*="bg-green-500"],
+main .app-page :is(button, a)[class*="bg-green-600"],
+main .app-page :is(button, a)[class*="bg-emerald-500"],
+main .app-page :is(button, a)[class*="bg-orange-500"],
+main .app-page :is(button, a)[class*="bg-purple-500"],
+main .app-page :is(button, a)[class*="bg-pink-500"] {
+  background-color: var(--brand-action) !important;
+  color: #fff !important;
+}
+main [class*="bg-blue-50"], main [class*="bg-cyan-50"] { background-color: #eef3f2 !important; }
+main [class*="bg-blue-100"], main [class*="bg-cyan-100"] { background-color: #e4eceb !important; }
+main [class*="bg-green-50"], main [class*="bg-emerald-50"] { background-color: #eff3ef !important; }
+main [class*="bg-green-100"], main [class*="bg-emerald-100"] { background-color: #e5ece6 !important; }
+main [class*="bg-yellow-50"], main [class*="bg-amber-50"], main [class*="bg-orange-50"] { background-color: #f4f1ea !important; }
+main [class*="bg-yellow-100"], main [class*="bg-amber-100"], main [class*="bg-orange-100"] { background-color: #ece7dc !important; }
+main [class*="bg-purple-50"], main [class*="bg-pink-50"], main [class*="bg-violet-50"] { background-color: #f1f0f3 !important; }
+main [class*="bg-red-50"], main [class*="bg-rose-50"] { background-color: #f5efed !important; }
 [class~="rounded-3xl"], [class*="rounded-[2rem]"], [class*="rounded-[1.5rem]"] { border-radius: 12px !important; }
 [class~="rounded-2xl"] { border-radius: 10px !important; }
 main [class*="shadow-"] { box-shadow: 0 1px 2px rgb(42 42 42 / 0.035) !important; }
@@ -78,7 +120,7 @@ button, a, input, select, textarea {
 button:not(:disabled):active, a:active { transform: scale(0.98); }
 button:disabled { cursor: not-allowed; opacity: 0.56; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid #5278d1; outline-offset: 2px;
+  outline: 2px solid #52777b; outline-offset: 2px;
 }
 [class*="hover:scale-"]:hover, .group:hover [class*="group-hover:scale-"] { transform: translateY(-1px) scale(1) !important; }
 [class*="hover:-translate-y-"]:hover { transform: translateY(-2px) !important; }
@@ -172,6 +214,9 @@ html.dark {
   --paper: #111820;
   --surface: #1c2630;
   --surface-quiet: #202b35;
+  --brand: #a7c4c6;
+  --brand-action: #35666c;
+  --brand-hover: #2b5459;
 }
 html.dark .text-green-700, html.dark .text-green-600, html.dark .text-green-500, html.dark .text-emerald-700, html.dark .text-emerald-600, html.dark .text-emerald-500 { color: #a2c0ad !important; }
 html.dark .text-red-700, html.dark .text-red-600, html.dark .text-red-500, html.dark .text-rose-700, html.dark .text-rose-600, html.dark .text-rose-500 { color: #d0a5a0 !important; }
@@ -179,6 +224,7 @@ html.dark .text-amber-700, html.dark .text-amber-600, html.dark .text-orange-700
 html.dark .text-purple-700, html.dark .text-purple-600, html.dark .text-violet-700, html.dark .text-violet-600, html.dark .text-pink-600, html.dark .text-cyan-700, html.dark .text-cyan-600 { color: #b5b4c3 !important; }
 html.dark main [class*="bg-white"] { background-color: #1c2630 !important; }
 html.dark main [class*="bg-gray-50"], html.dark main [class*="bg-slate-50"] { background-color: #202b35 !important; }
+html.dark main :is([class*="bg-blue-50"], [class*="bg-cyan-50"], [class*="bg-blue-100"], [class*="bg-cyan-100"], [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-green-100"], [class*="bg-emerald-100"], [class*="bg-yellow-50"], [class*="bg-amber-50"], [class*="bg-orange-50"], [class*="bg-purple-50"], [class*="bg-pink-50"], [class*="bg-violet-50"], [class*="bg-red-50"], [class*="bg-rose-50"]) { background-color: #202b35 !important; }
 html.dark main [class*="text-gray-900"], html.dark main [class*="text-gray-800"], html.dark main [class*="text-gray-700"],
 html.dark main [class*="text-slate-900"], html.dark main [class*="text-slate-800"], html.dark main [class*="text-slate-700"] { color: #d9e0e6 !important; }
 html.dark main [class*="text-gray-600"], html.dark main [class*="text-gray-500"], html.dark main [class*="text-gray-400"],
@@ -743,11 +789,15 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
 .app-page button:not(:disabled) { transition: background-color 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out; }
 .app-page button:not(:disabled):not([class*="text-link"]):not([class*="underline"]):hover { filter: brightness(0.975); box-shadow: 0 3px 10px rgb(42 42 42 / 0.035); }
 .app-page button:not(:disabled):active { transform: scale(0.98); filter: none; }
-.app-page button:focus-visible, .app-page a:focus-visible { outline-color: #5278d1; outline-offset: 3px; }
+.app-page button:focus-visible, .app-page a:focus-visible { outline-color: #52777b; outline-offset: 3px; }
 .app-page input, .app-page textarea, .app-page select {
   border-color: var(--line-strong);
   border-radius: 8px;
   background-clip: padding-box;
+}
+.app-page :is(input, textarea, select):focus-visible {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgb(53 102 108 / 0.14);
 }
 .app-page :is([class*="grid-cols-3"], [class*="grid-cols-4"]) { gap: 12px; }
 .app-page :is([class*="text-4xl"], [class*="text-5xl"], [class*="text-6xl"]) { font-variant-numeric: tabular-nums; }
@@ -944,6 +994,17 @@ html.dark .today-week-section .bg-slate-100 {
   line-height: 1.35;
 }
 
+.heatmap-cell--0 { background: #edf0ed; }
+.heatmap-cell--1 { background: #d9e1db; }
+.heatmap-cell--2 { background: #b7c8bc; }
+.heatmap-cell--3 { background: #78917f; }
+.weekly-calendar__today { background: #eef3f2; }
+html.dark .heatmap-cell--0 { background: #2a3338; }
+html.dark .heatmap-cell--1 { background: #40534a; }
+html.dark .heatmap-cell--2 { background: #526b5a; }
+html.dark .heatmap-cell--3 { background: #728b77; }
+html.dark .weekly-calendar__today { background: #2a3940; }
+
 .reminder-quick-set {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
@@ -970,6 +1031,97 @@ html.dark .today-week-section .bg-slate-100 {
 .reminder-preset:hover { background: var(--surface-quiet); }
 .reminder-preset span { font-size: 12px; }
 .reminder-preset strong { color: var(--ink); font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.reminder-quick-setup { padding: 0 0 4px; }
+.reminder-notification-status { background: var(--surface); border-color: var(--line); }
+
+.report-distribution {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.report-distribution__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 14px 16px;
+}
+.report-distribution__item + .report-distribution__item { border-left: 1px solid var(--line); }
+.report-distribution__label { grid-column: 1 / -1; color: var(--ink-muted); font-size: 12px; }
+.report-distribution__value { color: var(--ink); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+.report-distribution__percent { color: var(--ink-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+html.dark .report-distribution__item + .report-distribution__item { border-color: #34404c; }
+@media (max-width: 480px) {
+  .report-distribution__item { grid-template-columns: 1fr; gap: 4px; padding: 12px 9px; }
+}
+
+.mission-heading {
+  padding: 12px 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.mission-heading h2 {
+  margin: 0 0 5px;
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+.mission-heading p { color: var(--ink-muted); }
+.mission-editorial, .mission-features, .mission-problem,
+.mission-principles, .mission-research, .mission-faq, .mission-involved {
+  min-width: 0;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mission-editorial { padding: 24px 0 30px; }
+.mission-editorial h3, .mission-features h3, .mission-principles h3,
+.mission-research h3, .mission-involved h3 {
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.mission-editorial p { max-width: 62ch; font-size: 16px; line-height: 1.75; color: var(--ink-secondary); }
+.mission-features .text-slate-500 { color: var(--ink-muted); }
+.mission-problem { padding: 22px 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-quiet); }
+.mission-faq__item { border-top: 1px solid var(--line); }
+.mission-faq__item:last-child { border-bottom: 1px solid var(--line); }
+.mission-faq__item > button { padding: 16px 2px; }
+.mission-involved__action {
+  display: flex; width: 100%; align-items: center; justify-content: space-between;
+  gap: 14px; padding: 16px 2px; border: 0; border-top: 1px solid var(--line);
+  border-radius: 0; background: transparent; text-align: left;
+}
+.mission-involved__action:hover { background: var(--surface-quiet); }
+.scan-privacy-controls {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.scan-privacy-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--ink-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.scan-privacy-option input { flex: 0 0 auto; margin-top: 3px; accent-color: var(--brand-action); }
+.scan-privacy-option--secondary { margin-top: 12px; color: var(--ink-muted); font-size: 13px; }
+.scan-privacy-note, .scan-privacy-error { margin: 10px 0 0; font-size: 12px; line-height: 1.5; }
+.scan-privacy-note { color: var(--ink-muted); }
+.scan-privacy-error { color: #855b58; }
+html.dark .scan-privacy-controls { background: #1c2630; border-color: #34404c; }
+html.dark .mission-heading, html.dark .mission-editorial, html.dark .mission-features,
+html.dark .mission-principles, html.dark .mission-research, html.dark .mission-faq,
+html.dark .mission-involved, html.dark .mission-faq__item, html.dark .mission-involved__action { border-color: #34404c; }
+html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 
 .reminder-stat-strip {
   margin: 0;

@@ -1,4 +1,5 @@
 import { getDateKey } from "../utils/date";
+import { Check } from "lucide-react";
 
 export default function WeeklyCalendar({ habitData }) {
   const today = new Date();
@@ -10,7 +11,7 @@ export default function WeeklyCalendar({ habitData }) {
     const data = habitData[key];
 
     const completedCount = data
-      ? Object.values(data).filter(Boolean).length
+      ? ["morning", "night", "floss"].filter((habit) => data[habit] === true).length
       : 0;
 
     return {
@@ -26,43 +27,36 @@ export default function WeeklyCalendar({ habitData }) {
     return "empty";
   };
 
-  return (
-    <div className="bg-white rounded-3xl p-5 shadow-md">
-      <h3 className="font-bold mb-4">Last 7 Days</h3>
+    return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5" aria-labelledby="weekly-calendar-heading">
+      <h3 id="weekly-calendar-heading" className="mb-4 text-sm font-semibold text-slate-900">Last 7 days</h3>
 
-      <div className="flex justify-between gap-2">
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {days.map(({ date, completedCount, key }) => {
           const status = getStatus(completedCount);
           const isToday =
             date.toDateString() === today.toDateString();
+          const dateLabel = date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
           return (
             <div
               key={key}
-              className={`flex flex-col items-center gap-1 p-2 rounded-xl w-10
-                ${
-                  isToday
-                    ? "bg-cyan-100"
-                    : "bg-gray-50"
-                }`}
+              role="group"
+              aria-label={`${dateLabel}: ${completedCount} of 3 habits completed`}
+              title={`${dateLabel} · ${completedCount} of 3 habits`}
+              className={`flex min-w-0 flex-col items-center gap-1.5 rounded-lg px-1 py-2 ${isToday ? "weekly-calendar__today" : "bg-transparent"}`}
             >
-              <span className="text-xs font-semibold">
-                {date
-                  .toLocaleDateString("en-US", { weekday: "short" })
-                  .charAt(0)}
+              <span className={`text-[11px] ${isToday ? "font-semibold text-slate-900" : "text-slate-600"}`}>
+                {date.toLocaleDateString(undefined, { weekday: "short" })}
               </span>
-
-              <span className="text-lg">
-                {status === "complete"
-                  ? "✅"
-                  : status === "partial"
-                  ? "◐"
-                  : "○"}
+              <span className={`text-sm tabular-nums ${isToday ? "font-semibold text-slate-900" : "text-slate-700"}`}>{date.getDate()}</span>
+              <span aria-hidden="true" className={`flex h-4 w-4 items-center justify-center rounded-full ${status === "complete" ? "bg-[var(--brand)] text-white" : status === "partial" ? "bg-slate-300" : "bg-slate-200"}`}>
+                {status === "complete" && <Check size={10} strokeWidth={2.5} />}
               </span>
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

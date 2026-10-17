@@ -1,15 +1,15 @@
 import { TIPS } from "../data";
-import { ExternalLink, XCircle, CheckCircle, AlertCircle, BookOpen, Sparkles, TrendingUp, Newspaper, ChevronRight, RefreshCw } from "lucide-react";
+import { ExternalLink, XCircle, CheckCircle, AlertCircle, BookOpen, RefreshCw } from "lucide-react";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { TranslationContext } from "../App";
 
 const MYTHS = [
-{ id: 1, myth: "You should rinse your mouth with water right after brushing", truth: "False! Wait 30 minutes before rinsing. Toothpaste needs time to work its magic.", icon: "💧", isMyth: true },
+{ id: 1, myth: "You should rinse your mouth with water right after brushing", truth: "Spit out the excess toothpaste instead of rinsing straight away; rinsing can wash away fluoride left on your teeth.", icon: "💧", isMyth: true },
 { id: 2, myth: "Whitening toothpaste damages your enamel", truth: "False! ADA-approved whitening toothpaste is safe when used as directed.", icon: "✨", isMyth: true },
 { id: 3, myth: "You need to brush harder to clean better", truth: "False! Gentle brushing is more effective and won't damage your gums.", icon: "🪥", isMyth: true },
 { id: 4, myth: "Flossing once a day is recommended by dentists", truth: "True! Daily flossing removes plaque between teeth that brushing can't reach.", icon: "🧵", isMyth: false },
 { id: 5, myth: "Sugar-free soda is safe for your teeth", truth: "False! The acid in soda (even sugar-free) erodes enamel over time.", icon: "🥤", isMyth: true },
-{ id: 6, myth: "Electric toothbrushes clean better than manual ones", truth: "True! Studies show electric brushes reduce plaque by 21% more than manual.", icon: "⚡", isMyth: false },
+{ id: 6, myth: "A manual toothbrush cannot clean as well as a powered one", truth: "Both manual and powered toothbrushes can clean effectively. Use a soft-bristled brush and gentle pressure.", icon: "⚡", isMyth: true },
 { id: 7, myth: "Baby teeth don't matter since they fall out anyway", truth: "False! Healthy baby teeth guide the growth of permanent teeth and affect speech development.", icon: "🍼", isMyth: true },
 { id: 8, myth: "You only need to see a dentist if something hurts", truth: "False! Regular checkups catch problems early before they become painful or expensive.", icon: "🦷", isMyth: true },
 { id: 9, myth: "Bleeding gums while brushing is normal", truth: "False! Bleeding gums are usually a sign of gum disease and should be checked by a dentist.", icon: "🩸", isMyth: true },
@@ -29,29 +29,9 @@ const DID_YOU_KNOW = [
 "Smiling releases endorphins, which naturally reduce stress and boost mood."
 ];
 
-const BLOG_ARTICLES = [
-{
-title: "Building SmileStreak: The Journey of Creating a Dental AI App",
-description: "How I built a dental habit tracker with AI smile scanning as a high school student, the struggles, lessons learned, and the ethics behind health technology.",
-tag: "Founder Story",
-tagColor: "#3b82f6",
-emoji: "🚀",
-url: "https://medium.com/@eddiecherianj"
-},
-{
-title: "AI in Dentistry: How SmileStreak is Bringing Intelligent Oral Care to Your Phone",
-description: "What SmileStreak’s brushing feedback can tell you, what it cannot, and when to ask a dental professional.",
-tag: "Health Tech",
-tagColor: "#10b981",
-emoji: "🤖",
-url: "https://medium.com/@eddiecherianj"
-}
-];
-
 export default function Tips() {
 const { t, currentLanguage } = useContext(TranslationContext);
 const [texts, setTexts] = useState({});
-const [selectedMyth, setSelectedMyth] = useState(null);
 const [revealedMyths, setRevealedMyths] = useState(new Set());
 const [didYouKnowIndex, setDidYouKnowIndex] = useState(0);
 const [factAnimating, setFactAnimating] = useState(false);
@@ -101,7 +81,6 @@ translateAll();
 
 const handleMythClick = (mythId) => {
 if (revealedMyths.has(mythId)) return;
-setSelectedMyth(mythId);
 setRevealedMyths(prev => new Set([...prev, mythId]));
 };
 
@@ -164,35 +143,30 @@ return (
   </div>
 
   {/* MYTH BUSTERS */}
-  <div className="bg-slate-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
-    <div className="flex items-center gap-2 mb-4">
-      <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-        <Sparkles className="w-5 h-5 text-slate-700" />
-      </div>
+  <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+    <div className="mb-3">
       <div>
-        <h3 className="font-black text-gray-900">{texts.mythBusters || "Myth Busters"}</h3>
+        <h3 className="font-semibold text-slate-900">{texts.mythBusters || "Myth Busters"}</h3>
         <p className="text-xs text-gray-600">{texts.testKnowledge || "Test your dental knowledge!"}</p>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 gap-3">
+    <div className="divide-y divide-slate-200">
       {visibleMyths.map((item) => {
         const isRevealed = revealedMyths.has(item.id);
         return (
           <button
             key={item.id}
             onClick={() => !isRevealed && handleMythClick(item.id)}
-            className={`text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+            aria-pressed={isRevealed}
+            className={`w-full text-left py-4 transition-colors duration-200 ${
               isRevealed
-                ? item.isMyth
-                  ? "bg-red-50 border-red-300"
-                  : "bg-green-50 border-green-300"
-                : "bg-white border-purple-200 hover:border-purple-400 hover:shadow-md cursor-pointer"
+                ? "cursor-default"
+                : "hover:bg-slate-50 cursor-pointer"
             }`}
             disabled={isRevealed}
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl flex-shrink-0">{item.icon}</span>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-sm mb-2">{item.myth}</p>
                 {isRevealed ? (
@@ -210,7 +184,7 @@ return (
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-purple-600 font-medium">{texts.tapReveal || "Tap to reveal the truth →"}</p>
+                  <p className="text-xs text-slate-500 font-medium">{texts.tapReveal || "Tap to reveal the truth →"}</p>
                 )}
               </div>
             </div>
@@ -227,27 +201,20 @@ return (
       </div>
       <button
         onClick={() => setVisibleMythCount(prev => prev === 4 ? MYTHS.length : 4)}
-        className="text-xs text-purple-600 font-semibold hover:text-purple-800 transition-colors"
+        className="text-xs text-slate-700 font-semibold hover:text-slate-900 transition-colors"
       >
         {visibleMythCount === 4 ? (texts.showMore || "Show more myths") : (texts.showLess || "Show less")}
       </button>
     </div>
-  </div>
+  </section>
 
   {/* Daily Pro Tip */}
-  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-5">
-    <div className="flex items-start gap-3">
-      <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
-        <TrendingUp className="w-5 h-5 text-white" />
-      </div>
-      <div>
-          <p className="font-bold text-gray-900 mb-1">{texts.proTip || "Pro Tip of the Day"}</p>
-        <p className="text-sm text-gray-700">
-          {texts.proTipText || "Hold your brush at about 45 degrees to the gumline and use gentle, short strokes."}
-        </p>
-      </div>
-    </div>
-  </div>
+  <aside className="border-l border-slate-300 py-1 pl-4">
+    <p className="font-semibold text-slate-900 mb-1">{texts.proTip || "A small technique reminder"}</p>
+    <p className="max-w-3xl text-sm leading-6 text-slate-600">
+      {texts.proTipText || "Hold your brush at about 45 degrees to the gumline and use gentle, short strokes."}
+    </p>
+  </aside>
 
   {/* Tips Grid */}
   <div className="divide-y divide-slate-200">
@@ -269,59 +236,20 @@ return (
     ))}
   </div>
 
-  {/* Blog Section */}
-  <div className="bg-gradient-to-br from-slate-900 to-blue-950 rounded-3xl p-6 shadow-xl">
-    <div className="flex items-center gap-2 mb-2">
-      <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-        <Newspaper className="w-5 h-5 text-white" />
-      </div>
-      <div>
-        <h3 className="font-black text-white">{texts.fromTheBlog || "From the Blog"}</h3>
-        <p className="text-xs text-blue-300">{texts.blogDesc || "Deep dives into dental health, technology, and the story behind SmileStreak."}</p>
-      </div>
-    </div>
-
-    <div className="space-y-3 mt-4">
-      {BLOG_ARTICLES.map((article, index) => (
-        <a
-          key={index}
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-4 transition-all group"
-        >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">
-              {article.emoji}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className="text-xs font-bold px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: article.tagColor + "33", color: article.tagColor }}
-                >
-                  {article.tag}
-                </span>
-              </div>
-              <p className="font-bold text-white text-sm leading-snug mb-1">{article.title}</p>
-              <p className="text-xs text-blue-300 leading-relaxed line-clamp-2">{article.description}</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-blue-400 group-hover:translate-x-1 transition-transform flex-shrink-0 mt-1" />
-          </div>
-        </a>
-      ))}
-    </div>
-
+  {/* Blog link */}
+  <section className="border-t border-slate-200 py-5">
+    <h3 className="font-semibold text-slate-900">{texts.fromTheBlog || "From the Blog"}</h3>
+    <p className="mt-1 text-sm leading-6 text-slate-600">{texts.blogDesc || "Writing about dental habits and the story behind SmileStreak."}</p>
     <a
       href="https://medium.com/@eddiecherianj"
       target="_blank"
       rel="noopener noreferrer"
-      className="mt-4 w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold py-3 rounded-xl transition-colors"
+      className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] underline decoration-slate-300 underline-offset-4 hover:decoration-current"
     >
-      <span>View all articles on Medium</span>
-      <ExternalLink className="w-4 h-4" />
+      <span>Read on Medium</span>
+      <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
     </a>
-  </div>
+  </section>
 
   {/* Learn More Section */}
   <div className="bg-white p-6 rounded-3xl shadow-lg border border-blue-100">

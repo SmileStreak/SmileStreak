@@ -2,7 +2,7 @@ import WeeklyCalendar from "./WeeklyCalendar";
 import { ACHIEVEMENTS } from "../data";
 import { calculateStreaks } from "../utils/progress";
 import { getDateKey } from "../utils/date";
-import { Trophy, Lock, Sparkles } from "lucide-react";
+import { Trophy, Lock, Sparkles, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -92,11 +92,10 @@ export default function Progress({ habitData }) {
   }, [habitData]);
 
   const getCellColor = (cell) => {
-    if (cell.isFuture) return "bg-gray-100";
-    if (cell.count === 0) return "bg-gray-100";
-    if (cell.count === 1) return "bg-green-200";
-    if (cell.count === 2) return "bg-green-400";
-    return "bg-green-600";
+    if (cell.isFuture || cell.count === 0) return "heatmap-cell--0";
+    if (cell.count === 1) return "heatmap-cell--1";
+    if (cell.count === 2) return "heatmap-cell--2";
+    return "heatmap-cell--3";
   };
 
   const formatTooltipDate = (date) =>
@@ -170,9 +169,7 @@ export default function Progress({ habitData }) {
       </dl>
 
       {/* CALENDAR */}
-      <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-        <WeeklyCalendar habitData={habitData || {}} />
-      </div>
+      <WeeklyCalendar habitData={habitData || {}} />
 
       {/* ── ACTIVITY HEATMAP ── */}
       <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
@@ -215,7 +212,7 @@ export default function Progress({ habitData }) {
                   {week.map((cell, di) => (
                     <div
                       key={cell.key}
-                      className={`w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer transition-transform duration-100 hover:scale-125 ${getCellColor(cell)} ${cell.isToday ? "ring-2 ring-blue-500 ring-offset-1" : ""}`}
+                      className={`w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer transition-transform duration-100 hover:scale-110 ${getCellColor(cell)} ${cell.isToday ? "ring-1 ring-[#52777b] ring-offset-1" : ""}`}
                       onMouseEnter={(e) => {
                         if (!cell.isFuture) {
                           const rect = e.currentTarget.getBoundingClientRect();
@@ -237,7 +234,7 @@ export default function Progress({ habitData }) {
             {/* Legend */}
             <div className="flex items-center gap-1.5 mt-3 justify-end">
               <span className="text-[9px] text-gray-400">Less</span>
-              {["bg-gray-100", "bg-green-200", "bg-green-400", "bg-green-600"].map((c, i) => (
+              {["heatmap-cell--0", "heatmap-cell--1", "heatmap-cell--2", "heatmap-cell--3"].map((c, i) => (
                 <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />
               ))}
               <span className="text-[9px] text-gray-400">More</span>
@@ -248,15 +245,15 @@ export default function Progress({ habitData }) {
         {/* Below graph stats */}
         <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-100">
           <div className="text-center">
-            <p className="text-lg font-black text-green-600">{heatmapData.yearContributions}</p>
+            <p className="text-lg font-semibold text-slate-800">{heatmapData.yearContributions}</p>
             <p className="text-[10px] text-gray-400 font-medium">{texts.contributionsThisYear || "this year"}</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-black text-orange-500">{currentStreak}</p>
+            <p className="text-lg font-semibold text-slate-800">{currentStreak}</p>
             <p className="text-[10px] text-gray-400 font-medium">{texts.currentStreak || "Current Streak"}</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-black text-blue-600">{longestStreak}</p>
+            <p className="text-lg font-semibold text-slate-800">{longestStreak}</p>
             <p className="text-[10px] text-gray-400 font-medium">{texts.longestStreak || "Longest Streak"}</p>
           </div>
         </div>
@@ -337,7 +334,7 @@ export default function Progress({ habitData }) {
                 <Sparkles className="w-4 h-4 text-slate-700" />
                 <p className="font-bold text-gray-900">{texts.nextAchievement || "Next Achievement"}</p>
               </div>
-              <p className="text-2xl mb-1">{nextAchievement.icon}</p>
+              <Trophy className="mb-2 h-5 w-5 text-[var(--brand)]" aria-hidden="true" />
               <p className="text-sm font-semibold text-gray-700">{nextAchievement.label}</p>
             </div>
             <div className="text-right">
@@ -345,66 +342,43 @@ export default function Progress({ habitData }) {
               <p className="text-3xl font-black text-slate-700">{daysUntilNext}</p>
             </div>
           </div>
-          <div className="relative w-full h-3 bg-purple-200 rounded-full overflow-hidden">
+          <div className="relative w-full h-2 bg-slate-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-600 transition-all duration-500"
+              className="h-full bg-[var(--brand)] transition-all duration-500"
               style={{ width: `${(completedDays / nextAchievement.requirement) * 100}%` }}
             />
           </div>
-          <p className="text-xs text-purple-700 mt-2 text-center font-medium">
+          <p className="text-xs text-slate-600 mt-2 text-center">
             {completedDays} / {nextAchievement.requirement} {texts.daysCompleted || "days completed"}
           </p>
         </div>
       )}
 
       {/* ACHIEVEMENTS */}
-      <div className="bg-white p-6 rounded-3xl shadow-lg border border-blue-100">
+      <div className="rounded-xl border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center">
-              <Trophy className="w-4 h-4 text-white" />
-            </div>
-            <h3 className="font-bold text-gray-900">{texts.achievements || "Achievements"}</h3>
+            <h3 className="font-semibold text-slate-900">{texts.achievements || "Achievements"}</h3>
           </div>
           <p className="text-sm text-gray-500">
             {ACHIEVEMENTS.filter(a => completedDays >= a.requirement).length} / {ACHIEVEMENTS.length}
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="divide-y divide-slate-200">
           {ACHIEVEMENTS.map((a) => {
             const unlocked = completedDays >= a.requirement;
             return (
               <button
                 key={a.id}
                 onClick={() => setSelectedAchievement(unlocked ? a : null)}
-                className={`group relative p-4 rounded-2xl text-center transition-all duration-200 ${
-                  unlocked
-                    ? "bg-gradient-to-br from-yellow-100 to-orange-100 shadow-md hover:shadow-lg hover:scale-105 cursor-pointer"
-                    : "bg-gray-100 opacity-50 cursor-not-allowed"
-                }`}
+                disabled={!unlocked}
+                aria-label={`${a.label}, ${unlocked ? "unlocked" : `${a.requirement - completedDays} days remaining`}`}
+                className="flex w-full items-center gap-3 py-3 text-left transition-colors duration-200 hover:bg-slate-50 disabled:cursor-default"
               >
-                {unlocked ? (
-                  <>
-                    <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">
-                      {a.icon}
-                    </div>
-                    <div className="absolute top-1 right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                    <div className="text-2xl mb-2 filter grayscale">{a.icon}</div>
-                  </>
-                )}
-                <p className="text-xs font-semibold text-gray-700">{a.label}</p>
-                {!unlocked && (
-                  <p className="text-xs text-gray-500 mt-1">{a.requirement} {texts.days || "days"}</p>
-                )}
+                {unlocked ? <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--brand)]" aria-hidden="true" /> : <Lock className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />}
+                <span className="flex-1 text-sm font-medium text-slate-800">{a.label}</span>
+                <span className="text-xs tabular-nums text-slate-500">{unlocked ? `${a.requirement} ${texts.days || "days"}` : `${Math.max(a.requirement - completedDays, 0)} ${texts.days || "days"} left`}</span>
               </button>
             );
           })}
@@ -423,19 +397,17 @@ export default function Progress({ habitData }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
-              <div className="text-6xl mb-4">{selectedAchievement.icon}</div>
-              <h3 className="text-2xl font-black text-gray-900 mb-2">{selectedAchievement.label}</h3>
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl px-4 py-2 inline-block mb-4">
-                <p className="text-sm font-semibold text-gray-700">
-                  {texts.unlocked || "Unlocked"} at {selectedAchievement.requirement} {texts.days || "days"}
-                </p>
-              </div>
+              <CheckCircle2 className="mx-auto mb-3 h-7 w-7 text-[var(--brand)]" aria-hidden="true" />
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">{selectedAchievement.label}</h3>
+              <p className="mb-4 text-sm text-slate-600">
+                {texts.unlocked || "Unlocked"} after {selectedAchievement.requirement} {texts.days || "days"}
+              </p>
               <p className="text-gray-600 text-sm mb-6">
                 {texts.completedMessage || "You've completed"} {completedDays} {texts.perfectDays || "perfect days of dental care. Keep up the amazing work!"}
               </p>
               <button
                 onClick={() => setSelectedAchievement(null)}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-sm transition-all"
               >
                 {texts.awesome || "Awesome!"}
               </button>
@@ -447,9 +419,8 @@ export default function Progress({ habitData }) {
 
       {/* Motivational Footer */}
       {completedDays > 0 && (
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 text-center">
-          <Sparkles className="w-8 h-8 text-green-600 mx-auto mb-2" />
-          <p className="font-bold text-gray-900 mb-1">
+        <div className="border-t border-slate-200 pt-5">
+          <p className="font-semibold text-slate-900 mb-1">
             {completedDays === 1
               ? (texts.greatStart || "Great start!")
               : completedDays < 7

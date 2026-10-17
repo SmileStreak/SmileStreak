@@ -389,8 +389,6 @@ export default function Reminders() {
 
       {/* Header */}
       <div className="page-heading-surface relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <h2 className="text-2xl font-black">{translatedText.title}</h2>
@@ -400,13 +398,11 @@ export default function Reminders() {
       </div>
 
       {/* Notification Status */}
-      <div className={`rounded-2xl p-5 border-2 ${notificationsEnabled ? "bg-green-50 border-green-300" : "bg-orange-50 border-orange-300"}`}>
+      <div className={`reminder-notification-status rounded-xl p-5 border ${notificationsEnabled ? "is-enabled" : "is-disabled"}`}>
         <div className="flex items-center gap-3">
           {notificationsEnabled ? (
             <>
-              <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-white" />
-              </div>
+              <CheckCircle2 className="w-5 h-5 text-[var(--brand)]" aria-hidden="true" />
               <div className="flex-1">
                 <p className="font-bold text-gray-900">{translatedText.notificationsActive}</p>
                 <p className="text-xs text-gray-600">{translatedText.notificationsActiveDesc}</p>
@@ -414,9 +410,7 @@ export default function Reminders() {
             </>
           ) : (
             <>
-              <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
-                <BellOff className="w-5 h-5 text-white" />
-              </div>
+              <BellOff className="w-5 h-5 text-slate-500" aria-hidden="true" />
               <div className="flex-1">
                 <p className="font-bold text-gray-900">{translatedText.enableNotifications}</p>
                 <p className="text-xs text-gray-600">{translatedText.enableNotificationsDesc}</p>
@@ -446,10 +440,10 @@ export default function Reminders() {
       )}
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap className="w-5 h-5 text-blue-600" />
-          <h3 className="font-bold text-gray-900">{translatedText.quickSetup}</h3>
+      <div className="reminder-quick-setup">
+        <div className="flex items-baseline justify-between gap-4 mb-3">
+          <h3 className="font-semibold text-gray-900">{translatedText.quickSetup}</h3>
+          <span className="text-xs text-slate-500">{translatedText.morning} · {translatedText.night} · {translatedText.floss}</span>
         </div>
         <div className="reminder-quick-set grid grid-cols-3">
           <button onClick={quickSetMorning} className="reminder-preset">
@@ -487,9 +481,9 @@ export default function Reminders() {
           <Clock className="w-5 h-5 text-blue-600" />
           <h3 className="font-bold text-gray-900">{translatedText.customTimes}</h3>
         </div>
-        <ReminderRow label={translatedText.morningBrush} icon={<Sun className="w-5 h-5 text-orange-500" />} time={reminders.morning} onChange={(v) => updateTime("morning", v)} />
-        <ReminderRow label={translatedText.nightBrush}   icon={<Moon className="w-5 h-5 text-indigo-500" />} time={reminders.night}   onChange={(v) => updateTime("night", v)} />
-        <ReminderRow label={translatedText.flossTime}    icon={<Activity className="w-5 h-5 text-cyan-500" />} time={reminders.floss}  onChange={(v) => updateTime("floss", v)} />
+        <ReminderRow label={translatedText.morningBrush} icon={<Sun className="w-5 h-5 text-slate-600" />} time={reminders.morning} onChange={(v) => updateTime("morning", v)} />
+        <ReminderRow label={translatedText.nightBrush}   icon={<Moon className="w-5 h-5 text-slate-600" />} time={reminders.night}   onChange={(v) => updateTime("night", v)} />
+        <ReminderRow label={translatedText.flossTime}    icon={<Activity className="w-5 h-5 text-slate-600" />} time={reminders.floss}  onChange={(v) => updateTime("floss", v)} />
       </div>
 
       {/* ── ALIGNER TRAY SWAP REMINDER ── */}

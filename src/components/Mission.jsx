@@ -66,14 +66,14 @@ export default function Mission() {
     exploreFeatures: "Explore Features",
     featureTitle1: "Smart Reminders",
     featureDesc1: "Set reminders for the times that fit your day",
-    featureTitle2: "AI-Powered Insights",
-    featureDesc2: "Personalized analytics to help you understand your dental health patterns",
+    featureTitle2: "Habit Insights",
+    featureDesc2: "See patterns in the brushing and flossing habits you log",
     featureTitle3: "Dentist Finder",
     featureDesc3: "Search a nearby dentist directory and review office details",
     featureTitle4: "Progress Tracking",
     featureDesc4: "Review saved habits, streaks, and routine patterns over time",
     featureTitle5: "Scan & Analyze",
-    featureDesc5: "Request educational observations from an uploaded photo",
+    featureDesc5: "Request general educational observations from an uploaded photo",
     featureTitle6: "Multi-Language Support",
     featureDesc6: "Available in 20+ languages to serve our global community",
     
@@ -174,21 +174,15 @@ export default function Mission() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="page-heading-surface relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2">
-            <Heart className="w-6 h-6" />
-            <h2 className="text-2xl font-black">{translatedText.title}</h2>
-          </div>
+      <div className="mission-heading">
+        <div>
+          <h2>{translatedText.title}</h2>
           <p className="text-sm opacity-90">{translatedText.subtitle}</p>
         </div>
       </div>
 
       {/* Mission Statement */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <section className="mission-editorial">
         <h3 className="mb-4 font-serif text-2xl font-medium tracking-tight text-slate-900">{translatedText.missionTitle}</h3>
         <p className="mb-3 max-w-3xl text-base leading-7 text-slate-700">
           {translatedText.missionDesc1}
@@ -199,7 +193,7 @@ export default function Mission() {
       </section>
 
       {/* Features Grid */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <section className="mission-features">
         <h3 className="mb-2 font-serif text-xl font-medium tracking-tight text-slate-900">
           {translatedText.exploreFeatures}
         </h3>
@@ -217,7 +211,7 @@ export default function Mission() {
       </section>
 
       {/* The Problem We're Solving */}
-      <section className="rounded-xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+      <section className="mission-problem">
         <div className="flex items-start gap-3 mb-4">
           <div className="mt-1 flex-shrink-0 text-slate-500">
             <Lightbulb className="w-5 h-5" />
@@ -233,7 +227,7 @@ export default function Mission() {
       </section>
 
       {/* Design Principles */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <section className="mission-principles">
         <h3 className="mb-3 font-serif text-xl font-medium tracking-tight text-slate-900">{translatedText.designPrinciples}</h3>
         <ol className="divide-y divide-slate-200">
           {[translatedText.principle1, translatedText.principle2, translatedText.principle3, translatedText.principle4, translatedText.principle5, translatedText.principle6].map((principle, i) => (
@@ -245,7 +239,7 @@ export default function Mission() {
       </section>
 
       {/* Research-Informed */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+      <section className="mission-research">
         <div className="flex items-start gap-3 mb-4">
           <div className="mt-1 flex-shrink-0 text-slate-500">
             <Microscope className="w-5 h-5" />
@@ -261,9 +255,8 @@ export default function Mission() {
       </section>
 
       {/* FAQ Section */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-          <HelpCircle className="w-6 h-6 text-blue-600" />
+      <section className="mission-faq">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">
           {translatedText.faq}
         </h3>
         
@@ -271,7 +264,7 @@ export default function Mission() {
           {faqItems.map((item, index) => {
             const i = index + 1;
             return (
-              <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
+          <div key={i} className="mission-faq__item">
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
                   aria-expanded={expandedFaq === i}
@@ -289,7 +282,7 @@ export default function Mission() {
                 </button>
                 
                 {expandedFaq === i && (
-                  <div id={`mission-faq-${i}`} className="px-4 pb-4 text-sm text-gray-600 leading-relaxed">
+                  <div id={`mission-faq-${i}`} className="pb-4 text-sm text-gray-600 leading-relaxed">
                     {translatedText[item.answer]}
                   </div>
                 )}
@@ -297,20 +290,18 @@ export default function Mission() {
             );
           })}
         </div>
-      </div>
+      </section>
 
       {/* Get Involved */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
-        <h3 className="text-lg font-black text-gray-900 mb-4">{translatedText.getInvolved}</h3>
+      <section className="mission-involved">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{translatedText.getInvolved}</h3>
         <div className="space-y-3">
           <button
             onClick={() => setShowFeedback(true)}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-blue-50 border-2 border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all group"
+            className="mission-involved__action"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
+              <Mail className="w-4 h-4 text-slate-500" />
               <div className="text-left">
                 <p className="font-bold text-gray-900 text-sm">{translatedText.shareFeedback}</p>
                 <p className="text-xs text-gray-600">{translatedText.shareFeedbackDesc}</p>
@@ -322,12 +313,10 @@ export default function Mission() {
             href="https://github.com/EddieCherian/smile-streak"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 border-2 border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all group"
+            className="mission-involved__action"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Github className="w-5 h-5 text-white" />
-              </div>
+              <Github className="w-4 h-4 text-slate-500" />
               <div className="text-left">
                 <p className="font-bold text-gray-900 text-sm">{translatedText.openSource}</p>
                 <p className="text-xs text-gray-600">{translatedText.openSourceDesc}</p>
@@ -335,7 +324,7 @@ export default function Mission() {
             </div>
           </a>
         </div>
-      </div>
+      </section>
 
       {/* Feedback Modal - FIXED with clean UI */}
       <Presence open={showFeedback}>

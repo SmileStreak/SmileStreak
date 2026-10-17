@@ -21,6 +21,10 @@ const [feedback, setFeedback] = useState(null);
 const [cameraActive, setCameraActive] = useState(false);
 const [guidanceStep, setGuidanceStep] = useState(0);
 const [scanHistory, setScanHistory] = useState([]);
+const [scanConsent, setScanConsent] = useState(false);
+const [saveScansLocally, setSaveScansLocally] = useState(false);
+const [consentError, setConsentError] = useState("");
+const [historySaveFailed, setHistorySaveFailed] = useState(false);
 const [showHistory, setShowHistory] = useState(false);
 const [captureQuality, setCaptureQuality] = useState(null);
 const [translatedText, setTranslatedText] = useState({});
@@ -37,10 +41,18 @@ const streamRef = useRef(null);
 
 // Translation keys - only what's actually used
 const translationKeys = {
-title: "AI Dental Scan",
-subtitle: "Get instant feedback on your dental health",
+title: "Photo observations",
+subtitle: "General habit feedback from a single photo",
 howItWorks: "How it works",
-howItWorksDesc: "Take a clear photo of your teeth showing your gums. Our AI will analyze your dental hygiene and provide personalized feedback.",
+howItWorksDesc: "A photo is sent to Google Gemini for general, habit-focused observations. It cannot assess your oral health or replace an examination by a dentist.",
+photoConsent: "I agree to send this photo to Google Gemini for general educational feedback. It is not a dental exam or diagnosis.",
+photoStorageConsent: "Save this photo and its feedback in this browser’s scan history (optional; off by default).",
+photoConsentRequired: "Confirm how this photo will be used before continuing.",
+photoTypeError: "Choose a JPEG, PNG, or WebP image.",
+photoSizeError: "Choose an image smaller than 3 MB.",
+currentOnly: "Mentioned only in this note",
+earlierOnly: "Mentioned only in the earlier note",
+differenceOnly: "This compares generated wording, not changes in your teeth or gums.",
 takePhoto: "Take Photo",
 takePhotoDesc: "Use camera with guided capture",
 uploadPhoto: "Upload Photo",
@@ -52,18 +64,18 @@ tip3: "\u2713 Keep the camera steady",
 tip4: "\u2713 Avoid shadows on your teeth",
 back: "Back",
 nextStep: "Next Step",
-analyzingTitle: "Analyzing Your Scan",
-analyzingDesc: "Our AI is examining your dental health...",
-analyzingStep1: "Analyzing image...",
-analyzingStep2: "Checking for issues...",
-analyzingStep3: "Comparing with dental database...",
-analyzingStep4: "Generating feedback...",
+analyzingTitle: "Preparing observations",
+analyzingDesc: "The photo is being processed to provide general habit feedback.",
+analyzingStep1: "Sending photo...",
+analyzingStep2: "Reviewing visible areas...",
+analyzingStep3: "Preparing general brushing tips...",
+analyzingStep4: "Writing feedback...",
 analysisComplete: "Analysis Complete",
-analysisCompleteDesc: "Here's your personalized feedback",
+analysisCompleteDesc: "General observations from one photo; not a dental examination.",
 newScan: "New Scan",
 viewHistory: "View History",
 trackProgress: "Track Your Progress",
-trackProgressDesc: "Take scans regularly to see improvements over time.",
+trackProgressDesc: "Save notes if you want to compare feedback over time.",
 scanHistory: "Scan History",
 noScans: "No scans yet",
 viewDetails: "View Details",
@@ -76,8 +88,8 @@ cameraError: "Could not access camera. Please check permissions.",
 
 // Real features
 compareScans: "Compare Scans",
-improvements: "Improvements",
-declines: "Declines",
+improvements: "Mentioned in current feedback",
+declines: "Mentioned in earlier feedback",
 exportResults: "Export Results",
 shareWithDentist: "Share with Dentist",
 printResults: "Print Results",
@@ -92,7 +104,7 @@ notesPlaceholder: "Add any notes or questions for your dentist...",
 sendEmail: "Send Email",
 
 comparisonTitle: "Scan Comparison",
-comparisonDesc: "See how your dental health has changed over time",
+comparisonDesc: "Review the feedback saved from two different dates",
 currentScan: "Current Scan",
 previousScan: "Previous Scan",
 
@@ -155,39 +167,54 @@ quality: captureQuality?.isGoodQuality ? 'good' : 'poor'
 };
 
 const updatedHistory = [scan, ...scanHistory].slice(0, 20);
-setScanHistory(updatedHistory);
-localStorage.setItem('scanHistory', JSON.stringify(updatedHistory));
+try {
+  localStorage.setItem('scanHistory', JSON.stringify(updatedHistory));
+  setScanHistory(updatedHistory);
+  return true;
+} catch {
+  return false;
+}
 };
 
-// Compare two scans based on actual feedback text
+useEffect(() => () => {
+  streamRef.current?.getTracks().forEach((track) => track.stop());
+  streamRef.current = null;
+}, []);
+
+// Compare note wording only. This is not a measure of oral health change.
 const compareScans = (currentFeedback, previousFeedback) => {
 if (!previousFeedback) return null;
 
 const current = currentFeedback.toLowerCase();
 const previous = previousFeedback.toLowerCase();
 
-const improvements = [];
-const declines = [];
+const currentOnly = [];
+const earlierOnly = [];
 
 // Simple text-based comparison based on keywords
-const keywords = ['plaque', 'gum', 'cavity', 'stain', 'tartar', 'calculus'];
+const keywords = ['brushing', 'gumline', 'back molars', 'floss', 'cleaning', 'buildup'];
 
 keywords.forEach(keyword => {
   const currentHas = current.includes(keyword);
   const previousHas = previous.includes(keyword);
   
   if (!previousHas && currentHas) {
-    declines.push(`${keyword.charAt(0).toUpperCase() + keyword.slice(1)} detected`);
+    currentOnly.push(keyword);
   } else if (previousHas && !currentHas) {
-    improvements.push(`${keyword.charAt(0).toUpperCase() + keyword.slice(1)} improved`);
+    earlierOnly.push(keyword);
   }
 });
 
-return { improvements, declines };
+return { currentOnly, earlierOnly };
 };
 
 // FIXED: set mode first so video element renders, then attach stream
 const startCamera = async () => {
+if (!scanConsent) {
+  setConsentError(translatedText.photoConsentRequired || translationKeys.photoConsentRequired);
+  return;
+}
+setConsentError("");
 setMode('camera');
 try {
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -289,6 +316,22 @@ setCaptureQuality(quality);
 const handleUpload = (e) => {
 const file = e.target.files[0];
 if (!file) return;
+if (!scanConsent) {
+  setConsentError(translatedText.photoConsentRequired || translationKeys.photoConsentRequired);
+  e.target.value = "";
+  return;
+}
+if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+  setConsentError(translatedText.photoTypeError || translationKeys.photoTypeError);
+  e.target.value = "";
+  return;
+}
+if (file.size > 3 * 1024 * 1024) {
+  setConsentError(translatedText.photoSizeError || translationKeys.photoSizeError);
+  e.target.value = "";
+  return;
+}
+setConsentError("");
 
 const reader = new FileReader();
 reader.onloadend = () => {
@@ -296,11 +339,17 @@ reader.onloadend = () => {
   setMode('analyzing');
   analyzePhoto(reader.result);
 };
+reader.onerror = () => setConsentError(translatedText.photoTypeError || translationKeys.photoTypeError);
 reader.readAsDataURL(file);
 };
 
 // Analyze photo with API
 const analyzePhoto = async (imageData) => {
+if (!scanConsent) {
+  setConsentError(translatedText.photoConsentRequired || translationKeys.photoConsentRequired);
+  setMode('select');
+  return;
+}
 setLoading(true);
 setFeedback(null);
 
@@ -313,16 +362,18 @@ try {
     body: JSON.stringify({ image: imageData || image }),
   });
 
+  if (!res.ok) throw new Error("Scan request failed");
   const data = await res.json();
   const feedbackText = data.feedback || data.error || "No response";
   setFeedback(feedbackText);
 
   // Save to history
-  saveScanToHistory(imageData || image, feedbackText);
+  if (saveScansLocally) setHistorySaveFailed(!saveScanToHistory(imageData || image, feedbackText));
+  else setHistorySaveFailed(false);
   
   setMode('results');
 } catch (err) {
-  setFeedback("Failed to analyze image. Please try again.");
+  setFeedback(translatedText.failedAnalysis || translationKeys.failedAnalysis);
   setMode('results');
 }
 
@@ -635,22 +686,23 @@ return (
       
       {compareScans(feedback, selectedScanForComparison.feedback) && (
         <div className="space-y-3">
-          {compareScans(feedback, selectedScanForComparison.feedback).improvements.length > 0 && (
-            <div className="p-3 bg-green-50 rounded-xl">
-              <p className="font-semibold text-green-700 text-sm mb-2">✅ Improvements</p>
+          <p className="text-xs leading-5 text-slate-500">{translatedText.differenceOnly}</p>
+          {compareScans(feedback, selectedScanForComparison.feedback).currentOnly.length > 0 && (
+            <div className="p-3 bg-slate-50 rounded-xl">
+              <p className="font-semibold text-slate-700 text-sm mb-2">{translatedText.improvements}</p>
               <ul className="space-y-1">
-                {compareScans(feedback, selectedScanForComparison.feedback).improvements.map((item, i) => (
+                {compareScans(feedback, selectedScanForComparison.feedback).currentOnly.map((item, i) => (
                   <li key={i} className="text-xs text-gray-600">• {item}</li>
                 ))}
               </ul>
             </div>
           )}
           
-          {compareScans(feedback, selectedScanForComparison.feedback).declines.length > 0 && (
-            <div className="p-3 bg-red-50 rounded-xl">
-              <p className="font-semibold text-red-700 text-sm mb-2">⚠️ Areas to Watch</p>
+          {compareScans(feedback, selectedScanForComparison.feedback).earlierOnly.length > 0 && (
+            <div className="p-3 bg-slate-50 rounded-xl">
+              <p className="font-semibold text-slate-700 text-sm mb-2">{translatedText.declines}</p>
               <ul className="space-y-1">
-                {compareScans(feedback, selectedScanForComparison.feedback).declines.map((item, i) => (
+                {compareScans(feedback, selectedScanForComparison.feedback).earlierOnly.map((item, i) => (
                   <li key={i} className="text-xs text-gray-600">• {item}</li>
                 ))}
               </ul>
@@ -674,18 +726,25 @@ return (
         </div>
       </div>
 
-      {/* Pre-scan disclaimer */}
-      <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-800">
-          <span className="font-bold">This is not a dental examination.</span> It gives general habit tips based on a photo, not a diagnosis. See a dentist for anything you're concerned about.
-        </p>
+      {/* Consent and local retention choices are explicit and default to off. */}
+      <div className="scan-privacy-controls">
+        <label className="scan-privacy-option">
+          <input type="checkbox" checked={scanConsent} onChange={(event) => { setScanConsent(event.target.checked); setConsentError(""); }} />
+          <span>{translatedText.photoConsent}</span>
+        </label>
+        <label className="scan-privacy-option scan-privacy-option--secondary">
+          <input type="checkbox" checked={saveScansLocally} onChange={(event) => setSaveScansLocally(event.target.checked)} />
+          <span>{translatedText.photoStorageConsent}</span>
+        </label>
+        {consentError && <p className="scan-privacy-error" role="alert">{consentError}</p>}
+        <p className="scan-privacy-note">You can use the photo feedback without saving it here. An optional saved copy stays in this browser until you delete it or clear site data. Avoid photos that show your face or identifying details.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
         <button
           onClick={startCamera}
-          className="group relative bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all overflow-hidden"
+          disabled={!scanConsent}
+          className="group relative bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all overflow-hidden disabled:cursor-not-allowed disabled:opacity-55"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
           <div className="relative z-10 flex items-center gap-4">
@@ -700,7 +759,7 @@ return (
           </div>
         </button>
 
-        <label className="group cursor-pointer">
+        <label className={`group ${scanConsent ? "cursor-pointer" : "cursor-not-allowed opacity-55"}`}>
           <div className="relative bg-white border-2 border-gray-200 rounded-3xl p-6 shadow-md hover:shadow-xl hover:border-blue-300 hover:scale-[1.02] transition-all">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -715,8 +774,9 @@ return (
           </div>
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             onChange={handleUpload}
+            disabled={!scanConsent}
             className="hidden"
           />
         </label>
@@ -920,6 +980,12 @@ return (
           General, educational observation only, not a diagnosis. See a licensed dentist for anything you're concerned about.
         </p>
       </div>
+
+      {historySaveFailed ? (
+        <p className="text-xs leading-5 text-amber-800" role="status">Your browser could not save this scan. The feedback is still available until you leave this page.</p>
+      ) : !saveScansLocally ? (
+        <p className="text-xs leading-5 text-slate-500">This photo and feedback were not saved to this browser.</p>
+      ) : null}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3">

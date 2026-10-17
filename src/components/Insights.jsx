@@ -340,7 +340,7 @@ export default function Insights({ habitData }) {
               </div>
               <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-400 to-cyan-500 transition-all duration-500"
+                  className="h-full bg-[var(--brand-action)] transition-all duration-500"
                   style={{ width: `${metric.value}%` }}
                 />
               </div>
@@ -372,7 +372,7 @@ export default function Insights({ habitData }) {
             </div>
             <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-orange-400 to-orange-500"
+                className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.morningRate}%` }}
               />
             </div>
@@ -388,7 +388,7 @@ export default function Insights({ habitData }) {
             </div>
             <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-600"
+                className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.nightRate}%` }}
               />
             </div>
@@ -404,7 +404,7 @@ export default function Insights({ habitData }) {
             </div>
             <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-cyan-400 to-cyan-500"
+                className="h-full bg-[var(--brand-action)]"
                 style={{ width: `${timePatterns.flossRate}%` }}
               />
             </div>
@@ -475,7 +475,7 @@ export default function Insights({ habitData }) {
       </div>
 
       {/* Share & Export */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
         <button
           onClick={() => {
             navigator.share?.({
@@ -483,10 +483,10 @@ export default function Insights({ habitData }) {
               text: `My SmileStreak routine score is ${healthScore.total}%.`
             });
           }}
-          className="flex flex-col items-center gap-1 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+          className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
-          <Share2 className="w-5 h-5 text-blue-600" />
-          <span className="text-xs text-gray-600">Share</span>
+          <Share2 className="h-4 w-4 text-[var(--brand)]" />
+          <span>Share</span>
         </button>
 
         <button
@@ -503,18 +503,18 @@ export default function Insights({ habitData }) {
             a.download = `smile-streak-insights-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
           }}
-          className="flex flex-col items-center gap-1 p-3 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+          className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
-          <Download className="w-5 h-5 text-green-600" />
-          <span className="text-xs text-gray-600">Export</span>
+          <Download className="h-4 w-4 text-[var(--brand)]" />
+          <span>Export</span>
         </button>
 
         <button
           onClick={() => window.print()}
-          className="flex flex-col items-center gap-1 p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
+          className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
-          <Printer className="w-5 h-5 text-purple-600" />
-          <span className="text-xs text-gray-600">Print</span>
+          <Printer className="h-4 w-4 text-[var(--brand)]" />
+          <span>Print</span>
         </button>
       </div>
     </div>

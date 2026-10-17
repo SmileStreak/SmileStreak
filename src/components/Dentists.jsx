@@ -56,6 +56,7 @@ export default function Dentists() {
   const [locationError, setLocationError] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [selectedPhotoAttributions, setSelectedPhotoAttributions] = useState([]);
+  const [selectedPhotoGoogleMapsUri, setSelectedPhotoGoogleMapsUri] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [searchRadius, setSearchRadius] = useState(31);
   const [showFilters, setShowFilters] = useState(false);
@@ -137,13 +138,7 @@ export default function Dentists() {
     if (placeDetails[placeId] || loadingDetails[placeId]) return;
     setLoadingDetails(prev => ({ ...prev, [placeId]: true }));
     try {
-      const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": import.meta.env.VITE_GOOGLE_MAPS_KEY,
-          "X-Goog-FieldMask": "id,displayName,formattedAddress,location,rating,userRatingCount,currentOpeningHours,photos,photos.authorAttributions,internationalPhoneNumber,websiteUri,regularOpeningHours,paymentOptions,parkingOptions,accessibilityOptions,businessStatus"
-        }
-      });
+      const response = await fetch(`/api/places?placeId=${encodeURIComponent(placeId)}`);
       if (!response.ok) throw new Error("Failed to fetch details");
       const data = await response.json();
       setPlaceDetails(prev => ({ ...prev, [placeId]: data }));
@@ -181,7 +176,7 @@ export default function Dentists() {
   // FIXED: AI Assistant function using Gemini with GEMINI_API_KEY
 // Updated AI Assistant function using the new API endpoint
 const askAIAssistant = async () => {
-  if (!aiQuery.trim()) return;
+  if (!aiQuery.trim() || aiQuery.trim().length > 1200) return;
   setAiLoading(true);
   try {
     const response = await fetch("/api/assistant", {
@@ -241,19 +236,8 @@ const askAIAssistant = async () => {
       });
       const { latitude, longitude } = position.coords;
       setUserLocation({ latitude, longitude });
-      const response = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": import.meta.env.VITE_GOOGLE_MAPS_KEY,
-          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.currentOpeningHours,places.nationalPhoneNumber,places.websiteUri,places.priceLevel,places.photos,places.photos.authorAttributions,places.businessStatus,places.accessibilityOptions,places.paymentOptions,places.parkingOptions,places.regularOpeningHours"
-        },
-        body: JSON.stringify({
-          includedTypes: ["dentist"],
-          maxResultCount: 20,
-          locationRestriction: { circle: { center: { latitude, longitude }, radius: Math.min(radius * 1609.34, 50000) } }
-        })
-      });
+      const params = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(Math.min(radius * 1609.34, 50000)) });
+      const response = await fetch(`/api/places?${params}`);
       if (!response.ok) throw new Error(`Google Places API error: ${response.status}`);
       const result = await response.json();
       const places = result.places || [];
@@ -282,7 +266,8 @@ const askAIAssistant = async () => {
         });
         const photos = place.photos?.map((photo) => ({
           name: photo.name,
-          url: `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=400&maxWidthPx=400&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`,
+          url: `/api/place-photo?name=${encodeURIComponent(photo.name)}`,
+          googleMapsUri: photo.googleMapsUri || null,
           authorAttributions: photo.authorAttributions || []
         })) || [];
         const name = place.displayName?.text || "Unknown";
@@ -392,7 +377,7 @@ const askAIAssistant = async () => {
     if (!photoResource) return null;
     if (photoResource.url) return photoResource.url;
     if (photoResource.name) {
-      return `https://places.googleapis.com/v1/${photoResource.name}/media?maxHeightPx=400&maxWidthPx=400&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`;
+      return `/api/place-photo?name=${encodeURIComponent(photoResource.name)}`;
     }
     if (typeof photoResource === 'string') return photoResource;
     return null;
@@ -492,14 +477,20 @@ const askAIAssistant = async () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <p className="text-sm text-gray-600 mb-4">Ask me anything about dental health, procedures, or finding the right dentist! ⚠️ This is general educational information, not a diagnosis or treatment plan. For anything specific to you, please see a licensed dentist. </p>
+            <p className="text-sm text-gray-600 mb-4">Ask a general dental education question. This is not a diagnosis or treatment plan; contact a licensed dentist about personal symptoms.</p>
+            <p id="assistant-privacy-note" className="text-xs leading-5 text-slate-600 mb-3">Your question is sent to Google Gemini to generate a response. Don’t include names, photos, contact details, or other identifying health information.</p>
             <div className="space-y-4">
+              <label htmlFor="dental-question" className="sr-only">Your general dental education question</label>
               <textarea
+                id="dental-question"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
+                maxLength={1200}
+                aria-describedby="assistant-privacy-note assistant-question-count"
                 placeholder="e.g., What's the difference between a crown and a filling? Or find me a dentist who accepts Medicaid..."
                 className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none resize-none h-32"
               />
+              <p id="assistant-question-count" className="-mt-3 text-right text-xs text-slate-600">{aiQuery.length}/1,200 characters</p>
               <button
                 onClick={askAIAssistant}
                 disabled={aiLoading || !aiQuery.trim()}
@@ -794,7 +785,7 @@ const askAIAssistant = async () => {
                       {d.photos.slice(0, 4).map((photo, idx) => {
                         const photoUrl = getPhotoUrl(photo);
                         return photoUrl ? (
-                          <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setShowPhotoModal(true); }} className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden hover:scale-105 transition-transform">
+                          <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setSelectedPhotoGoogleMapsUri(photo.googleMapsUri || null); setShowPhotoModal(true); }} className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden hover:scale-105 transition-transform">
                             <img src={photoUrl} alt={`${d.name} photo ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" 
                               onError={(e) => {
                                 e.target.onerror = null;
@@ -961,7 +952,7 @@ const askAIAssistant = async () => {
                 {index > 0 ? ", " : "Photo by "}
                 {author.uri ? <a href={author.uri} target="_blank" rel="noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a> : author.displayName}
               </React.Fragment>
-            )) : ""} · Google Maps
+            )) : ""} · {selectedPhotoGoogleMapsUri ? <a href={selectedPhotoGoogleMapsUri} target="_blank" rel="noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>View on Google Maps</a> : "Google Maps"}
           </p>
         </div>
       )}
@@ -1141,7 +1132,7 @@ const askAIAssistant = async () => {
                     {selectedDentist.photos.slice(0, 6).map((photo, idx) => {
                       const photoUrl = getPhotoUrl(photo);
                       return photoUrl ? (
-                        <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setShowPhotoModal(true); }} className="aspect-square rounded-xl overflow-hidden hover:scale-105 transition-transform">
+                        <button key={idx} onClick={() => { setSelectedPhoto(photoUrl); setSelectedPhotoAttributions(photo.authorAttributions || []); setSelectedPhotoGoogleMapsUri(photo.googleMapsUri || null); setShowPhotoModal(true); }} className="aspect-square rounded-xl overflow-hidden hover:scale-105 transition-transform">
                           <img src={photoUrl} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" 
                             onError={(e) => {
                               e.target.onerror = null;

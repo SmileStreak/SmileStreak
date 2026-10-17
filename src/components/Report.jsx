@@ -408,24 +408,18 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
       <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
         <h3 className="font-black text-gray-900 mb-4">{translatedText.completionDistribution}</h3>
         
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-4 rounded-2xl bg-green-50 border border-green-200">
-            <p className="text-3xl font-black text-green-600">{perfectDays}</p>
-            <p className="text-xs text-gray-600 mt-1">{translatedText.perfect}</p>
-            <p className="text-xs font-semibold text-green-600">{percent(perfectDays)}%</p>
-          </div>
-          
-          <div className="text-center p-4 rounded-2xl bg-yellow-50 border border-yellow-200">
-            <p className="text-3xl font-black text-yellow-600">{partialDays}</p>
-            <p className="text-xs text-gray-600 mt-1">{translatedText.partial}</p>
-            <p className="text-xs font-semibold text-yellow-600">{percent(partialDays)}%</p>
-          </div>
-          
-          <div className="text-center p-4 rounded-2xl bg-red-50 border border-red-200">
-            <p className="text-3xl font-black text-red-600">{skippedDays}</p>
-            <p className="text-xs text-gray-600 mt-1">{translatedText.skipped}</p>
-            <p className="text-xs font-semibold text-red-600">{percent(skippedDays)}%</p>
-          </div>
+        <div className="report-distribution" role="list" aria-label={translatedText.completionDistribution}>
+          {[
+            { label: translatedText.perfect, count: perfectDays, tone: "complete" },
+            { label: translatedText.partial, count: partialDays, tone: "partial" },
+            { label: translatedText.skipped, count: skippedDays, tone: "skipped" }
+          ].map(({ label, count, tone }) => (
+            <div className={`report-distribution__item is-${tone}`} key={tone} role="listitem">
+              <span className="report-distribution__label">{label}</span>
+              <span className="report-distribution__value">{count}</span>
+              <span className="report-distribution__percent">{percent(count)}%</span>
+            </div>
+          ))}
         </div>
       </div>
 
