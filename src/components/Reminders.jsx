@@ -1,26 +1,30 @@
 import { scheduleDailyNotifications } from "../utils/scheduleNotifications";
-import { useState, useEffect, useContext } from "react";
-import { getReminders, saveReminders } from "../utils/reminders";
+import { useState, useEffect, useContext, useRef } from "react";
+import { getReminders, getReminderPreference, getReminderStats, saveReminders, saveReminderPreference } from "../utils/reminders";
 import { requestNotificationPermission, setupFCMToken } from "../utils/notifications";
 import { savePushNotificationPreferences } from "../utils/pushNotifications";
 import { auth } from "../firebase";
 import { Bell, BellOff, Clock, Sparkles, Zap, CheckCircle2, Moon, Sun, Activity, Calendar, AlertCircle, Smartphone } from "lucide-react";
 import { TranslationContext } from "../App";
 
-const isIOS = /iPhone|iPad|iPo/.test(navigator.userAgent);
+const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPo/.test(navigator.userAgent);
 
 export default function Reminders() {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
   
   const [reminders, setReminders] = useState(getReminders());
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState("info");
+  const messageTimeoutRef = useRef(null);
+  const [storageWarning, setStorageWarning] = useState(false);
+  const [notificationPending, setNotificationPending] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [reminderStats, setReminderStats] = useState({ onTimeCount: 0, streak: 0 });
+  const [reminderStats] = useState(getReminderStats);
   const [translatedText, setTranslatedText] = useState({});
 
   // ── DENTIST REMINDER STATE ──
   const [dentistReminderEnabled, setDentistReminderEnabled] = useState(
-    () => JSON.parse(localStorage.getItem('dentistReminderEnabled') || 'false')
+    () => getReminderPreference('dentistReminderEnabled')
   );
   const [nextDentistVisit, setNextDentistVisit] = useState(null);
   const [lastDentistVisit, setLastDentistVisit] = useState(null);
@@ -28,12 +32,26 @@ export default function Reminders() {
 
   // ── ALIGNER REMINDER STATE ──
   const [alignerReminderEnabled, setAlignerReminderEnabled] = useState(
-    () => JSON.parse(localStorage.getItem('alignerReminderEnabled') || 'false')
+    () => getReminderPreference('alignerReminderEnabled')
   );
   const [alignerData, setAlignerData] = useState(null);
   const [traySwapDate, setTraySwapDate] = useState(null);
   const [showAlignerReminderSettings, setShowAlignerReminderSettings] = useState(false);
   const [customSwapDays, setCustomSwapDays] = useState(14);
+
+  const showMessage = (text, tone = "info", duration = 3000) => {
+    window.clearTimeout(messageTimeoutRef.current);
+    setMessage(text);
+    setMessageTone(tone);
+    if (duration > 0) {
+      messageTimeoutRef.current = window.setTimeout(() => {
+        setMessage("");
+        setMessageTone("info");
+      }, duration);
+    }
+  };
+
+  useEffect(() => () => window.clearTimeout(messageTimeoutRef.current), []);
 
   const translationKeys = {
     title: "Reminders",
@@ -55,6 +73,7 @@ export default function Reminders() {
     nightBrush: "Night Brush",
     flossTime: "Floss Time",
     enableButton: "Enable Notifications",
+    checkingNotifications: "Checking notifications…",
     tipsTitle: "Reminder Tips",
     tip1: "• Set reminders 30 minutes before meals for best results",
     tip2: "• Night reminders work best 1 hour before bed",
@@ -70,31 +89,33 @@ export default function Reminders() {
   };
 
   useEffect(() => {
+    let active = true;
     const loadTranslations = async () => {
       const translations = {};
       for (const [key, value] of Object.entries(translationKeys)) {
         translations[key] = await t(value);
       }
-      setTranslatedText(translations);
+      if (active) setTranslatedText(translations);
     };
-    loadTranslations();
+    loadTranslations().catch((error) => console.error("Could not load reminder translations:", error));
+    return () => { active = false; };
   }, [currentLanguage, t]);
 
-  useEffect(() => { saveReminders(reminders); }, [reminders]);
   useEffect(() => {
-    saveReminders(reminders);
+    setStorageWarning(!saveReminders(reminders));
     if (notificationsEnabled && auth.currentUser) {
       savePushNotificationPreferences({
         userId: auth.currentUser.uid,
         reminders,
         enabled: true,
-      }).catch(console.error);
+      }).catch((error) => {
+        console.error("Could not update background reminder preferences:", error);
+        showMessage("Background reminder delivery couldn’t be updated. Please check your connection and try again.", "error", 0);
+      });
     }
   }, [reminders, notificationsEnabled]);
 
   useEffect(() => {
-    const stats = JSON.parse(localStorage.getItem('reminderStats') || '{"onTimeCount": 0, "streak": 0}');
-    setReminderStats(stats);
     if ('Notification' in window) {
       setNotificationsEnabled(Notification.permission === 'granted');
     }
@@ -129,17 +150,36 @@ export default function Reminders() {
       }
     };
     loadData();
-    const interval = setInterval(loadData, 2000);
-    return () => clearInterval(interval);
+    const handleStorage = (event) => {
+      if (event.key === null || event.key === "habitData") loadData();
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   // ── SCHEDULE ALIGNER NOTIFICATIONS via Service Worker ──
   useEffect(() => {
-    localStorage.setItem('alignerReminderEnabled', JSON.stringify(alignerReminderEnabled));
-    if (!alignerReminderEnabled || !traySwapDate) return;
+    if (!saveReminderPreference('alignerReminderEnabled', alignerReminderEnabled)) setStorageWarning(true);
+    if (!alignerReminderEnabled) {
+      try {
+        const stored = localStorage.getItem('alignerSwapSchedule');
+        if (stored) {
+          const schedule = JSON.parse(stored);
+          localStorage.setItem('alignerSwapSchedule', JSON.stringify({ ...schedule, enabled: false }));
+        }
+      } catch (error) {
+        console.error("Could not disable the saved aligner schedule:", error);
+        setStorageWarning(true);
+      }
+      return;
+    }
+    if (!traySwapDate) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      showMessage("Your tray date is saved, but this browser cannot schedule swap notifications.", "error", 0);
+      return;
+    }
 
     const scheduleAlignerNotifications = async () => {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
       const reg = await navigator.serviceWorker.ready;
       if (!reg) return;
 
@@ -151,45 +191,47 @@ export default function Reminders() {
       };
       localStorage.setItem('alignerSwapSchedule', JSON.stringify(swapSchedule));
 
-      // Show a confirmation notification now via SW
-      if (Notification.permission === 'granted') {
-        reg.showNotification('Aligner reminder set', {
-          body: `We'll remind you to swap trays on ${traySwapDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`,
-          icon: '/icon-511.png',
-          badge: '/icon-511.png',
-          tag: 'aligner-swap-confirmation',
-        });
-      }
     };
 
-    scheduleAlignerNotifications();
+    scheduleAlignerNotifications().catch((error) => {
+      console.error("Could not schedule aligner reminders:", error);
+      showMessage("The aligner reminder setting was saved, but its notification could not be scheduled.", "error", 0);
+    });
   }, [alignerReminderEnabled, traySwapDate, customSwapDays]);
 
   // ── CHECK FOR DUE ALIGNER NOTIFICATIONS on load ──
   useEffect(() => {
     const checkAlignerNotifications = async () => {
+      if (!getReminderPreference('alignerReminderEnabled')) return;
       const stored = localStorage.getItem('alignerSwapSchedule');
       if (!stored) return;
-      const schedule = JSON.parse(stored);
+      let schedule;
+      try {
+        schedule = JSON.parse(stored);
+      } catch (error) {
+        console.error("Could not read the saved aligner reminder schedule:", error);
+        showMessage("Saved aligner reminder details couldn’t be read. Review the setup on Today.", "error", 0);
+        return;
+      }
       if (!schedule.enabled) return;
 
       const swapDate = new Date(schedule.nextSwapDate);
       const now = new Date();
       const daysUntil = Math.ceil((swapDate - now) / (1000 * 60 * 60 * 24));
 
-      if (!('serviceWorker' in navigator)) return;
+      if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
       const reg = await navigator.serviceWorker.ready;
       if (!reg || Notification.permission !== 'granted') return;
 
       if (daysUntil === 1) {
-        reg.showNotification('Tray swap tomorrow', {
+        await reg.showNotification('Tray swap tomorrow', {
           body: "Time to switch to your next aligner tray tomorrow. Make sure it's ready!",
           icon: '/icon-511.png',
           badge: '/icon-511.png',
           tag: 'aligner-swap-tomorrow',
         });
       } else if (daysUntil <= 0) {
-        reg.showNotification('Time to swap your tray', {
+        await reg.showNotification('Time to swap your tray', {
           body: "It's time to switch to your next aligner tray. Keep your treatment on track!",
           icon: '/icon-511.png',
           badge: '/icon-511.png',
@@ -197,18 +239,21 @@ export default function Reminders() {
         });
       }
     };
-    checkAlignerNotifications();
+    checkAlignerNotifications().catch((error) => {
+      console.error("Could not check aligner reminders:", error);
+      showMessage("The aligner reminder check couldn’t complete. Review the saved date and notification permission.", "error", 0);
+    });
   }, []);
 
   // ── DENTIST REMINDERS via Service Worker ──
   useEffect(() => {
-    localStorage.setItem('dentistReminderEnabled', JSON.stringify(dentistReminderEnabled));
+    if (!saveReminderPreference('dentistReminderEnabled', dentistReminderEnabled)) setStorageWarning(true);
     if (!dentistReminderEnabled || !nextDentistVisit) return;
 
     const scheduleDentistNotifications = async () => {
       if (!('serviceWorker' in navigator)) return;
       const reg = await navigator.serviceWorker.ready;
-      if (!reg || Notification.permission !== 'granted') return;
+      if (!reg || !('Notification' in window) || Notification.permission !== 'granted') return;
 
       const visitDate = new Date(nextDentistVisit);
       const now = new Date();
@@ -216,7 +261,8 @@ export default function Reminders() {
       const checkAndNotify = (targetDate, title, body, tag) => {
         const daysUntil = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
         if (daysUntil >= 0 && daysUntil <= 1) {
-          reg.showNotification(title, { body, icon: '/icon-511.png', tag });
+          reg.showNotification(title, { body, icon: '/icon-511.png', tag })
+            .catch((error) => console.error("Could not show dentist reminder:", error));
         }
       };
 
@@ -240,7 +286,10 @@ export default function Reminders() {
       );
     };
 
-    scheduleDentistNotifications();
+    scheduleDentistNotifications().catch((error) => {
+      console.error("Could not schedule dentist reminders:", error);
+      showMessage("Dentist reminder details couldn’t be scheduled. Check the visit date and try again.", "error", 0);
+    });
   }, [dentistReminderEnabled, nextDentistVisit]);
 
   // ── DENTIST SCHEDULED REMINDERS DISPLAY ──
@@ -263,81 +312,88 @@ export default function Reminders() {
 
   const updateTime = (key, value) => setReminders((prev) => ({ ...prev, [key]: value }));
 
-  const handleNotifications = async () => {
-    if (isIOS) {
-      // Check if running as installed PWA
-      const isStandalone = window.navigator.standalone === true;
-      if (!isStandalone) {
-        setMessage("First add SmileStreak to your Home Screen: tap Share → Add to Home Screen in Safari, then open from there.");
-        setTimeout(() => setMessage(""), 6000);
-        return;
-      }
-    }
+  const ensureNotificationPermission = async () => {
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") return true;
     const permission = await requestNotificationPermission();
     if (permission === "granted") {
-      scheduleDailyNotifications();
       setNotificationsEnabled(true);
-      setMessage(translatedText.notificationsEnabled || translationKeys.notificationsEnabled);
-      setTimeout(() => setMessage(""), 3000);
-      if (auth.currentUser) {
-        setupFCMToken(auth.currentUser).catch(err => console.error("Error setting up FCM token:", err));
+      return true;
+    }
+    const notice = permission === "unsupported"
+      ? "This browser doesn’t support notifications. You can still keep your reminder times here."
+      : permission === "denied"
+        ? translatedText.notificationsBlocked || translationKeys.notificationsBlocked
+        : "Notification permission wasn’t changed. You can allow it from your browser settings and try again.";
+    showMessage(notice, "error", 0);
+    return false;
+  };
+
+  const handleNotifications = async () => {
+    if (notificationPending) return;
+    setNotificationPending(true);
+    try {
+      if (isIOS) {
+        // Check if running as installed PWA
+        const isStandalone = window.navigator.standalone === true;
+        if (!isStandalone) {
+          showMessage("First add SmileStreak to your Home Screen: tap Share → Add to Home Screen in Safari, then open from there.", "info", 6000);
+          return;
+        }
       }
-      try {
-        await savePushNotificationPreferences({
-          userId: auth.currentUser?.uid,
-          reminders,
-          enabled: true,
-        });
+      if (await ensureNotificationPermission()) {
+        scheduleDailyNotifications();
         setNotificationsEnabled(true);
-        setMessage(translatedText.notificationsEnabled || translationKeys.notificationsEnabled);
-      } catch (error) {
-        setMessage(error.message);
+        if (auth.currentUser) {
+          setupFCMToken(auth.currentUser).catch((error) => console.error("Error setting up FCM token:", error));
+        }
+        showMessage(translatedText.notificationsEnabled || translationKeys.notificationsEnabled);
       }
-      setTimeout(() => setMessage(""), 3000);
-    } else if (permission === "denied") {
-      setMessage(translatedText.notificationsBlocked || translationKeys.notificationsBlocked);
-      setTimeout(() => setMessage(""), 5000);
+    } catch (error) {
+      console.error("Could not enable notifications:", error);
+      showMessage("Notifications couldn’t be enabled. Check your browser settings and try again.", "error", 0);
+    } finally {
+      setNotificationPending(false);
     }
   };
 
-  const quickSetMorning = () => { updateTime("morning", "08:00"); setMessage(translatedText.morningSet || translationKeys.morningSet); setTimeout(() => setMessage(""), 2000); };
-  const quickSetNight   = () => { updateTime("night",   "21:00"); setMessage(translatedText.nightSet  || translationKeys.nightSet);  setTimeout(() => setMessage(""), 2000); };
-  const quickSetFloss   = () => { updateTime("floss",   "20:30"); setMessage(translatedText.flossSet  || translationKeys.flossSet);  setTimeout(() => setMessage(""), 2000); };
+  const quickSetMorning = () => { updateTime("morning", "08:00"); showMessage(translatedText.morningSet || translationKeys.morningSet, "success", 2000); };
+  const quickSetNight   = () => { updateTime("night",   "21:00"); showMessage(translatedText.nightSet  || translationKeys.nightSet, "success", 2000); };
+  const quickSetFloss   = () => { updateTime("floss",   "20:30"); showMessage(translatedText.flossSet  || translationKeys.flossSet, "success", 2000); };
 
   const handleDentistReminderToggle = async () => {
-    if (!dentistReminderEnabled && Notification.permission !== 'granted') {
-      const permission = await requestNotificationPermission();
-      if (permission !== 'granted') {
-        setMessage("Please enable notifications first.");
-        setTimeout(() => setMessage(""), 4000);
-        return;
-      }
-      setNotificationsEnabled(true);
-      if (auth.currentUser) {
-        setupFCMToken(auth.currentUser).catch(err => console.error("Error setting up FCM token:", err));
-      }
+    if (notificationPending) return;
+    setNotificationPending(true);
+    try {
+      if (!dentistReminderEnabled && !(await ensureNotificationPermission())) return;
+      setDentistReminderEnabled((prev) => !prev);
+      showMessage(!dentistReminderEnabled
+        ? "Visit reminder saved. SmileStreak checks the date when you open Reminders."
+        : "Dentist visit reminders disabled.", "success");
+      if (!dentistReminderEnabled && auth.currentUser) setupFCMToken(auth.currentUser).catch((error) => console.error("Error setting up FCM token:", error));
+    } catch (error) {
+      console.error("Could not change dentist reminders:", error);
+      showMessage("Dentist reminders couldn’t be changed. Please try again.", "error", 0);
+    } finally {
+      setNotificationPending(false);
     }
-    setDentistReminderEnabled(prev => !prev);
-    setMessage(!dentistReminderEnabled ? "Dentist visit reminders enabled." : "Dentist visit reminders disabled.");
-    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleAlignerReminderToggle = async () => {
-    if (!alignerReminderEnabled && Notification.permission !== 'granted') {
-      const permission = await requestNotificationPermission();
-      if (permission !== 'granted') {
-        setMessage("Please enable notifications first.");
-        setTimeout(() => setMessage(""), 4000);
-        return;
-      }
-      setNotificationsEnabled(true);
-      if (auth.currentUser) {
-        setupFCMToken(auth.currentUser).catch(err => console.error("Error setting up FCM token:", err));
-      }
+    if (notificationPending) return;
+    setNotificationPending(true);
+    try {
+      if (!alignerReminderEnabled && !(await ensureNotificationPermission())) return;
+      setAlignerReminderEnabled((prev) => !prev);
+      showMessage(!alignerReminderEnabled
+        ? "Tray reminder saved. SmileStreak checks the date when you open Reminders."
+        : "Aligner swap reminders disabled.", "success");
+      if (!alignerReminderEnabled && auth.currentUser) setupFCMToken(auth.currentUser).catch((error) => console.error("Error setting up FCM token:", error));
+    } catch (error) {
+      console.error("Could not change aligner reminders:", error);
+      showMessage("Aligner reminders couldn’t be changed. Please try again.", "error", 0);
+    } finally {
+      setNotificationPending(false);
     }
-    setAlignerReminderEnabled(prev => !prev);
-    setMessage(!alignerReminderEnabled ? "Aligner swap reminders enabled." : "Aligner swap reminders disabled.");
-    setTimeout(() => setMessage(""), 3000);
   };
 
   // Push all future swap reminders back by N days
@@ -348,14 +404,19 @@ export default function Reminders() {
     setTraySwapDate(newSwapDate);
 
     // Update in localStorage so it persists
-    const stored = localStorage.getItem('alignerSwapSchedule');
-    if (stored) {
-      const schedule = JSON.parse(stored);
-      schedule.nextSwapDate = newSwapDate.toISOString();
-      localStorage.setItem('alignerSwapSchedule', JSON.stringify(schedule));
+    try {
+      const stored = localStorage.getItem('alignerSwapSchedule');
+      if (stored) {
+        const schedule = JSON.parse(stored);
+        schedule.nextSwapDate = newSwapDate.toISOString();
+        localStorage.setItem('alignerSwapSchedule', JSON.stringify(schedule));
+      }
+      showMessage(`All future swap reminders pushed back ${days} day${days !== 1 ? 's' : ''}.`, "success");
+    } catch (error) {
+      console.error("Could not save the updated aligner schedule:", error);
+      setStorageWarning(true);
+      showMessage("The new date is shown for now, but couldn’t be saved on this device.", "error", 0);
     }
-    setMessage(`All future swap reminders pushed back ${days} day${days !== 1 ? 's' : ''}.`);
-    setTimeout(() => setMessage(""), 3000);
   };
 
   const formatVisitDate = (iso) => {
@@ -396,6 +457,12 @@ export default function Reminders() {
           <p className="text-sm opacity-90">{translatedText.subtitle}</p>
         </div>
       </div>
+
+      {storageWarning && (
+        <p className="reminder-storage-warning" role="alert">
+          Reminder changes may not persist on this device. Check browser storage settings before leaving this page.
+        </p>
+      )}
 
       {/* Notification Status */}
       <div className={`reminder-notification-status rounded-xl p-5 border ${notificationsEnabled ? "is-enabled" : "is-disabled"}`}>
@@ -540,6 +607,8 @@ export default function Reminders() {
                 role="switch"
                 aria-checked={alignerReminderEnabled}
                 aria-label="Aligner tray swap reminders"
+                disabled={notificationPending}
+                aria-busy={notificationPending}
                 className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${alignerReminderEnabled ? "bg-blue-500" : "bg-gray-300"}`}
               >
                 <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${alignerReminderEnabled ? "left-6" : "left-0.5"}`} />
@@ -641,8 +710,9 @@ export default function Reminders() {
             role="switch"
             aria-checked={dentistReminderEnabled}
             aria-label="Dentist visit reminders"
-            disabled={!nextDentistVisit}
-            className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"} ${!nextDentistVisit ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+            disabled={!nextDentistVisit || notificationPending}
+            aria-busy={notificationPending}
+            className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"} ${!nextDentistVisit || notificationPending ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${dentistReminderEnabled ? "left-6" : "left-0.5"}`} />
           </button>
@@ -678,15 +748,15 @@ export default function Reminders() {
 
       {/* Enable Button */}
       {!notificationsEnabled && (
-        <button onClick={handleNotifications} className="reminder-enable-action w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
+        <button onClick={handleNotifications} disabled={notificationPending} aria-busy={notificationPending} className="reminder-enable-action w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
           <Bell className="w-5 h-5" />
-          {translatedText.enableButton}
+          {notificationPending ? (translatedText.checkingNotifications || "Checking notifications…") : translatedText.enableButton}
         </button>
       )}
 
       {/* Message */}
       {message && (
-        <div className="reminder-feedback bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center" role="status" aria-live="polite">
+        <div className={`reminder-feedback reminder-feedback--${messageTone} bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center`} role={messageTone === "error" ? "alert" : "status"} aria-live={messageTone === "error" ? "assertive" : "polite"}>
           <p className="text-sm text-gray-700 font-medium">{message}</p>
         </div>
       )}

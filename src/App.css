@@ -1679,7 +1679,13 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-schedule-row { padding: 10px 0 !important; border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
 .reminder-adjust-action { min-height: 36px; border-color: var(--line-strong) !important; border-radius: 6px !important; background: var(--surface) !important; color: var(--brand) !important; }
 .reminder-enable-action { min-height: 46px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
+.reminder-enable-action:disabled, .reminder-toggle:disabled { cursor: wait; opacity: .62; }
 .reminder-feedback { padding: 11px 14px !important; border-color: var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; text-align: left !important; }
+.reminder-feedback--error { border-color: #c6a5a1 !important; background: #f7f2f1 !important; }
+.reminder-feedback--error p { color: #754641 !important; }
+.reminder-feedback--success { border-color: #bdcbc0 !important; background: #f1f5f1 !important; }
+.reminder-feedback--success p { color: #405a48 !important; }
+.reminder-storage-warning { margin: 0; padding: 10px 12px; border-left: 2px solid #a56f69; color: #754641; background: #f7f2f1; font-size: 12px; line-height: 1.5; }
 .reminder-help-note { padding: 12px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
 .reminder-help-note > div > svg { color: var(--brand) !important; }
 .reminder-help-note ul { padding-left: 16px; list-style: disc; }
@@ -1695,6 +1701,11 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-empty-state p:first-child { color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
 .reminder-empty-state p + p { margin-top: 3px; color: var(--ink-muted); font-size: 12px; }
 html.dark .reminder-feature-section { border-color: var(--line); }
+html.dark .reminder-feedback--error { border-color: #765c59 !important; background: #302627 !important; }
+html.dark .reminder-feedback--error p, html.dark .reminder-storage-warning { color: #efbbb5 !important; }
+html.dark .reminder-storage-warning { border-color: #765c59; background: #302627; }
+html.dark .reminder-feedback--success { border-color: #4c6352 !important; background: #26332a !important; }
+html.dark .reminder-feedback--success p { color: #c3d6c8 !important; }
 
 .insights-score-band {
   display: grid;
