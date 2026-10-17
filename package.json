@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource-variable/newsreader": "^5.3.0",
-    "@fontsource-variable/source-sans-3": "^5.3.1",
+    "@fontsource-variable/manrope": "^5.3.0",
     "@google/generative-ai": "^0.21.0",
     "@gsap/react": "^2.1.2",
     "axios": "^1.6.0",

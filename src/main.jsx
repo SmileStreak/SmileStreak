@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "@fontsource-variable/source-sans-3";
+import "@fontsource-variable/manrope";
 import "./entry.css";
 
 const App = lazy(() => import("./App.jsx"));
@@ -99,10 +99,10 @@ function Root() {
 }
 
 const styles = {
-  page: { minHeight: "100vh", boxSizing: "border-box", display: "grid", placeItems: "center", padding: "32px 20px", background: "#f7f8f6", color: "#2a2a2a", fontFamily: '"Source Sans 3", ui-sans-serif, system-ui, sans-serif' },
+  page: { minHeight: "100vh", boxSizing: "border-box", display: "grid", placeItems: "center", padding: "32px 20px", background: "#f7f8f6", color: "#2a2a2a", fontFamily: '"Manrope Variable", Manrope, ui-sans-serif, system-ui, sans-serif' },
   panel: { width: "100%", maxWidth: 440, boxSizing: "border-box", padding: "36px 32px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12 },
-  brand: { margin: "0 0 32px", color: "#2a2a2a", fontFamily: '"Avenir Next", Avenir, sans-serif', fontSize: 20, fontWeight: 650, letterSpacing: "-0.055em" },
-  title: { margin: "0 0 12px", fontFamily: "Georgia, serif", fontSize: 30, lineHeight: 1.15, letterSpacing: "-.025em", fontWeight: 500 },
+  brand: { margin: "0 0 32px", color: "#2a2a2a", fontFamily: '"Manrope Variable", Manrope, sans-serif', fontSize: 20, fontWeight: 700, letterSpacing: "-0.045em" },
+  title: { margin: "0 0 12px", fontFamily: '"Manrope Variable", Manrope, sans-serif', fontSize: 28, lineHeight: 1.2, letterSpacing: "-.035em", fontWeight: 650 },
   copy: { margin: "0 0 24px", color: "#555", fontSize: 16, lineHeight: 1.55 },
   label: { display: "block", marginBottom: 7, fontSize: 14, fontWeight: 600 },
   input: { boxSizing: "border-box", width: "100%", minHeight: 46, padding: "10px 12px", border: "1px solid #cbd5df", borderRadius: 7, color: "#2a2a2a", background: "#fff", fontSize: 16 },
