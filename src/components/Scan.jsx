@@ -145,7 +145,8 @@ privacyNote: "You can get feedback without saving it here. Optional copies stay 
 closeHistory: "Close scan history",
 closeShareDialog: "Close share dialog",
 closeExportOptions: "Close export options",
-closeComparison: "Close scan comparison"
+closeComparison: "Close scan comparison",
+scanPhotoAlt: "Saved scan photo"
 };
 
 // Camera guidance steps
@@ -674,7 +675,7 @@ return (
               <div key={scan.id} className="scan-history-row group flex gap-3 p-3 rounded-xl bg-gray-50 transition-colors">
                 <img 
                   src={scan.image} 
-                  alt="Scan" 
+                  alt={translatedText.scanPhotoAlt || "Saved scan photo"}
                   className="w-20 h-20 rounded-lg object-cover"
                 />
                 <div className="flex-1">
