@@ -168,7 +168,7 @@ html.dark .auth-signin-error { color: #f0a39a; }
 .app-header-control:focus-visible, .app-account-control:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .app-account-control { border-radius: 7px; transition: opacity 180ms ease-out, transform 180ms ease-out; }
 .app-account-control img { border-color: var(--line-strong) !important; box-shadow: none !important; }
-.app-header-menu { border-radius: 8px !important; border-color: var(--line) !important; box-shadow: 0 4px 14px rgb(42 42 42 / .04) !important; }
+.app-header-menu { max-height: calc(100vh - 6rem); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; border-radius: 8px !important; border-color: var(--line) !important; box-shadow: 0 4px 14px rgb(42 42 42 / .04) !important; }
 .app-header-menu > div:first-child { border-color: var(--line) !important; }
 .app-header-menu button { min-height: 40px; color: var(--ink-secondary); }
 .app-header-menu button:hover { background: var(--surface-quiet) !important; }
