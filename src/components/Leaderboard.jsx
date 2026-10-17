@@ -1,16 +1,62 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Trophy, Search, Shield, Clock } from "lucide-react";
 import { collection, doc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { calculateStreaks } from "../utils/progress";
+import { TranslationContext } from "../App";
 
 export default function Leaderboard({ user, darkMode }) {
+  const { t, currentLanguage } = useContext(TranslationContext);
+  const [texts, setTexts] = useState({});
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [timeRemaining, setTimeRemaining] = useState({ days: 0, hours: 0, minutes: 0 });
+
+  const copy = {
+    loading: "Loading leaderboard",
+    unavailable: "Leaderboard unavailable",
+    loadError: "We couldn’t load this week’s rankings. Your streak and task tracking are still available.",
+    retry: "Try again",
+    title: "League leaderboard",
+    rankedBy: "Ranked by weekly points",
+    yourLeague: "Your league",
+    yourPlace: "Your place",
+    weeklyPoints: "Weekly points",
+    currentStreak: "Current streak",
+    seasonOutlook: "Season outlook",
+    rankPosition: "Rank position in league",
+    searchUsers: "Search usernames",
+    searchPlaceholder: "Search username…",
+    leagueRankings: "League rankings",
+    noPlayers: "No players found in your league",
+    dayStreak: "day streak",
+    daysLabel: "days",
+    pointsShort: "pts",
+    players: "players in this league",
+    seasonEnds: "Season ends in:",
+    days: "d",
+    hours: "h",
+    minutes: "m",
+    pending: "Position pending",
+    promotion: "Promotion zone",
+    maintaining: "Maintaining position",
+    belowLine: "Below promotion line",
+  };
+
+  useEffect(() => {
+    let active = true;
+    const translate = async () => {
+      const entries = await Promise.all(Object.entries(copy).map(async ([key, value]) => [key, await t(value)]));
+      if (active) setTexts(Object.fromEntries(entries));
+    };
+    translate().catch((error) => console.error("Could not load leaderboard translations:", error));
+    return () => { active = false; };
+  }, [currentLanguage, t]);
+
+  const T = (key) => texts[key] || copy[key];
 
   // ── TIME REMAINING CALCULATION ──
   useEffect(() => {
@@ -134,20 +180,20 @@ export default function Leaderboard({ user, darkMode }) {
 
   // ── PROMOTION STATUS ──
   const getPromotionStatus = (rank, totalPlayers) => {
-    if (totalPlayers === 0) return { status: "Position pending", color: "is-neutral" };
+    if (totalPlayers === 0) return { status: T("pending"), color: "is-neutral" };
     const percentile = rank / totalPlayers;
     if (percentile <= 0.2) {
-      return { status: "Promotion zone", color: "is-positive" };
+      return { status: T("promotion"), color: "is-positive" };
     } else if (percentile <= 0.8) {
-      return { status: "Maintaining position", color: "is-neutral" };
+      return { status: T("maintaining"), color: "is-neutral" };
     } else {
-      return { status: "Below promotion line", color: "is-caution" };
+      return { status: T("belowLine"), color: "is-caution" };
     }
   };
 
   if (loading) {
     return (
-      <div className={`leaderboard-loading w-full rounded-2xl p-8 text-center ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`} role="status" aria-label="Loading leaderboard">
+      <div className={`leaderboard-loading w-full rounded-2xl p-8 text-center ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`} role="status" aria-label={T("loading")}>
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mx-auto mb-4"></div>
           <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mx-auto"></div>
@@ -159,9 +205,9 @@ export default function Leaderboard({ user, darkMode }) {
   if (loadError) {
     return (
       <section className={`leaderboard-error ${darkMode ? "is-dark" : ""}`} role="alert" aria-labelledby="leaderboard-error-title">
-        <h2 id="leaderboard-error-title">Leaderboard unavailable</h2>
-        <p>We couldn’t load this week’s rankings. Your streak and task tracking are still available.</p>
-        <button type="button" onClick={() => setLoadAttempt(attempt => attempt + 1)}>Try again</button>
+        <h2 id="leaderboard-error-title">{T("unavailable")}</h2>
+        <p>{T("loadError")}</p>
+        <button type="button" onClick={() => setLoadAttempt(attempt => attempt + 1)}>{T("retry")}</button>
       </section>
     );
   }
@@ -173,8 +219,8 @@ export default function Leaderboard({ user, darkMode }) {
       <div className={`leaderboard-header border-b p-5 ${darkMode ? 'border-gray-700' : 'border-slate-200'}`}>
         <div className="flex items-center gap-3">
           <div>
-            <h2 id="leaderboard-title" className={`font-serif text-xl font-medium tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>League leaderboard</h2>
-            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>Ranked by weekly points</p>
+            <h2 id="leaderboard-title" className={`font-serif text-xl font-medium tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{T("title")}</h2>
+            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>{T("rankedBy")}</p>
           </div>
         </div>
       </div>
@@ -188,18 +234,18 @@ export default function Leaderboard({ user, darkMode }) {
             <div className="leaderboard-overview-heading">
               <div className="leaderboard-league-name">
                 <Trophy aria-hidden="true" />
-                <div><span>Your league</span><strong>{currentUser.league || "Bronze"}</strong></div>
+                <div><span>{T("yourLeague")}</span><strong>{currentUser.league || "Bronze"}</strong></div>
               </div>
               <div className="leaderboard-position">
-                <span>Your place</span><strong>#{currentUser.rank}</strong>
+                <span>{T("yourPlace")}</span><strong>#{currentUser.rank}</strong>
               </div>
             </div>
             <dl className="leaderboard-overview-stats">
-              <div><dt>Weekly points</dt><dd>{currentUser.weeklyPoints || 0}</dd></div>
-              <div><dt>Current streak</dt><dd>{currentUser.currentStreak} days</dd></div>
-              <div><dt>Season outlook</dt><dd className={position.color}><Shield aria-hidden="true" />{position.status}</dd></div>
+              <div><dt>{T("weeklyPoints")}</dt><dd>{currentUser.weeklyPoints || 0}</dd></div>
+              <div><dt>{T("currentStreak")}</dt><dd>{currentUser.currentStreak} {T("daysLabel")}</dd></div>
+              <div><dt>{T("seasonOutlook")}</dt><dd className={position.color}><Shield aria-hidden="true" />{position.status}</dd></div>
             </dl>
-            <div className="leaderboard-standing-track" role="progressbar" aria-label="Rank position in league" aria-valuemin="1" aria-valuemax={players.length || 1} aria-valuenow={currentUser.rank}>
+            <div className="leaderboard-standing-track" role="progressbar" aria-label={T("rankPosition")} aria-valuemin="1" aria-valuemax={players.length || 1} aria-valuenow={currentUser.rank}>
               <span style={{ width: `${percentile}%` }} />
             </div>
           </div>
@@ -213,8 +259,8 @@ export default function Leaderboard({ user, darkMode }) {
         }`}>
           <Search className="w-4 h-4 mr-2 text-gray-400" />
           <input
-            aria-label="Search usernames"
-            placeholder="Search username..."
+            aria-label={T("searchUsers")}
+            placeholder={T("searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={`bg-transparent outline-none flex-1 text-sm ${
@@ -225,10 +271,10 @@ export default function Leaderboard({ user, darkMode }) {
       </div>
 
       {/* ── RANKED LIST ── */}
-      <ol className="leaderboard-ranking-list mt-4 max-h-[360px] overflow-y-auto px-4 pb-4" aria-label="League rankings">
+      <ol className="leaderboard-ranking-list mt-4 max-h-[360px] overflow-y-auto px-4 pb-4" aria-label={T("leagueRankings")}>
         {filteredPlayers.length === 0 && (
           <li className={`leaderboard-empty text-center py-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            No players found in your league
+            {T("noPlayers")}
           </li>
         )}
         {filteredPlayers.map((player) => (
@@ -246,12 +292,12 @@ export default function Leaderboard({ user, darkMode }) {
               )}
               <div>
                 <p className="font-bold text-sm">@{player.username}</p>
-                <p className="leaderboard-player-streak">{player.currentStreak} day streak</p>
+                <p className="leaderboard-player-streak">{player.currentStreak} {T("dayStreak")}</p>
               </div>
             </div>
             <div className="text-right">
               <p className="leaderboard-player-points">
-                {player.weeklyPoints} <span>pts</span>
+                {player.weeklyPoints} <span>{T("pointsShort")}</span>
               </p>
             </div>
           </li>
@@ -262,11 +308,11 @@ export default function Leaderboard({ user, darkMode }) {
       <div className={`leaderboard-footer px-4 py-3 text-center border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex flex-col items-center gap-1">
           <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            {players.length} players in this league
+            {players.length} {T("players")}
           </p>
           <div className="flex items-center gap-2 text-xs text-gray-400">
             <Clock className="w-3 h-3" />
-            <span>Season ends in: {timeRemaining.days}d {timeRemaining.hours}h {timeRemaining.minutes}m</span>
+            <span>{T("seasonEnds")} {timeRemaining.days}{T("days")} {timeRemaining.hours}{T("hours")} {timeRemaining.minutes}{T("minutes")}</span>
           </div>
         </div>
       </div>
