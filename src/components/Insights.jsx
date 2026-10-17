@@ -23,15 +23,15 @@ export default function Insights({ habitData }) {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        setShareFeedback("Share sheet opened.");
+        setShareFeedback(translatedText.shareSheetOpened || translationKeys.shareSheetOpened);
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareData.text);
-        setShareFeedback("Summary copied to clipboard.");
+        setShareFeedback(translatedText.summaryCopied || translationKeys.summaryCopied);
       } else {
-        setShareFeedback("Sharing isn’t available in this browser.");
+        setShareFeedback(translatedText.shareUnavailable || translationKeys.shareUnavailable);
       }
     } catch (error) {
-      if (error?.name !== "AbortError") setShareFeedback("We couldn’t share the summary. Try exporting it instead.");
+      if (error?.name !== "AbortError") setShareFeedback(translatedText.shareFailed || translationKeys.shareFailed);
     }
   };
 
@@ -87,7 +87,14 @@ export default function Insights({ habitData }) {
     needsWorkRange: "<50%",
     goodRange: "50-80%",
     excellentRange: "80%+",
-    dayStreak: "Day Streak!"
+    dayStreak: "Day Streak!",
+    shareAction: "Share",
+    exportAction: "Export",
+    printAction: "Print",
+    shareSheetOpened: "Share sheet opened.",
+    summaryCopied: "Summary copied to clipboard.",
+    shareUnavailable: "Sharing isn’t available in this browser.",
+    shareFailed: "We couldn’t share the summary. Try exporting it instead."
   };
 
   // Keep translation loading mounted across empty and populated states so
@@ -511,7 +518,7 @@ export default function Insights({ habitData }) {
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
           <Share2 className="h-4 w-4 text-[var(--brand)]" />
-          <span>Share</span>
+          <span>{translatedText.shareAction || translationKeys.shareAction}</span>
         </button>
 
         <button
@@ -532,7 +539,7 @@ export default function Insights({ habitData }) {
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
           <Download className="h-4 w-4 text-[var(--brand)]" />
-          <span>Export</span>
+          <span>{translatedText.exportAction || translationKeys.exportAction}</span>
         </button>
 
         <button
@@ -540,7 +547,7 @@ export default function Insights({ habitData }) {
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-100"
         >
           <Printer className="h-4 w-4 text-[var(--brand)]" />
-          <span>Print</span>
+          <span>{translatedText.printAction || translationKeys.printAction}</span>
         </button>
         <p className="insights-share-feedback" role="status" aria-live="polite">{shareFeedback}</p>
       </div>
