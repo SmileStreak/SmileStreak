@@ -5,7 +5,7 @@ import { getDateFromKey, getDateKey, getYesterdayKey } from "../utils/date.js";
 import { calculateStreaks } from "../utils/streak.js";
 import { translateBatch } from "../utils/translate.js";
 import {
-Clock, CheckCircle2, Circle, Share2, Heart, Sparkles, Zap, Sun, Moon, Brush
+Clock, CheckCircle2, Circle, Share2, Heart, BookOpen, Zap, Sun, Moon, Brush
 } from "lucide-react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
@@ -930,7 +930,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 {/* ── TIP OF THE DAY ── */}
 <aside className="today-tip-note">
       <div className="today-tip-note__label">
-        <Sparkles className="w-4 h-4" />
+        <BookOpen className="w-4 h-4" aria-hidden="true" />
         <p>{T("Tip of the Day")}</p>
       </div>
       <div className="today-tip-note__body">

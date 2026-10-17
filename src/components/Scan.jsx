@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useContext } from "react";
 import {
-Camera, Upload, X, Sparkles, History, ArrowLeft, ChevronRight,
+Camera, Upload, X, History, ArrowLeft, ChevronRight,
 AlertCircle, CheckCircle2, TrendingUp, Image as ImageIcon,
 Download, Share2, Printer, Calendar, Clock, MapPin, Phone,
 Mail, User, Star, FileText, BarChart3, Brain,
@@ -521,7 +521,7 @@ return (
 <div className="scan-page space-y-6 pb-8">
 <div className="page-heading-surface">
 <div className="animate-pulse flex items-center gap-2">
-<Sparkles className="w-6 h-6" />
+<Camera className="w-6 h-6" aria-hidden="true" />
 <h2 className="text-2xl font-black">Loading…</h2>
 </div>
 </div>
@@ -986,7 +986,7 @@ return (
 
       <div className="scan-analyzing-panel bg-white rounded-3xl p-8 shadow-xl text-center" role="status" aria-live="polite">
         <div className="scan-analyzing-mark mx-auto mb-4 flex items-center justify-center">
-          <Sparkles className="w-5 h-5" aria-hidden="true" />
+          <Activity className="w-5 h-5" aria-hidden="true" />
         </div>
         <h3 className="text-xl font-black text-gray-900 mb-2">{translatedText.analyzingTitle}</h3>
         <p className="text-sm text-gray-600 mb-4">{translatedText.analyzingDesc}</p>

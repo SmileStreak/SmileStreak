@@ -5,7 +5,7 @@ import { requestNotificationPermission, setupFCMToken } from "../utils/notificat
 import { savePushNotificationPreferences } from "../utils/pushNotifications";
 import { getDateFromKey, getDateKey } from "../utils/date";
 import { auth } from "../firebase";
-import { Bell, BellOff, Clock, Sparkles, Zap, CheckCircle2, Moon, Sun, Activity, Calendar, AlertCircle, Smartphone } from "lucide-react";
+import { Bell, BellOff, Clock, BookOpen, Zap, CheckCircle2, Moon, Sun, Activity, Calendar, AlertCircle, Smartphone } from "lucide-react";
 import { TranslationContext } from "../App";
 
 const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPo/.test(navigator.userAgent);
@@ -805,7 +805,7 @@ export default function Reminders() {
       {/* Tips */}
       <aside className="reminder-help-note bg-slate-50 border border-purple-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
-          <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+          <BookOpen className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <p className="font-bold text-gray-900 text-sm mb-2">{translatedText.tipsTitle}</p>
             <ul className="text-xs text-gray-600 space-y-1">
