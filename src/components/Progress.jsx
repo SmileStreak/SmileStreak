@@ -3,7 +3,7 @@ import { ACHIEVEMENTS } from "../data";
 import { calculateStreaks } from "../utils/progress";
 import { getDateKey, isDateKey } from "../utils/date";
 import { Trophy, Lock, Sparkles, CheckCircle2, Sun, Moon, Brush } from "lucide-react";
-import { useState, useEffect, useContext, useMemo } from "react";
+import { useState, useEffect, useContext, useMemo, useRef } from "react";
 import { TranslationContext } from "../App";
 import Presence from "./Presence";
 
@@ -12,6 +12,7 @@ export default function Progress({ habitData }) {
   const [texts, setTexts] = useState({});
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [tooltip, setTooltip] = useState(null);
+  const achievementReturnFocusRef = useRef(null);
 
   useEffect(() => {
     if (!tooltip?.pinned) return undefined;
@@ -21,6 +22,42 @@ export default function Progress({ habitData }) {
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [tooltip?.pinned]);
+
+  useEffect(() => {
+    const dialog = selectedAchievement
+      ? document.getElementById("achievement-dialog-title")?.closest('[role="dialog"]')
+      : null;
+    if (!dialog) {
+      if (achievementReturnFocusRef.current?.isConnected) achievementReturnFocusRef.current.focus();
+      achievementReturnFocusRef.current = null;
+      return undefined;
+    }
+
+    if (!achievementReturnFocusRef.current) achievementReturnFocusRef.current = document.activeElement;
+    const getFocusable = () => [...dialog.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])')];
+    const focusable = getFocusable();
+    (focusable[0] || dialog).focus();
+    const handleDialogKeys = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSelectedAchievement(null);
+      } else if (event.key === "Tab") {
+        const items = getFocusable();
+        if (!items.length) { event.preventDefault(); dialog.focus(); return; }
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleDialogKeys);
+    return () => document.removeEventListener("keydown", handleDialogKeys);
+  }, [selectedAchievement]);
 
   const todayKey = getDateKey();
   const habitEntries = Object.entries(habitData || {}).filter(([key]) => isDateKey(key) && key <= todayKey);
