@@ -160,7 +160,7 @@ const UI_STRINGS = [
 "Let's start your day right!", "Great start — keep going!",
 "Almost there, one more to go!", "All done — you're unstoppable!",
 "tasks remaining", "task remaining", "All tasks complete today",
-"Multiplier Active", "Current streak", "Personal best", "Weekly completion", "Streak bonus",
+"Multiplier Active", "Goal reached!", "Current streak", "Personal best", "Weekly completion", "Streak bonus",
 "Energised", "Good", "Calm", "Tired", "Meh", "Unwell",
 "Week Warrior", "Monthly Master", "Century Club", "Perfect Week", "Perfect Month",
 "Circular Motion", "45° Angle", "Two Full Minutes", "Brush Your Tongue",
@@ -562,8 +562,8 @@ return () => { if (timerIntervalRef.current) clearInterval(timerIntervalRef.curr
 const handleShare = async () => {
 const { current } = calculateStreaks(habitData);
 track("share_clicked");
-const alignerLine = isAlignerScheduleValid ? `\n😁 Aligner wear: ${alignerWornHours.toFixed(1)}h today` : "";
-const shareText = `🦷 SmileStreak Update!\n\n🔥 ${current} day streak\n✅ ${completedCount}/3 tasks done today\n📊 ${consistencyScore}% consistency this week\n⚡ ${streakMultiplier}x streak multiplier${alignerLine}\n\nBuilding better dental habits one day at a time! 😁`;
+const alignerLine = isAlignerScheduleValid ? `\nAligner wear: ${alignerWornHours.toFixed(1)}h today` : "";
+const shareText = `My SmileStreak progress\n\n${current}-day streak\n${completedCount} of 3 tasks completed today\n${consistencyScore}% consistency this week\n${streakMultiplier}x streak multiplier${alignerLine}\n\nBuilding better dental habits one day at a time.`;
 setShowShareModal(false);
 if (navigator.share) {
 try {
@@ -666,7 +666,7 @@ return (
 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
 <div className="relative z-10 animate-pulse flex items-center gap-3">
-<span className="text-3xl">🦷</span>
+<Brush className="today-section-icon" aria-hidden="true" />
 <div>
 <h2 className="text-2xl font-black">Loading…</h2>
 <p className="text-sm opacity-75 mt-0.5">Preparing your routine</p>
@@ -763,9 +763,9 @@ return (
 
 {/* ── RECOVERY NOTICE ── */}
 {isRecoveryDay && (
-<div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 flex items-center gap-3">
-<div className="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center flex-shrink-0">
-<span className="text-xl">🔄</span>
+<div className="today-recovery-note flex items-center gap-3">
+<div className="today-recovery-note__icon">
+<RotateCcw aria-hidden="true" />
 </div>
 <div>
 <p className="font-bold text-amber-800">{T("Recovery Day!")}</p>
@@ -916,7 +916,7 @@ Log Dentist Visit
         </div>
         <div className="flex justify-between">
           <span className="text-[10px] text-gray-400">Time off: {formatAlignerTime(Math.max(0, 86400 - alignerWornSeconds))}</span>
-          {alignerGoalReached && <span className="text-[10px] text-green-600 font-bold">✅ Goal reached!</span>}
+          {alignerGoalReached && <span className="today-goal-reached"><CheckCircle2 aria-hidden="true" /> {T("Goal reached!")}</span>}
         </div>
       </div>
 
@@ -1015,7 +1015,7 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 <div className="flex items-center gap-2 mb-3">
 <Zap className="w-5 h-5 text-blue-500" />
 <div className="flex items-center justify-between flex-1">
-<p className="font-bold text-gray-900">🏁 {T("Next Milestone")}</p>
+<p className="font-bold text-gray-900">{T("Next Milestone")}</p>
 <span className="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-lg">{current} → {streakMilestones[0].next} days</span>
 </div>
 </div>
@@ -1023,7 +1023,7 @@ In {daysUntilVisit} day{daysUntilVisit !== 1 ? "s" : ""}
 <div className="h-full rounded-full transition-all duration-700" aria-hidden="true"
 style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,background:"#35666c"}} />
 </div>
-<p className="text-xs text-gray-500 mt-2">{streakMilestones[0].remaining} {T("days to go — keep it up!")} 💪</p>
+<p className="text-xs text-gray-500 mt-2">{streakMilestones[0].remaining} {T("days to go — keep it up!")}</p>
 </div>
 )}
 
@@ -1076,7 +1076,7 @@ style={{width:`${Math.min(100,(current/streakMilestones[0].next)*100)}%`,backgro
 <div className="flex items-center justify-between mb-2">
 <div className="flex items-center gap-2">
 <Heart className="w-4 h-4 text-pink-500" />
-<p className="text-xs font-bold text-gray-500 uppercase tracking-wider">💭 {T("Today's Note")}</p>
+<p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{T("Today's Note")}</p>
 </div>
 <button onClick={() => setShowReflection(true)} className="text-xs text-purple-500 font-bold press hover:text-purple-700">{T("Edit")}</button>
 </div>
@@ -1128,7 +1128,7 @@ className="w-full p-4 border-2 border-blue-100 rounded-2xl text-sm text-gray-700
 <div className="flex gap-2 mt-4">
 <button onClick={saveReflection}
 className="flex-1 py-3.5 rounded-2xl text-sm font-black text-white press bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg">
-💾 {T("Save")}
+{T("Save")}
 </button>
 <button onClick={() => setShowReflection(false)}
 className="flex-1 py-3.5 bg-gray-100 text-gray-500 rounded-2xl text-sm font-bold hover:bg-gray-200 press">
@@ -1174,9 +1174,9 @@ onClick={() => setShowShareModal(false)}>
 onClick={e => e.stopPropagation()}>
 <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5 sm:hidden" />
 <div className="text-center mb-5">
-<div className="text-4xl mb-2">📤</div>
+<Share2 className="today-share-icon" aria-hidden="true" />
 <h3 id="today-share-title" className="text-lg font-black text-gray-900">{T("Share Your Progress")}</h3>
-<p className="text-xs text-gray-400 mt-1">🔥 {current} day streak · ✅ {completedCount}/3 today · 📊 {consistencyScore}% this week</p>
+<p className="text-xs text-gray-400 mt-1">{current}-day streak · {completedCount}/3 tasks today · {consistencyScore}% this week</p>
 </div>
 <button onClick={handleShare}
 className="w-full py-4 rounded-2xl text-sm font-black text-white press flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg shadow-blue-200">

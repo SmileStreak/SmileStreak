@@ -2196,6 +2196,14 @@ html.dark .account-username-modal button[class*="bg-blue-50"], html.dark .accoun
 }
 .today-page-content { width: min(100%, 760px); margin-inline: auto; }
 .today-page-content > * { min-width: 0; }
+.today-recovery-note { padding: 12px; border: 1px solid var(--line); border-left: 2px solid var(--brand); border-radius: 7px; background: var(--surface-quiet); }
+.today-recovery-note > div:last-child p:first-child { color: var(--ink-secondary) !important; font-size: 13px; }
+.today-recovery-note > div:last-child p + p { color: var(--ink-muted) !important; }
+.today-recovery-note__icon { display: grid; width: 30px; height: 30px; flex: none; place-items: center; border: 1px solid var(--line); border-radius: 6px; color: var(--brand); }
+.today-recovery-note__icon svg { width: 16px; height: 16px; stroke-width: 1.7; }
+.today-goal-reached { display: inline-flex; align-items: center; gap: 4px; color: var(--ink-muted); font-size: 10px; font-weight: 600; }
+.today-goal-reached svg { width: 13px; height: 13px; color: var(--brand); stroke-width: 1.7; }
+.today-share-icon { width: 22px; height: 22px; margin: 0 auto 8px; color: var(--brand); stroke-width: 1.7; }
 .today-week-day { min-width: 0; padding: 8px 4px 5px; border-radius: 6px; transition: background-color 180ms ease-out; }
 .today-week-day[aria-current="date"] { background: var(--surface-quiet); }
 .today-week-day-bars { max-width: 52px; }
