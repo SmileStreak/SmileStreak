@@ -2378,6 +2378,15 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
 }
 .dentists-dialog h3 { color: var(--ink) !important; font: 500 26px/1.12 "Newsreader Variable", Georgia, serif !important; }
 .dentists-dialog h4 svg { color: var(--brand) !important; }
+.dentists-dialog > div:first-child > div:first-child svg { color: var(--brand) !important; }
+.dentists-dialog .dentist-dialog-primary { min-height: 42px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; transition: background-color 180ms ease-out, transform 180ms ease-out; }
+.dentists-dialog .dentist-dialog-primary:disabled { cursor: wait; opacity: .62; }
+.dentists-dialog .dentist-dialog-primary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+.dentist-price-summary, .dentist-price-tip { padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-quiet); }
+.dentist-price-summary { color: var(--ink-secondary); font-size: 13px; line-height: 1.55; }
+.dentist-price-tip { margin-top: 2px; border-left: 2px solid var(--brand); }
+.dentist-price-tip p { margin: 0 0 4px; color: var(--ink-secondary); font-size: 12px; font-weight: 650; }
+.dentist-price-tip > span { color: var(--ink-muted); font-size: 12px; line-height: 1.5; }
 .dentist-details-contact { padding: 14px 16px; border: 1px solid var(--line); border-left: 2px solid var(--brand); border-radius: 7px; background: var(--surface-quiet); }
 .dentist-details-contact p { color: var(--ink-secondary) !important; }
 .dentist-details-contact a { color: var(--brand) !important; text-underline-offset: 2px; }
@@ -2395,6 +2404,29 @@ html.dark .feedback-form-status.is-error { color: #d0a5a0; }
   color: var(--ink-secondary); font-size: 11px; font-weight: 550; line-height: 1.2;
 }
 .dentist-feature-badge svg { width: 13px; height: 13px; flex: none; stroke-width: 1.7; color: var(--brand); }
+.dentist-result-rating { border: 1px solid var(--line); border-radius: 6px; background: var(--surface-quiet); color: var(--ink-secondary); }
+.dentist-result-rating svg { color: var(--brand); stroke-width: 1.7; }
+.dentist-result-rating__value { color: var(--ink); font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.dentist-result-rating__reviews { color: var(--ink-muted); font-size: 11px; }
+.dentist-icon-action { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink-muted); }
+.dentist-icon-action:hover, .dentist-icon-action.is-active { border-color: var(--line); background: var(--surface-quiet); color: var(--brand); }
+.dentist-icon-action:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.dentist-result-meta { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-quiet); color: var(--ink-secondary); font-size: 11px; font-weight: 550; }
+.dentist-result-meta svg { color: var(--ink-muted); stroke-width: 1.7; }
+.dentist-result-meta.is-open svg { color: var(--brand); }
+.dentist-result-actions { padding-top: 12px; border-top: 1px solid var(--line); }
+.dentist-action-button { display: inline-flex; min-width: 0; min-height: 38px; align-items: center; justify-content: center; gap: 5px; padding: 8px 9px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--ink-secondary); font-size: 11px; font-weight: 600; line-height: 1.25; text-align: center; text-decoration: none; }
+.dentist-action-button--primary { border-color: var(--brand-action); background: var(--brand-action); color: white; }
+.dentist-action-button--primary svg { color: currentColor; }
+.dentist-action-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.dentist-sedation-note { padding: 10px 12px; border: 1px solid var(--line); border-left: 2px solid var(--brand); border-radius: 6px; background: var(--surface-quiet); }
+.dentist-sedation-note p { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; color: var(--ink-secondary); font-size: 12px; font-weight: 600; }
+.dentist-sedation-note p svg { width: 14px; height: 14px; color: var(--brand); }
+.dentist-sedation-note > span { color: var(--ink-muted); font-size: 12px; line-height: 1.5; }
+.dentist-coverage-note { padding: 11px 13px; border: 1px solid var(--line); border-left: 2px solid #9a7c63; border-radius: 6px; background: var(--surface-quiet); }
+.dentist-coverage-note svg { width: 17px; height: 17px; color: #80654f !important; }
+.dentist-coverage-note p:first-child { color: var(--ink-secondary) !important; font-size: 12px; font-weight: 650; }
+.dentist-coverage-note p + p { color: var(--ink-muted) !important; font-size: 11px; }
 .dentist-prep-note {
   border: 1px solid var(--line); border-left: 2px solid var(--brand); border-radius: 6px;
   background: var(--surface-quiet); color: var(--ink-secondary);
@@ -2416,7 +2448,11 @@ html.dark .dentist-feature-badge, html.dark .dentist-detail-chip { border-color:
 .dentist-compare-table tr:last-child > * { border-bottom: 0; }
 .dentist-compare-remove { min-height: 32px; padding: 5px 9px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--ink-secondary); font-size: 12px; font-weight: 600; }
 .dentist-compare-remove:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.dentists-filter-panel button[aria-pressed="true"], .dentists-sort button[aria-pressed="true"] { border-color: var(--brand-action) !important; background: var(--brand-action) !important; color: white !important; box-shadow: none !important; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .dentists-dialog .dentist-dialog-primary:hover:not(:disabled) { background: var(--brand-hover) !important; transform: translateY(-1px); }
+  .dentist-action-button:hover { border-color: var(--brand); background: var(--surface-quiet); }
+  .dentist-action-button--primary:hover { background: var(--brand-hover); }
   .dentist-compare-remove:hover { border-color: var(--brand); background: var(--surface-quiet); }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -435,8 +435,8 @@ const askAIAssistant = async () => {
       const others = sorted.filter(d => !d.isRoyseCity);
       
       const sortedOthers = others.sort((a, b) => {
-        const scoreA = (a.rating || 0) * 10 - (a.distance || 99);
-        const scoreB = (b.rating || 0) * 10 - (b.distance || 99);
+        const scoreA = (a.rating || 0) * 10 - (a.distance ?? 99);
+        const scoreB = (b.rating || 0) * 10 - (b.distance ?? 99);
         return scoreB - scoreA;
       });
       
@@ -446,7 +446,7 @@ const askAIAssistant = async () => {
     if (sortBy === "rating") {
       return sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else if (sortBy === "distance") {
-      return sorted.sort((a, b) => (a.distance || 999) - (b.distance || 999));
+      return sorted.sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
     }
     
     return sorted;
@@ -456,10 +456,10 @@ const askAIAssistant = async () => {
 
   const getBadge = (dentist) => {
     if (dentist.rating >= 4.8 && dentist.review_count >= 50) {
-      return { text: "🏆 Highly Rated", color: "bg-blue-100 text-blue-700" };
+      return { text: "Highly Rated", icon: Award };
     }
-    if (dentist.distance && dentist.distance < 2) {
-      return { text: "📍 Nearby", color: "bg-green-100 text-green-700" };
+    if (dentist.distance !== null && dentist.distance !== undefined && dentist.distance < 2) {
+      return { text: "Nearby", icon: MapPin };
     }
     return null;
   };
@@ -591,7 +591,7 @@ const askAIAssistant = async () => {
               <button
                 onClick={askAIAssistant}
                 disabled={aiLoading || !aiQuery.trim()}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="dentist-dialog-primary w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {aiLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -644,13 +644,13 @@ const askAIAssistant = async () => {
                 </select>
               </div>
               {selectedProcedure && (
-                <div className="bg-blue-50 p-6 rounded-xl">
+                <div className="dentist-price-summary">
                   <p className="text-sm text-gray-700">Prices depend on the office, your care plan, and insurance benefits. Call the dental office for a written estimate.</p>
                 </div>
               )}
-              <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
-                <p className="text-xs font-bold text-amber-800 mb-1">💡 Tip</p>
-                <p className="text-xs text-amber-700">Ask the dental office about costs, insurance, and available payment options before booking.</p>
+              <div className="dentist-price-tip">
+                <p>Before booking</p>
+                <span>Ask the dental office about costs, insurance, and available payment options.</span>
               </div>
             </div>
           </div>
@@ -840,6 +840,9 @@ const askAIAssistant = async () => {
             const estimate = insuranceEstimates[d.id];
             const badge = getBadge(d);
             const isInCompare = selectedForCompare.some(s => s.id === d.id);
+            const hasDirectoryAmenities = Object.values(d.accessibility || {}).some(Boolean)
+              || Object.values(d.paymentOptions || {}).some(Boolean)
+              || Boolean(d.languages?.length);
 
             return (
               <article key={d.id} className={`dentist-result ${isInCompare ? "is-selected" : ""}`}>
@@ -864,12 +867,12 @@ const askAIAssistant = async () => {
                   <div className="flex-1">
                     <h3 className="font-black text-gray-900 text-xl mb-2">{d.name}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {badge && <span className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full ${badge.color}`}>{badge.text}</span>}
+                      {badge && <span className="dentist-feature-badge"><badge.icon aria-hidden="true" /> {badge.text}</span>}
                       {d.specialDesignations?.medicaidProvider && (
-                        <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-green-100 text-green-700">✓ Medicaid Provider</span>
+                        <span className="dentist-feature-badge"><Shield aria-hidden="true" /> Medicaid Provider</span>
                       )}
                       {d.specialDesignations?.orthoProvider && (
-                        <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-purple-100 text-purple-700">Ortho Provider</span>
+                        <span className="dentist-feature-badge"><Target aria-hidden="true" /> Ortho Provider</span>
                       )}
                       {/* NEW: Specialized badges */}
                       {d.pediatricSpecialty && (
@@ -887,69 +890,70 @@ const askAIAssistant = async () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => toggleCompare(d)} aria-label={isInCompare ? `Remove ${d.name} from comparison` : `Compare ${d.name}`} aria-pressed={isInCompare} className={`p-3 rounded-xl transition-all ${isInCompare ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-400'}`}><BarChart3 className="w-5 h-5" aria-hidden="true" /></button>
-                    <button type="button" onClick={() => toggleFavorite(d)} aria-label={isFavorite(d.id) ? `Remove ${d.name} from saved dentists` : `Save ${d.name}`} aria-pressed={isFavorite(d.id)} className="p-3 rounded-xl hover:bg-gray-100 transition-all"><Heart className={`w-5 h-5 transition-all ${isFavorite(d.id) ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400'}`} aria-hidden="true" /></button>
+                    <button type="button" onClick={() => toggleCompare(d)} aria-label={isInCompare ? `Remove ${d.name} from comparison` : `Compare ${d.name}`} aria-pressed={isInCompare} className={`dentist-icon-action ${isInCompare ? "is-active" : ""}`}><BarChart3 className="w-4 h-4" aria-hidden="true" /></button>
+                    <button type="button" onClick={() => toggleFavorite(d)} aria-label={isFavorite(d.id) ? `Remove ${d.name} from saved dentists` : `Save ${d.name}`} aria-pressed={isFavorite(d.id)} className={`dentist-icon-action ${isFavorite(d.id) ? "is-active" : ""}`}><Heart className={`w-4 h-4 ${isFavorite(d.id) ? "fill-current" : ""}`} aria-hidden="true" /></button>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
                   {d.rating && (
-                    <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full" role="img" aria-label={`Google Maps rating ${d.rating} out of 5${d.review_count > 0 ? `, ${d.review_count} reviews` : ""}`}>
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" aria-hidden="true" />
-                      <span className="font-bold text-gray-900">{d.rating}</span>
-                      {d.review_count > 0 && <span className="text-xs text-gray-500">({d.review_count})</span>}
+                    <div className="dentist-result-rating flex items-center gap-1 px-2 py-1" role="img" aria-label={`Google Maps rating ${d.rating} out of 5${d.review_count > 0 ? `, ${d.review_count} reviews` : ""}`}>
+                      <Star className="w-4 h-4" aria-hidden="true" />
+                      <span className="dentist-result-rating__value">{d.rating}</span>
+                      {d.review_count > 0 && <span className="dentist-result-rating__reviews">({d.review_count})</span>}
                     </div>
                   )}
-                  {d.openNow !== undefined && (
-                    <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full ${d.openNow ? 'bg-green-50' : 'bg-gray-100'}`}>
-                      <Clock className={`w-4 h-4 ${d.openNow ? 'text-green-600' : 'text-gray-500'}`} />
-                      <span className={`text-xs font-semibold ${d.openNow ? 'text-green-700' : 'text-gray-600'}`}>{d.openNow ? translatedText.openNow : translatedText.closed}</span>
+                  {typeof d.openNow === "boolean" && (
+                    <div className={`dentist-result-meta flex items-center gap-1.5 ${d.openNow ? 'is-open' : 'is-closed'}`}>
+                      <Clock className="w-4 h-4" aria-hidden="true" />
+                      <span>{d.openNow ? translatedText.openNow : translatedText.closed}</span>
                     </div>
                   )}
-                  {d.distance && (
-                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-50">
-                      <Navigation className="w-4 h-4 text-blue-600" />
-                      <span className="text-xs font-semibold text-blue-700">{d.distance} mi</span>
+                  {d.distance !== null && d.distance !== undefined && (
+                    <div className="dentist-result-meta">
+                      <Navigation className="w-4 h-4" aria-hidden="true" />
+                      <span>{d.distance} mi</span>
                     </div>
                   )}
                   {d.priceLevel && (
-                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100">
-                      <DollarSign className="w-4 h-4 text-gray-600" />
-                      <span className="text-xs font-semibold text-gray-700">{'$'.repeat(d.priceLevel)}</span>
+                    <div className="dentist-result-meta">
+                      <DollarSign className="w-4 h-4" aria-hidden="true" />
+                      <span>{'$'.repeat(d.priceLevel)}</span>
                     </div>
                   )}
                 </div>
                 
                 {/* Accessibility & Amenities Icons */}
-                {d.accessibility && Object.keys(d.accessibility).length > 0 && (
+                {hasDirectoryAmenities && (
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {d.accessibility.wheelchairEntrance && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
+                    {d.accessibility?.wheelchairEntrance && (
+                      <span className="dentist-feature-badge">
                         <Wheelchair className="w-3 h-3" /> Wheelchair Access
                       </span>
                     )}
                     {d.paymentOptions?.creditCards && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
+                      <span className="dentist-feature-badge">
                         <CreditCard className="w-3 h-3" /> Cards Accepted
                       </span>
                     )}
                     {d.paymentOptions?.nfcMobilePayments && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-lg">
+                      <span className="dentist-feature-badge">
                         <Zap className="w-3 h-3" /> NFC Payments
                       </span>
                     )}
                       {d.paymentOptions?.insurance && (
-                      <span title="Google Maps lists insurance payments; ask the office whether your specific plan is accepted." className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">
+                      <span title="Google Maps lists insurance payments; ask the office whether your specific plan is accepted." className="dentist-feature-badge">
                         <Shield className="w-3 h-3" /> Insurance payment listed
                       </span>
                     )}
                     {/* NEW: Additional amenity icons */}
-                    {d.languages?.includes("Spanish") && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-lg">
-                        <LanguagesIcon className="w-3 h-3" /> Español
+                    {d.languages?.slice(0, 2).map((language) => (
+                      <span key={language} className="dentist-feature-badge">
+                        <LanguagesIcon className="w-3 h-3" aria-hidden="true" /> {language}
                       </span>
-                    )}
+                    ))}
+                    {d.languages?.length > 2 && <span className="dentist-feature-badge">+{d.languages.length - 2} languages</span>}
                     {d.pediatricSpecialty && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-pink-50 text-pink-700 px-2 py-1 rounded-lg">
+                      <span className="dentist-feature-badge">
                         <Baby className="w-3 h-3" /> Kids Welcome
                       </span>
                     )}
@@ -975,14 +979,14 @@ const askAIAssistant = async () => {
                 
                 {/* NEW: Sedation Options */}
                 {d.sedationOptions && d.sedationOptions.length > 0 && (
-                  <div className="mb-3 p-2 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-xs font-semibold text-purple-800 mb-1">💤 Sedation Options:</p>
-                    <p className="text-xs text-purple-700">{d.sedationOptions.join(' • ')}</p>
+                  <div className="dentist-sedation-note mb-3">
+                    <p><Moon aria-hidden="true" /> Sedation options</p>
+                    <span>{d.sedationOptions.join(' · ')}</span>
                   </div>
                 )}
                 
                 {insurance && estimate && (
-                  <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="dentist-coverage-note mb-4 flex items-start gap-3">
                     <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-700" />
                     <div className="flex-1">
                       <p className="text-sm font-bold text-amber-800">Plan coverage is unverified</p>
@@ -990,10 +994,10 @@ const askAIAssistant = async () => {
                     </div>
                   </div>
                 )}
-                <div className="grid grid-cols-3 gap-2">
-                  <a href={d.mapsLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1 bg-blue-500 text-white py-3 rounded-xl text-xs font-semibold hover:bg-blue-600 transition-all hover:scale-[1.02]"><MapPin className="w-3 h-3" /><span>{translatedText.directions}</span></a>
-                  {d.phone && <a href={`tel:${d.phone}`} className="flex items-center justify-center gap-1 bg-green-500 text-white py-3 rounded-xl text-xs font-semibold hover:bg-green-600 transition-all hover:scale-[1.02]"><Phone className="w-3 h-3" /><span>{translatedText.call}</span></a>}
-                  <button onClick={() => { fetchPlaceDetails(d.id); setSelectedDentist(d); }} className="flex items-center justify-center gap-1 bg-white border-2 border-gray-200 text-gray-900 py-3 rounded-xl text-xs font-semibold hover:border-blue-300 transition-all hover:scale-[1.02]"><ChevronRight className="w-3 h-3" /><span>{translatedText.viewDetails}</span></button>
+                <div className={`dentist-result-actions grid gap-2 ${d.phone ? "grid-cols-3" : "grid-cols-2"}`}>
+                  <a href={d.mapsLink} target="_blank" rel="noopener noreferrer" className="dentist-action-button dentist-action-button--primary"><MapPin className="w-3.5 h-3.5" aria-hidden="true" /><span>{translatedText.directions}</span></a>
+                  {d.phone && <a href={`tel:${d.phone}`} className="dentist-action-button"><Phone className="w-3.5 h-3.5" aria-hidden="true" /><span>{translatedText.call}</span></a>}
+                  <button type="button" onClick={() => { fetchPlaceDetails(d.id); setSelectedDentist(d); }} className="dentist-action-button"><ChevronRight className="w-3.5 h-3.5" aria-hidden="true" /><span>{translatedText.viewDetails}</span></button>
                 </div>
               </article>
             );
