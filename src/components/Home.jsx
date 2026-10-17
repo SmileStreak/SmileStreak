@@ -171,6 +171,9 @@ export default function Home({ setActiveTab, user, habitData }) {
         dailyHabits: "Daily habits completed",
         lessActivity: "Less activity",
         moreActivity: "More activity",
+        weekEmptyTitle: "No activity logged this week",
+        weekEmptyBody: "Log a daily habit and it will show up here.",
+        startToday: "Go to today’s routine",
         nextVisit: "Next dentist visit",
         notScheduled: "Not scheduled",
         tapToLogVisit: "Tap to log a visit",
@@ -301,30 +304,41 @@ export default function Home({ setActiveTab, user, habitData }) {
                 <div><h3>{texts.consistency || "Consistency"}</h3></div>
                 <span className="home-muted-label">{texts.dailyHabits || "Daily habits completed"}</span>
               </div>
-              <div className="home-week-chart">
-                {weeklyActivity.map((day, i) => {
-                  const date = new Date();
-                  date.setDate(date.getDate() - (6 - i));
-                  const key = getDateKey(date);
-                  const entry = habitData?.[key];
-                  const done = entry ? ["morning", "night", "floss"].filter((habit) => entry[habit]).length : 0;
-                  const percent = done === 0 ? 0 : done === 1 ? 33 : done === 2 ? 67 : 100;
-                  const isToday = key === todayKey;
-                  return (
-                    <div
-                      key={i}
-                      role="img"
-                      aria-label={`${date.toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}: ${done} ${texts.habitsCompleted || "of 3 habits completed"}`}
-                      title={`${date.toLocaleDateString(currentLanguage, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 ${texts.habitsComplete || "habits complete"}`}
-                      className={`home-week-day ${isToday ? "is-today" : ""}`}
-                    >
-                      <div className="home-week-bar-track"><span style={{ height: `${Math.max(percent, 5)}%` }} className={percent === 0 ? "is-empty" : ""} /></div>
-                      <span>{date.toLocaleDateString(currentLanguage, { weekday: "short" }).slice(0, 1)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="home-week-caption"><span>{texts.lessActivity || "Less activity"}</span><span>{texts.moreActivity || "More activity"}</span></div>
+              {weeklyActivity.length > 0 && weeklyActivity.every((day) => day.completed === 0) ? (
+                <div className="home-week-empty">
+                  <p>{texts.weekEmptyTitle || "No activity logged this week"}</p>
+                  <span>{texts.weekEmptyBody || "Log a daily habit and it will show up here."}</span>
+                  <button className="home-text-link" onClick={() => go("today")}>
+                    {texts.startToday || "Go to today’s routine"}<ChevronRight size={16} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="home-week-chart">
+                    {weeklyActivity.map((day, i) => {
+                      const date = new Date();
+                      date.setDate(date.getDate() - (6 - i));
+                      const key = getDateKey(date);
+                      const done = day.completed;
+                      const percent = (done / day.total) * 100;
+                      const isToday = key === todayKey;
+                      return (
+                        <div
+                          key={i}
+                          role="img"
+                          aria-label={`${date.toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}: ${done} ${texts.habitsCompleted || "of 3 habits completed"}`}
+                          title={`${date.toLocaleDateString(currentLanguage, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 ${texts.habitsComplete || "habits complete"}`}
+                          className={`home-week-day ${isToday ? "is-today" : ""}`}
+                        >
+                          <div className="home-week-bar-track"><span style={{ height: `${Math.max(percent, 5)}%` }} className={percent === 0 ? "is-empty" : ""} /></div>
+                          <span>{date.toLocaleDateString(currentLanguage, { weekday: "short" }).slice(0, 1)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="home-week-caption"><span>{texts.lessActivity || "Less activity"}</span><span>{texts.moreActivity || "More activity"}</span></div>
+                </>
+              )}
             </section>
           </div>
 

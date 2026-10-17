@@ -558,6 +558,19 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
   border-top: 1px solid var(--home-line);
 }
 
+.home-week-empty {
+  display: flex;
+  min-height: 118px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 0;
+}
+.home-week-empty p { margin: 0; color: var(--home-secondary); font-size: 14px; font-weight: 600; }
+.home-week-empty > span { color: var(--home-muted); font-size: 12px; line-height: 1.5; }
+.home-week-empty .home-text-link { margin-top: 4px; padding: 0; }
+
 .home-muted-label {
   color: var(--home-muted);
   font-size: 12px;

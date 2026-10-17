@@ -33,7 +33,7 @@ export const getWeeklyActivity = (habitData) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - index));
     const dayHabits = habits?.[getDateKey(date)] || {};
-    const completed = [dayHabits.morning, dayHabits.night].filter(Boolean).length;
-    return { day, completed, total: 2, percentage: (completed / 2) * 100 };
+    const completed = [dayHabits.morning, dayHabits.night, dayHabits.floss].filter(Boolean).length;
+    return { day, completed, total: 3, percentage: (completed / 3) * 100 };
   });
 };
