@@ -2118,6 +2118,10 @@ html.dark .app-page--dentists .dentist-result.is-selected { background: #263a3f;
   .dentists-insurance { grid-template-columns: 1fr; gap: 8px; }
   .dentists-tool-button { padding-inline: 9px; }
 }
+@media (hover: none) and (max-width: 640px) {
+  .dentists-tool-button { min-height: 44px; }
+  .dentist-icon-action { width: 40px; height: 40px; }
+}
 html.dark .dentists-tool-button { border-color: var(--line) !important; color: var(--ink-secondary) !important; }
 html.dark .dentists-search input { background: var(--surface-quiet); color: var(--ink); }
 
