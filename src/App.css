@@ -1257,7 +1257,8 @@ html.dark .today-week-section .bg-slate-100 {
   line-height: 1.35;
 }
 
-.heatmap-cell { transition: transform 160ms var(--motion-out), background-color 160ms ease-out; }
+.heatmap-cell { display: block; padding: 0; border: 0; appearance: none; transition: transform 160ms var(--motion-out), background-color 160ms ease-out; }
+.heatmap-cell:disabled { cursor: default; }
 .heatmap-cell:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .progress-day-dialog, .progress-achievement-dialog { border-radius: 9px !important; box-shadow: 0 6px 20px rgb(0 0 0 / .04) !important; }
 .progress-day-dialog { max-width: min(100%, 320px); }
@@ -1283,7 +1284,7 @@ html.dark .heatmap-cell--2 { background: #536d6d; }
 html.dark .heatmap-cell--3 { background: #789797; }
 html.dark .weekly-calendar__today { background: #2a3940; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .heatmap-cell[role="button"]:hover { transform: scale(1.14); }
+  .heatmap-cell:not(:disabled):hover { transform: translateY(-1px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .heatmap-cell { transition: none; }

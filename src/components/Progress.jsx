@@ -289,10 +289,10 @@ export default function Progress({ habitData }) {
               {heatmapData.weeks.map((week, wi) => (
                 <div key={wi} className="flex flex-col gap-0.5 flex-shrink-0">
                   {week.map((cell, di) => (
-                    <div
+                    <button
                       key={cell.key}
-                      role={cell.isFuture ? undefined : "button"}
-                      tabIndex={cell.isFuture ? -1 : 0}
+                      type="button"
+                      disabled={cell.isFuture}
                       aria-label={`${formatTooltipDate(cell.date)}: ${cell.count} of 3 habits completed`}
                       aria-pressed={cell.isFuture ? undefined : !!(tooltip?.pinned && tooltip.cell.key === cell.key)}
                       className={`heatmap-cell w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 ${getCellColor(cell)} ${cell.isToday ? "ring-1 ring-[#52777b] ring-offset-1" : ""}`}
@@ -308,13 +308,8 @@ export default function Progress({ habitData }) {
                           setTooltip(current => current?.pinned && current.cell.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
                         }
                       }}
-                      onKeyDown={(e) => {
-                        if (!cell.isFuture && (e.key === "Enter" || e.key === " ")) {
-                          e.preventDefault();
-                          setTooltip(current => current?.pinned && current.cell.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
-                        }
-                      }}
-                    />
+                    >
+                    </button>
                   ))}
                 </div>
               ))}
