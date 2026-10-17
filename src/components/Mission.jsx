@@ -293,11 +293,17 @@ export default function Mission() {
                   />
                 </button>
                 
-                {expandedFaq === i && (
-                  <div id={`mission-faq-${i}`} className="mission-faq-answer pb-4 text-sm text-gray-600 leading-relaxed">
-                    {translatedText[item.answer]}
+                <div
+                  id={`mission-faq-${i}`}
+                  className={`mission-faq-answer-panel ${expandedFaq === i ? "is-open" : ""}`}
+                  aria-hidden={expandedFaq !== i}
+                >
+                  <div className="mission-faq-answer-inner">
+                    <div className="mission-faq-answer text-sm text-gray-600 leading-relaxed">
+                      {translatedText[item.answer]}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
