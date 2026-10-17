@@ -1105,11 +1105,11 @@ export default function App() {
 
             <Presence open={analyticsChoice === null} duration={180}>
             {analyticsChoice === null && (
-              <aside aria-labelledby="analytics-consent-title" className={`analytics-consent fixed inset-x-0 bottom-0 z-40 border-t px-4 py-4 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] ${darkMode ? "bg-gray-900 border-gray-700 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}>
+              <aside aria-labelledby="analytics-consent-title" aria-describedby="analytics-consent-message" className={`analytics-consent fixed inset-x-0 bottom-0 z-40 border-t px-4 py-4 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] ${darkMode ? "bg-gray-900 border-gray-700 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}>
                 <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="max-w-3xl">
                     <h2 id="analytics-consent-title" className="text-sm font-semibold">{analyticsConsentCopy.heading}</h2>
-                    <p className="mt-1 text-sm leading-relaxed">
+                    <p id="analytics-consent-message" className="mt-1 text-sm leading-relaxed">
                       {analyticsConsentCopy.message}
                     </p>
                     {analyticsPreferenceNotice && <p role="status" className="mt-2 text-sm">{analyticsPreferenceNotice}</p>}
