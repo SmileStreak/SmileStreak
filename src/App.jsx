@@ -85,7 +85,9 @@ export default function App() {
     statusLabel: "Optional Firebase Analytics:",
     statusAllowed: "Allowed",
     statusOff: "Off",
-    statusUnknown: "Not enabled"
+    statusUnknown: "Not enabled",
+    saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
+    saveDeniedFailed: "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage."
   });
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
@@ -222,7 +224,9 @@ export default function App() {
       statusLabel: "Optional Firebase Analytics:",
       statusAllowed: "Allowed",
       statusOff: "Off",
-      statusUnknown: "Not enabled"
+      statusUnknown: "Not enabled",
+      saveAllowedFailed: "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again.",
+      saveDeniedFailed: "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage."
     };
     Promise.all(Object.values(defaults).map((text) => t(text))).then((values) => {
       if (active) setAnalyticsConsentCopy(Object.fromEntries(Object.keys(defaults).map((key, index) => [key, values[index]])));
@@ -253,15 +257,15 @@ export default function App() {
       setAnalyticsChoice(allowed && !saved ? null : allowed ? "granted" : "denied");
       if (!saved) {
         setAnalyticsPreferenceNotice(allowed
-          ? "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
-          : "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
+          ? analyticsConsentCopy.saveAllowedFailed || "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
+          : analyticsConsentCopy.saveDeniedFailed || "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
       }
     } catch (error) {
       console.error("Could not update analytics preference:", error);
       setAnalyticsChoice(allowed ? null : "denied");
       setAnalyticsPreferenceNotice(allowed
-        ? "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
-        : "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
+        ? analyticsConsentCopy.saveAllowedFailed || "Your preference couldn’t be saved, so optional analytics stayed off. Check browser storage settings and try again."
+        : analyticsConsentCopy.saveDeniedFailed || "Optional analytics is off for this visit, but your choice couldn’t be saved in browser storage.");
     } finally {
       setSavingAnalyticsChoice(false);
     }
