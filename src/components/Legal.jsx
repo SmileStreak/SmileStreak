@@ -365,8 +365,8 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice }) {
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
           <span className="text-sm text-slate-700">Optional Firebase Analytics: <strong>{analyticsChoice === "granted" ? "Allowed" : analyticsChoice === "denied" ? "Off" : "Not enabled"}</strong></span>
-          <button type="button" onClick={() => onAnalyticsChoice?.(false)} className="rounded-md border border-slate-300 px-3 py-2 text-sm transition-colors duration-200 hover:bg-slate-50">Reject optional analytics</button>
-          <button type="button" onClick={() => onAnalyticsChoice?.(true)} className="rounded-md border border-slate-500 px-3 py-2 text-sm font-semibold transition-colors duration-200 hover:bg-slate-50">Accept optional analytics</button>
+          <button type="button" onClick={() => onAnalyticsChoice?.(false)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50">Reject optional analytics</button>
+          <button type="button" onClick={() => onAnalyticsChoice?.(true)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50">Accept optional analytics</button>
         </div>
       </section>
 

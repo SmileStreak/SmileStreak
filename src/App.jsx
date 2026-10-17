@@ -1012,8 +1012,8 @@ export default function App() {
                     {analyticsPreferenceNotice && <p role="status" className="mt-2 text-sm">{analyticsPreferenceNotice}</p>}
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">
-                    <button type="button" onClick={() => chooseAnalytics(false)} className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Reject optional analytics</button>
-                    <button type="button" onClick={() => chooseAnalytics(true)} className={`rounded-md border px-3 py-2 text-sm font-semibold transition-colors duration-200 ${darkMode ? "border-gray-500 hover:bg-gray-800" : "border-gray-500 hover:bg-gray-50"}`}>Accept optional analytics</button>
+                    <button type="button" onClick={() => chooseAnalytics(false)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Reject optional analytics</button>
+                    <button type="button" onClick={() => chooseAnalytics(true)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Accept optional analytics</button>
                   </div>
                 </div>
               </aside>
