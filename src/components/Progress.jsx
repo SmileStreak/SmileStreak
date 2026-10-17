@@ -271,7 +271,7 @@ export default function Progress({ habitData }) {
               {heatmapData.weeks.map((_, wi) => {
                 const label = heatmapData.monthLabels.find(m => m.weekIndex === wi);
                 return (
-                  <div key={wi} className="w-3 mr-0.5 flex-shrink-0">
+                  <div key={wi} className="w-5 mr-0.5 flex-shrink-0">
                     {label && (
                       <span className="text-[9px] text-gray-400 font-medium whitespace-nowrap">{label.label}</span>
                     )}
@@ -281,11 +281,11 @@ export default function Progress({ habitData }) {
             </div>
 
             {/* Grid: weekday labels + cells */}
-            <div className="flex gap-0.5">
+            <div className="flex gap-0.5" role="group" aria-label={texts.activityHeatmap || "Activity Heatmap"}>
               {/* Weekday labels */}
               <div className="flex flex-col gap-0.5 mr-1 flex-shrink-0">
                 {["", "M", "", "W", "", "F", ""].map((label, i) => (
-                  <div key={i} className="w-4 h-3 flex items-center justify-end">
+                  <div key={i} className="w-5 h-5 flex items-center justify-end">
                     <span className="text-[9px] text-gray-400 font-medium">{label}</span>
                   </div>
                 ))}
@@ -299,17 +299,32 @@ export default function Progress({ habitData }) {
                       key={cell.key}
                       type="button"
                       aria-disabled={cell.isFuture}
-                      tabIndex={cell.isFuture ? -1 : undefined}
+                      tabIndex={cell.isToday ? 0 : -1}
                       aria-label={`${formatTooltipDate(cell.date)}: ${cell.count} of 3 habits completed`}
                       aria-pressed={cell.isFuture ? undefined : !!(tooltip?.pinned && tooltip.cell.key === cell.key)}
-                      className={`heatmap-cell w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 ${getCellColor(cell)} ${cell.isToday ? "ring-1 ring-[#52777b] ring-offset-1" : ""}`}
+                      data-heatmap-index={wi * 7 + di}
+                      className={`heatmap-cell cursor-pointer ${getCellColor(cell)} ${cell.isToday ? "is-today" : ""}`}
+                      onKeyDown={(event) => {
+                        const movement = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 }[event.key];
+                        if (movement === undefined) return;
+                        const next = document.querySelector(`[data-heatmap-index="${wi * 7 + di + movement}"]`);
+                        if (next && next.getAttribute("aria-disabled") !== "true") {
+                          event.preventDefault();
+                          next.focus();
+                        }
+                      }}
+                      onFocus={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltip({ cell, x: rect.left, y: rect.top });
+                      }}
+                      onBlur={() => setTooltip((current) => current?.pinned ? current : null)}
                       onMouseEnter={(e) => {
                         if (!cell.isFuture) {
                           const rect = e.currentTarget.getBoundingClientRect();
                           setTooltip({ cell, x: rect.left, y: rect.top });
                         }
                       }}
-                      onMouseLeave={() => setTooltip(current => current?.pinned ? current : null)}
+                      onMouseLeave={(e) => setTooltip(current => current?.pinned || document.activeElement === e.currentTarget ? current : null)}
                       onClick={() => {
                         if (!cell.isFuture) {
                           setTooltip(current => current?.pinned && current.cell.key === cell.key ? null : { cell, x: 0, y: 0, pinned: true });
