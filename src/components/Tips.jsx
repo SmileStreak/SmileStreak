@@ -145,7 +145,7 @@ return (
   </aside>
 
   {/* MYTH BUSTERS */}
-  <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+  <section className="tips-myths-panel rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
     <div className="mb-3">
       <div>
         <h3 className="font-semibold text-slate-900">{texts.mythBusters || "Myth Busters"}</h3>
@@ -172,7 +172,7 @@ return (
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-sm mb-2">{item.myth}</p>
                 {isRevealed ? (
-                  <div className={`flex items-start gap-2 p-3 rounded-xl ${item.isMyth ? "bg-red-100" : "bg-green-100"}`}>
+                    <div className={`tips-myth-answer flex items-start gap-2 p-3 rounded-xl ${item.isMyth ? "bg-red-100" : "bg-green-100"}`}>
                     {item.isMyth ? (
                       <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                     ) : (
@@ -254,7 +254,7 @@ return (
   </section>
 
   {/* Learn More Section */}
-  <div className="bg-white p-6 rounded-3xl shadow-lg border border-blue-100">
+  <section className="tips-sources-panel bg-white p-6 rounded-3xl shadow-lg border border-blue-100">
     <div className="flex items-center gap-2 mb-4">
       <BookOpen className="w-5 h-5 text-blue-600" />
       <h2 className="text-lg font-bold text-gray-900">{texts.learnMore || "Learn More"}</h2>
@@ -266,7 +266,7 @@ return (
         { name: "WHO Oral Health", url: "https://www.who.int/news-room/fact-sheets/detail/oral-health", desc: texts.whoDesc || "Global oral health statistics" }
       ].map((link) => (
         <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer"
-          className="flex items-center justify-between p-3 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors group">
+          className="tips-source-link flex items-center justify-between p-3 rounded-xl transition-colors group">
           <div>
             <p className="font-semibold text-gray-900 text-sm">{link.name}</p>
             <p className="text-xs text-gray-600">{link.desc}</p>
@@ -275,10 +275,10 @@ return (
         </a>
       ))}
     </div>
-  </div>
+  </section>
 
   {/* Disclaimer */}
-  <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+  <aside className="tips-education-note bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
     <div className="flex items-start gap-3">
       <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
       <div className="text-xs text-gray-700 leading-relaxed">
@@ -286,7 +286,7 @@ return (
         {texts.disclaimer || "These tips are for prevention and education only, based on published dental research. This app does not provide medical diagnosis or treatment recommendations. Always consult with a licensed dental professional for personalized advice, treatment, or if you have concerns about your oral health."}
       </div>
     </div>
-  </div>
+  </aside>
 </div>
 );
 }

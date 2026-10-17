@@ -1049,6 +1049,37 @@ html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="
 @media (prefers-reduced-motion: reduce) {
   .tips-fact-note__fact, .tips-fact-note__refresh svg { transition: none; }
 }
+.tips-myths-panel { border-radius: 9px !important; box-shadow: none !important; }
+.tips-myths-panel > div.divide-y { border-color: var(--line); }
+.tips-myths-panel > div.divide-y > button { padding-right: 8px; padding-left: 8px; border-radius: 5px; }
+.tips-myths-panel .tips-myth-answer { border: 1px solid var(--line); border-radius: 6px !important; background: var(--surface-quiet) !important; }
+.tips-myths-panel .tips-myth-answer :is(p, svg) { color: var(--ink-secondary) !important; }
+.tips-myths-panel .tips-myth-answer > svg { flex: 0 0 auto; color: var(--brand) !important; }
+.tips-myths-panel > div.mt-4 > div { background: transparent !important; }
+.tips-sources-panel {
+  padding: 18px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
+  border-bottom: 1px solid var(--line) !important; border-radius: 0 !important;
+  background: transparent !important; box-shadow: none !important;
+}
+.tips-sources-panel h2 { font-family: "Newsreader Variable", Georgia, serif; font-size: 23px; font-weight: 500; }
+.tips-sources-panel > div:first-child > svg { color: var(--brand); }
+.tips-sources-panel .space-y-3 { margin-top: 8px; }
+.tips-source-link { min-height: 58px; padding: 11px 2px !important; border: 0; border-top: 1px solid var(--line); border-radius: 0 !important; background: transparent; }
+.tips-source-link > svg { color: var(--brand); }
+.tips-education-note {
+  padding: 12px 0 12px 14px !important; border: 0 !important; border-left: 2px solid var(--line-strong) !important;
+  border-radius: 0 !important; background: transparent !important;
+}
+.tips-education-note > div > svg { color: var(--ink-muted) !important; }
+.tips-education-note > div > div { color: var(--ink-muted) !important; }
+.tips-education-note strong { color: var(--ink-secondary) !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tips-myths-panel > div.divide-y > button:not(:disabled):hover { background: var(--surface-quiet); box-shadow: none; transform: none; }
+  .tips-source-link:hover { background: var(--surface-quiet); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tips-source-link svg { transition: none; }
+}
 
 .today-stats {
   display: grid;
