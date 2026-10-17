@@ -77,13 +77,19 @@ export async function translateText(text, targetLang, sourceLang = 'en') {
 
 // Batch translate multiple texts
 export async function translateBatch(texts, targetLang, sourceLang = 'en') {
-  if (targetLang === sourceLang) return texts;
+  if (!Array.isArray(texts) || targetLang === sourceLang) return texts;
+
+  const cacheKeyFor = (text) => `${text}_${sourceLang}_${targetLang}`;
+  const uniqueMissing = [...new Set(texts.filter((text) => text && !translationCache.has(cacheKeyFor(text))))];
+  if (uniqueMissing.length === 0) {
+    return texts.map((text) => text ? translationCache.get(cacheKeyFor(text)) : text);
+  }
 
   try {
     const response = await axios.post(
       `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_TRANSLATE_API_KEY}`,
       {
-        q: texts,
+        q: uniqueMissing,
         source: sourceLang,
         target: targetLang,
         format: 'text'
@@ -95,15 +101,21 @@ export async function translateBatch(texts, targetLang, sourceLang = 'en') {
       }
     );
 
-    if (response.data && response.data.data && response.data.data.translations) {
-      return response.data.data.translations.map(t => t.translatedText);
+    const translations = response.data?.data?.translations;
+    if (Array.isArray(translations)) {
+      uniqueMissing.forEach((text, index) => {
+        const translated = translations[index]?.translatedText;
+        if (typeof translated === 'string') translationCache.set(cacheKeyFor(text), translated);
+      });
     }
-    
-    return texts;
   } catch (error) {
     console.error('Batch translation error:', error);
-    return texts;
   }
+
+  return texts.map((text) => {
+    if (!text) return text;
+    return translationCache.get(cacheKeyFor(text)) || text;
+  });
 }
 
 // Get language from localStorage or browser
