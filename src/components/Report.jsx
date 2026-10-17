@@ -19,6 +19,7 @@ export default function Report({ habitData }) {
     allTime: "All Time",
     last30Days: "Last 30 Days",
     last7Days: "Last 7 Days",
+    reportDateRange: "Report date range",
     totalDays: "Total Days",
     perfectDays: "Perfect Days",
     taskBreakdown: "Task Breakdown",
@@ -318,7 +319,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
       </div>
 
       {/* Timeframe Selector */}
-      <div className="report-timeframe flex gap-2 overflow-x-auto pb-2" role="group" aria-label="Report date range">
+      <div className="report-timeframe flex gap-2 overflow-x-auto pb-2" role="group" aria-label={translatedText.reportDateRange || "Report date range"}>
         {[
           { id: 'all', label: translatedText.allTime },
           { id: '30days', label: translatedText.last30Days },
@@ -379,7 +380,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
                   </div>
                   <span className="font-bold text-gray-900">{taskPercent}%</span>
                 </div>
-                <div className="report-task-track relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="img" aria-label={`${task.label}: ${taskPercent}% (${task.count} of ${totalDays} days)`}>
+                <div className="report-task-track relative w-full h-3 bg-gray-100 rounded-full overflow-hidden" role="img" aria-label={`${task.label}: ${taskPercent}%, ${task.count} ${translatedText.outOfDays} ${totalDays} ${translatedText.days}`}>
                   <div
                     className="h-full bg-blue-600 transition-all duration-500"
                     style={{ width: `${taskPercent}%` }}
