@@ -166,6 +166,9 @@ const UI_STRINGS = [
 "Aligners In", "Aligners Out", "Aligner Wear Time", "Daily Goal", "Tray", "Week",
 "Aligner goal reached!", "Clean your aligners", "Switch tray reminder",
 "Treatment Progress", "hours today", "Aligner Tracker",
+"Enter a current tray number of 1 or higher.",
+"Enter a total tray count equal to or greater than the current tray.",
+"Enter 1 to 30 days per tray.",
 ];
 
 export default function Today({ habitData, setHabitData, user }) {
@@ -206,9 +209,19 @@ const [alignerTrayInput, setAlignerTrayInput] = useState("");
 const [alignerTotalTraysInput, setAlignerTotalTraysInput] = useState("");
 const [alignerStartDateInput, setAlignerStartDateInput] = useState("");
 const [alignerDaysPerTrayInput, setAlignerDaysPerTrayInput] = useState("14");
+const [alignerSetupError, setAlignerSetupError] = useState(null);
 const alignerIntervalRef = useRef(null);
 
 const alignerData = habitData.__aligner || null;
+const isAlignerScheduleValid = (() => {
+  if (!alignerData || typeof alignerData !== "object") return false;
+  const tray = Number(alignerData.tray);
+  const totalTrays = Number(alignerData.totalTrays);
+  const daysPerTray = Number(alignerData.daysPerTray);
+  return Number.isInteger(tray) && Number.isInteger(totalTrays) && Number.isInteger(daysPerTray)
+    && tray >= 1 && totalTrays >= tray && daysPerTray >= 1 && daysPerTray <= 30
+    && Number.isFinite(getDateFromKey(alignerData.startDate).getTime());
+})();
 const todayAlignerKey = `__alignerWear_${getDateKey()}`;
 const todayAlignerWear = habitData[todayAlignerKey] || { seconds: 0, sessions: [] };
 const alignerWornSeconds = todayAlignerWear.seconds + (alignerRunning ? alignerSeconds : 0);
@@ -276,14 +289,29 @@ setAlignerRunning(p => !p);
 };
 
 const saveAlignerSetup = () => {
-if (!alignerTrayInput || !alignerTotalTraysInput) return;
+const tray = Number(alignerTrayInput);
+const totalTrays = Number(alignerTotalTraysInput);
+const daysPerTray = Number(alignerDaysPerTrayInput);
+if (!Number.isInteger(tray) || tray < 1) {
+  setAlignerSetupError({ field: "tray", message: T("Enter a current tray number of 1 or higher.") });
+  return;
+}
+if (!Number.isInteger(totalTrays) || totalTrays < tray) {
+  setAlignerSetupError({ field: "total", message: T("Enter a total tray count equal to or greater than the current tray.") });
+  return;
+}
+if (!Number.isInteger(daysPerTray) || daysPerTray < 1 || daysPerTray > 30) {
+  setAlignerSetupError({ field: "days", message: T("Enter 1 to 30 days per tray.") });
+  return;
+}
+setAlignerSetupError(null);
 setHabitData(prev => ({
 ...prev,
 __aligner: {
-tray: parseInt(alignerTrayInput),
-totalTrays: parseInt(alignerTotalTraysInput),
+tray,
+totalTrays,
 startDate: alignerStartDateInput || getDateKey(),
-daysPerTray: parseInt(alignerDaysPerTrayInput) || 14,
+daysPerTray,
 setupDate: new Date().toISOString(),
 },
 }));
@@ -291,15 +319,20 @@ setShowAlignerSetup(false);
 };
 
 const getAlignerTrayProgress = () => {
-if (!alignerData) return null;
+if (!isAlignerScheduleValid) return null;
+const tray = Number(alignerData.tray);
+const totalTrays = Number(alignerData.totalTrays);
+const daysPerTray = Number(alignerData.daysPerTray);
+if (!Number.isInteger(tray) || !Number.isInteger(totalTrays) || !Number.isInteger(daysPerTray)
+  || tray < 1 || totalTrays < tray || daysPerTray < 1 || daysPerTray > 30) return null;
 const start = getDateFromKey(alignerData.startDate);
 if (!Number.isFinite(start.getTime())) return null;
 const now = getDateFromKey(getDateKey());
 const daysSinceStart = Math.max(0, Math.round((now - start) / (1000 * 60 * 60 * 24)));
-const currentTray = Math.min(alignerData.tray + Math.floor(daysSinceStart / alignerData.daysPerTray), alignerData.totalTrays);
-const daysOnCurrentTray = daysSinceStart % alignerData.daysPerTray;
-const daysUntilSwitch = alignerData.daysPerTray - daysOnCurrentTray;
-const totalDays = alignerData.totalTrays * alignerData.daysPerTray;
+const currentTray = Math.min(tray + Math.floor(daysSinceStart / daysPerTray), totalTrays);
+const daysOnCurrentTray = daysSinceStart % daysPerTray;
+const daysUntilSwitch = daysPerTray - daysOnCurrentTray;
+const totalDays = totalTrays * daysPerTray;
 const daysCompleted = daysSinceStart;
 const treatmentPct = Math.min(100, Math.round((daysCompleted / totalDays) * 100));
 return { currentTray, daysUntilSwitch, treatmentPct, daysOnCurrentTray };
@@ -311,6 +344,11 @@ const m = Math.floor((seconds % 3600) / 60);
 const s = seconds % 60;
 if (h > 0) return `${h}h ${m}m`;
 return `${m}m ${s}s`;
+};
+
+const openAlignerSetup = () => {
+  setAlignerSetupError(null);
+  setShowAlignerSetup(true);
 };
 
 useEffect(() => {
@@ -477,7 +515,7 @@ return () => { if (timerIntervalRef.current) clearInterval(timerIntervalRef.curr
 const handleShare = async () => {
 const { current } = calculateStreaks(habitData);
 track("share_clicked");
-const alignerLine = alignerData ? `\n😁 Aligner wear: ${alignerWornHours.toFixed(1)}h today` : "";
+const alignerLine = isAlignerScheduleValid ? `\n😁 Aligner wear: ${alignerWornHours.toFixed(1)}h today` : "";
 const shareText = `🦷 SmileStreak Update!\n\n🔥 ${current} day streak\n✅ ${completedCount}/3 tasks done today\n📊 ${consistencyScore}% consistency this week\n⚡ ${streakMultiplier}x streak multiplier${alignerLine}\n\nBuilding better dental habits one day at a time! 😁`;
 setShowShareModal(false);
 if (navigator.share) {
@@ -796,14 +834,14 @@ Log Dentist Visit
         <p className="text-xs text-gray-500">Invisalign · ClearCorrect · Any aligner</p>
       </div>
     </div>
-    <button onClick={() => setShowAlignerSetup(true)}
+    <button onClick={openAlignerSetup}
       className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200 hover:border-blue-400 press">
-      {alignerData ? "Edit" : "Setup"}
+      {isAlignerScheduleValid ? "Edit" : "Setup"}
     </button>
   </div>
 
-  {!alignerData ? (
-    <button onClick={() => setShowAlignerSetup(true)}
+  {!isAlignerScheduleValid ? (
+    <button onClick={openAlignerSetup}
       className="press hover-lift w-full py-4 rounded-2xl text-sm font-bold border-2 border-dashed border-blue-200 text-blue-400 bg-blue-50/50 flex items-center justify-center gap-2">
       + Set up your aligner treatment
     </button>
@@ -1175,30 +1213,31 @@ onClick={e => e.stopPropagation()}>
     </div>
   </div>
   <div className="space-y-4">
+    {alignerSetupError && <p id="today-aligner-setup-error" className="text-sm text-red-700" role="alert">{alignerSetupError.message}</p>}
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
       <label htmlFor="today-aligner-tray" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Current tray number</label>
-      <input id="today-aligner-tray" type="number" min="1" placeholder="e.g. 1" value={alignerTrayInput}
-        onChange={e => setAlignerTrayInput(e.target.value)}
+      <input id="today-aligner-tray" type="number" min="1" aria-describedby={alignerSetupError?.field === "tray" ? "today-aligner-setup-error" : undefined} aria-invalid={alignerSetupError?.field === "tray"} placeholder="e.g. 1" value={alignerTrayInput}
+        onChange={e => { setAlignerTrayInput(e.target.value); setAlignerSetupError(null); }}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
       <label htmlFor="today-aligner-total-trays" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total number of trays</label>
-      <input id="today-aligner-total-trays" type="number" min="1" placeholder="e.g. 30" value={alignerTotalTraysInput}
-        onChange={e => setAlignerTotalTraysInput(e.target.value)}
+      <input id="today-aligner-total-trays" type="number" min="1" aria-describedby={alignerSetupError?.field === "total" ? "today-aligner-setup-error" : undefined} aria-invalid={alignerSetupError?.field === "total"} placeholder="e.g. 30" value={alignerTotalTraysInput}
+        onChange={e => { setAlignerTotalTraysInput(e.target.value); setAlignerSetupError(null); }}
         className="w-full border-2 border-blue-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
       <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Days per tray</span>
       <div className="grid grid-cols-3 gap-2 mb-2">
         {[7, 10, 14].map(d => (
-          <button key={d} aria-pressed={alignerDaysPerTrayInput === String(d)} onClick={() => setAlignerDaysPerTrayInput(String(d))}
+          <button key={d} aria-pressed={alignerDaysPerTrayInput === String(d)} onClick={() => { setAlignerDaysPerTrayInput(String(d)); setAlignerSetupError(null); }}
             className={`py-2.5 rounded-xl font-bold text-sm transition-all ${ alignerDaysPerTrayInput === String(d) ? "bg-blue-600 text-white shadow-md" : "bg-blue-50 text-blue-700 border border-blue-200" }`}>
             {d} days
           </button>
         ))}
       </div>
-      <input type="number" aria-label="Custom days per tray" min="1" max="30" value={alignerDaysPerTrayInput}
-        onChange={e => setAlignerDaysPerTrayInput(e.target.value)}
+      <input type="number" aria-label="Custom days per tray" min="1" max="30" aria-describedby={alignerSetupError?.field === "days" ? "today-aligner-setup-error" : undefined} aria-invalid={alignerSetupError?.field === "days"} value={alignerDaysPerTrayInput}
+        onChange={e => { setAlignerDaysPerTrayInput(e.target.value); setAlignerSetupError(null); }}
         className="w-full border border-blue-200 rounded-xl px-3 py-2 text-sm font-semibold text-blue-700 focus:outline-none focus:border-blue-400 bg-white" />
     </div>
     <div className="p-4 rounded-2xl bg-gray-50 border-2 border-gray-200">
