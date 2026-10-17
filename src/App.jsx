@@ -804,7 +804,12 @@ export default function App() {
 
   // ── Don't render anything until auth is done loading ──
   if (authLoading) {
-    return null;
+    return (
+      <div className={`app-bootstrap ${darkMode ? "is-dark" : ""}`} role="status" aria-live="polite">
+        <span className="app-bootstrap__wordmark" aria-hidden="true">smile<span>streak</span></span>
+        <span className="app-bootstrap__status">{analyticsConsentCopy.loadingPage}</span>
+      </div>
+    );
   }
 
   return (

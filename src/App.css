@@ -29,6 +29,19 @@ body {
   text-rendering: optimizeLegibility;
 }
 html.dark body { color: #e2e8f0; background: #111820; }
+.app-bootstrap {
+  display: grid; min-height: 100vh; min-height: 100svh; place-content: center; justify-items: center;
+  gap: 9px; padding: 24px; color: var(--ink); background: var(--paper);
+}
+.app-bootstrap__wordmark {
+  color: #2a2a2a; font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  font-size: 20px; font-weight: 650; letter-spacing: -.055em; line-height: 1.1;
+}
+.app-bootstrap__wordmark span { color: #16803c; }
+.app-bootstrap__status { color: var(--ink-muted); font-size: 13px; }
+.app-bootstrap.is-dark { color: #e2e8f0; background: #111820; }
+.app-bootstrap.is-dark .app-bootstrap__wordmark { color: #e2e8e0; }
+.app-bootstrap.is-dark .app-bootstrap__wordmark span { color: #79c78f; }
 button, input, select, textarea { font: inherit; }
 .font-black, .font-extrabold, .font-bold { font-weight: 600 !important; }
 .brand-wordmark {
