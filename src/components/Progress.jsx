@@ -13,14 +13,42 @@ export default function Progress({ habitData }) {
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [tooltip, setTooltip] = useState(null);
   const achievementReturnFocusRef = useRef(null);
+  const tooltipReturnFocusRef = useRef(null);
 
   useEffect(() => {
-    if (!tooltip?.pinned) return undefined;
-    const closeOnEscape = (event) => {
-      if (event.key === "Escape") setTooltip(null);
+    const dialog = tooltip?.pinned
+      ? document.getElementById("progress-day-title")?.closest('[role="dialog"]')
+      : null;
+    if (!dialog) {
+      if (tooltipReturnFocusRef.current?.isConnected) tooltipReturnFocusRef.current.focus();
+      tooltipReturnFocusRef.current = null;
+      return undefined;
+    }
+
+    if (!tooltipReturnFocusRef.current) tooltipReturnFocusRef.current = document.activeElement;
+    const getFocusable = () => [...dialog.querySelectorAll('button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])')];
+    (getFocusable()[0] || dialog).focus();
+    const handleDialogKeys = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setTooltip(null);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = getFocusable();
+      if (!items.length) { event.preventDefault(); dialog.focus(); return; }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
+    document.addEventListener("keydown", handleDialogKeys);
+    return () => document.removeEventListener("keydown", handleDialogKeys);
   }, [tooltip?.pinned]);
 
   useEffect(() => {
