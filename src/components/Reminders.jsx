@@ -106,7 +106,12 @@ export default function Reminders() {
     notificationsBlocked: "Notifications are blocked. Please enable them in browser settings.",
     morningSet: "⏰ Morning reminder set to 8:00 AM",
     nightSet: "🌙 Night reminder set to 9:00 PM",
-    flossSet: "🧵 Floss reminder set to 8:30 PM"
+    flossSet: "🧵 Floss reminder set to 8:30 PM",
+    alignerTraySwapReminders: "Aligner tray swap reminders",
+    dentistVisitReminders: "Dentist visit reminders",
+    dentistVisitReminder: "Dentist Visit Reminder",
+    remindersOn: "Reminders on",
+    remindersOff: "Reminders off"
   };
 
   useEffect(() => {
@@ -646,7 +651,7 @@ export default function Reminders() {
                 type="button"
                 role="switch"
                 aria-checked={alignerReminderEnabled}
-                aria-label="Aligner tray swap reminders"
+                aria-label={translatedText.alignerTraySwapReminders || "Aligner tray swap reminders"}
                 disabled={notificationPending}
                 aria-busy={notificationPending}
                 className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${alignerReminderEnabled ? "bg-blue-500" : "bg-gray-300"}`}
@@ -740,8 +745,8 @@ export default function Reminders() {
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900 text-sm">Dentist Visit Reminder</p>
-              <p className="text-xs text-gray-500">{dentistReminderEnabled ? "Reminders on" : "Reminders off"}</p>
+              <p className="font-semibold text-gray-900 text-sm">{translatedText.dentistVisitReminder || "Dentist Visit Reminder"}</p>
+              <p className="text-xs text-gray-500">{dentistReminderEnabled ? translatedText.remindersOn || "Reminders on" : translatedText.remindersOff || "Reminders off"}</p>
             </div>
           </div>
           <button
@@ -749,7 +754,7 @@ export default function Reminders() {
             type="button"
             role="switch"
             aria-checked={dentistReminderEnabled}
-            aria-label="Dentist visit reminders"
+            aria-label={translatedText.dentistVisitReminders || "Dentist visit reminders"}
             disabled={!nextDentistVisit || notificationPending}
             aria-busy={notificationPending}
             className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"} ${!nextDentistVisit || notificationPending ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
