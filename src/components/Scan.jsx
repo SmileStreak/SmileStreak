@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useContext } from "react";
 import {
 Camera, Upload, X, Sparkles, History, ArrowLeft, ChevronRight,
-AlertCircle, CheckCircle2, Zap, TrendingUp, Image as ImageIcon,
+AlertCircle, CheckCircle2, TrendingUp, Image as ImageIcon,
 Download, Share2, Printer, Calendar, Clock, MapPin, Phone,
 Mail, User, Star, FileText, BarChart3, Brain,
 Activity, Shield, Award, Target,
@@ -716,7 +716,7 @@ return (
   {/* MODE: SELECT */}
   {mode === 'select' && (
     <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+      <div className="scan-how-note">
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-gray-700">
@@ -744,29 +744,24 @@ return (
         <button
           onClick={startCamera}
           disabled={!scanConsent}
-          className="group relative bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all overflow-hidden disabled:cursor-not-allowed disabled:opacity-55"
+          className="scan-start-action"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Camera className="w-7 h-7" />
-            </div>
+          <div className="flex items-center gap-4">
+            <Camera className="w-5 h-5 shrink-0" strokeWidth={1.6} />
             <div className="text-left flex-1">
-              <p className="font-black text-lg mb-1">{translatedText.takePhoto}</p>
-              <p className="text-sm opacity-90">{translatedText.takePhotoDesc}</p>
+              <p className="font-semibold text-base mb-1">{translatedText.takePhoto}</p>
+              <p className="text-sm opacity-85">{translatedText.takePhotoDesc}</p>
             </div>
             <ChevronRight className="w-6 h-6" />
           </div>
         </button>
 
-        <label className={`group ${scanConsent ? "cursor-pointer" : "cursor-not-allowed opacity-55"}`}>
-          <div className="relative bg-white border-2 border-gray-200 rounded-3xl p-6 shadow-md hover:shadow-xl hover:border-blue-300 hover:scale-[1.02] transition-all">
+        <label className={`scan-upload-label ${scanConsent ? "" : "is-disabled"}`}>
+          <div className="scan-upload-action">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Upload className="w-7 h-7 text-gray-600" />
-              </div>
+              <Upload className="w-5 h-5 shrink-0 text-slate-600" strokeWidth={1.6} />
               <div className="text-left flex-1">
-                <p className="font-black text-lg text-gray-900 mb-1">{translatedText.uploadPhoto}</p>
+                <p className="font-semibold text-base text-gray-900 mb-1">{translatedText.uploadPhoto}</p>
                 <p className="text-sm text-gray-600">{translatedText.uploadPhotoDesc}</p>
               </div>
               <ChevronRight className="w-6 h-6 text-gray-400" />
@@ -777,26 +772,21 @@ return (
             accept="image/jpeg,image/png,image/webp"
             onChange={handleUpload}
             disabled={!scanConsent}
-            className="hidden"
+            className="sr-only"
           />
         </label>
       </div>
 
       {/* Tips - Educational, not fake data */}
-      <div className="bg-slate-50 border border-purple-200 rounded-2xl p-5">
-        <div className="flex items-start gap-3">
-          <Zap className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold text-gray-900 text-sm mb-2">{translatedText.tipsTitle}</p>
-            <ul className="text-xs text-gray-600 space-y-1">
-              <li>{translatedText.tip1}</li>
-              <li>{translatedText.tip2}</li>
-              <li>{translatedText.tip3}</li>
-              <li>{translatedText.tip4}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <aside className="scan-tips-note">
+        <h3>{translatedText.tipsTitle}</h3>
+        <ul>
+          <li>{translatedText.tip1}</li>
+          <li>{translatedText.tip2}</li>
+          <li>{translatedText.tip3}</li>
+          <li>{translatedText.tip4}</li>
+        </ul>
+      </aside>
     </div>
   )}
 

@@ -1263,6 +1263,40 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .scan-privacy-note, .scan-privacy-error { margin: 10px 0 0; font-size: 12px; line-height: 1.5; }
 .scan-privacy-note { color: var(--ink-muted); }
 .scan-privacy-error { color: #855b58; }
+.scan-how-note {
+  padding: 13px 0 13px 15px;
+  border-left: 2px solid var(--brand);
+}
+.scan-start-action, .scan-upload-action {
+  display: block;
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 9px;
+  text-align: left;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out;
+}
+.scan-start-action {
+  border: 1px solid var(--brand-action);
+  background: var(--brand-action);
+  color: #fff;
+  cursor: pointer;
+}
+.scan-start-action:disabled { cursor: not-allowed; opacity: .55; }
+.scan-upload-label { display: block; cursor: pointer; }
+.scan-upload-label.is-disabled { cursor: not-allowed; opacity: .55; }
+.scan-upload-action { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-secondary); }
+.scan-upload-label:focus-within .scan-upload-action { outline: 2px solid var(--brand); outline-offset: 3px; }
+.scan-tips-note { padding: 16px 0 0; border-top: 1px solid var(--line); }
+.scan-tips-note h3 { margin: 0 0 8px; color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
+.scan-tips-note ul { margin: 0; padding-left: 17px; color: var(--ink-muted); font-size: 12px; line-height: 1.7; }
+.scan-tips-note li::marker { color: var(--brand); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .scan-start-action:not(:disabled):hover { filter: brightness(1.04); }
+  .scan-upload-label:not(.is-disabled):hover .scan-upload-action { border-color: var(--brand); background: var(--surface-quiet); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scan-start-action, .scan-upload-action { transition: none; }
+}
 html.dark .scan-privacy-controls { background: #1c2630; border-color: #34404c; }
 html.dark .mission-heading, html.dark .mission-editorial, html.dark .mission-features,
 html.dark .mission-principles, html.dark .mission-research, html.dark .mission-faq,
