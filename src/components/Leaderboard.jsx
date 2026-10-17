@@ -4,9 +4,10 @@ import { collection, doc, getDoc, query, where, getDocs } from "firebase/firesto
 import { db } from "../firebase";
 import { calculateStreaks } from "../utils/progress";
 import { TranslationContext } from "../App";
+import { translateBatch } from "../utils/translate.js";
 
 export default function Leaderboard({ user, darkMode }) {
-  const { t, currentLanguage } = useContext(TranslationContext);
+  const { currentLanguage } = useContext(TranslationContext);
   const [texts, setTexts] = useState({});
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,13 +49,17 @@ export default function Leaderboard({ user, darkMode }) {
 
   useEffect(() => {
     let active = true;
-    const translate = async () => {
-      const entries = await Promise.all(Object.entries(copy).map(async ([key, value]) => [key, await t(value)]));
-      if (active) setTexts(Object.fromEntries(entries));
-    };
-    translate().catch((error) => console.error("Could not load leaderboard translations:", error));
+    const keys = Object.keys(copy);
+    translateBatch(Object.values(copy), currentLanguage, "en")
+      .then((values) => {
+        if (active) setTexts(Object.fromEntries(keys.map((key, index) => [key, values[index]])));
+      })
+      .catch((error) => {
+        console.error("Could not load leaderboard translations:", error);
+        if (active) setTexts(copy);
+      });
     return () => { active = false; };
-  }, [currentLanguage, t]);
+  }, [currentLanguage]);
 
   const T = (key) => texts[key] || copy[key];
 
