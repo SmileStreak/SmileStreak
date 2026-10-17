@@ -1324,6 +1324,26 @@ html.dark .report-distribution__item + .report-distribution__item { border-color
 .mission-faq__item { border-top: 1px solid var(--line); }
 .mission-faq__item:last-child { border-bottom: 1px solid var(--line); }
 .mission-faq__item > button { padding: 16px 2px; }
+.mission-faq-list { border-bottom: 1px solid var(--line); }
+.mission-faq__item:last-child { border-bottom: 0; }
+.mission-faq-trigger { border-radius: 0 !important; }
+.mission-faq-answer { max-width: 68ch; padding: 0 34px 16px 2px; color: var(--ink-muted); line-height: 1.65; }
+.mission-feedback-dialog { max-height: min(88vh, 760px); overflow-y: auto; border: 1px solid var(--line); border-radius: 10px !important; box-shadow: 0 8px 24px rgb(0 0 0 / .04) !important; }
+.mission-feedback-dialog h3 { font-family: "Newsreader Variable", Georgia, serif; font-weight: 500; }
+.feedback-rating-options label { border-radius: 7px; }
+.feedback-rating-options label:focus-within > div { outline: 2px solid var(--brand); outline-offset: 2px; }
+.feedback-rating-options input:checked + div { border-color: var(--brand) !important; background: #eef3f2 !important; }
+.feedback-rating-options input:checked + div svg { color: var(--brand) !important; fill: none !important; }
+.mission-feedback-dialog :is(input, select, textarea) { border-width: 1px; border-color: var(--line-strong); border-radius: 7px !important; }
+.mission-feedback-dialog :is(input, select, textarea):focus { border-color: var(--brand); }
+.mission-feedback-dialog button[type="submit"] { border-radius: 7px !important; box-shadow: none !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .mission-faq-trigger:hover { padding-left: 6px; }
+  .mission-feedback-dialog button[type="submit"]:hover { filter: brightness(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mission-faq-trigger, .mission-feedback-dialog button[type="submit"] { transition: none; }
+}
 .mission-involved__action {
   display: flex; width: 100%; align-items: center; justify-content: space-between;
   gap: 14px; padding: 16px 2px; border: 0; border-top: 1px solid var(--line);

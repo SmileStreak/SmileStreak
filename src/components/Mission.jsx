@@ -255,7 +255,7 @@ export default function Mission() {
           {translatedText.faq}
         </h3>
         
-        <div className="space-y-3">
+        <div className="mission-faq-list">
           {faqItems.map((item, index) => {
             const i = index + 1;
             return (
@@ -264,7 +264,7 @@ export default function Mission() {
                   onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
                   aria-expanded={expandedFaq === i}
                   aria-controls={`mission-faq-${i}`}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                  className="mission-faq-trigger w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
                 >
                   <span className="font-semibold text-gray-900 text-sm">
                     {translatedText[item.question]}
@@ -277,7 +277,7 @@ export default function Mission() {
                 </button>
                 
                 {expandedFaq === i && (
-                  <div id={`mission-faq-${i}`} className="pb-4 text-sm text-gray-600 leading-relaxed">
+                  <div id={`mission-faq-${i}`} className="mission-faq-answer pb-4 text-sm text-gray-600 leading-relaxed">
                     {translatedText[item.answer]}
                   </div>
                 )}
@@ -325,11 +325,11 @@ export default function Mission() {
       <Presence open={showFeedback}>
 {showFeedback && (
         <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl">
+          <div role="dialog" aria-modal="true" aria-labelledby="mission-feedback-title" className="mission-feedback-dialog bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-blue-600" />
-                <h3 className="text-xl font-black text-gray-900">{translatedText.feedbackTitle}</h3>
+                <h3 id="mission-feedback-title" className="text-xl font-black text-gray-900">{translatedText.feedbackTitle}</h3>
               </div>
               <button onClick={() => setShowFeedback(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
                 <X className="w-5 h-5" />
@@ -360,16 +360,17 @@ export default function Mission() {
 
               {/* Rating */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label id="feedback-rating-label" className="block text-sm font-semibold text-gray-700 mb-2">
                   {translatedText.feedbackRating}
                 </label>
-                <div className="flex gap-2">
+                <div className="feedback-rating-options flex gap-2" role="radiogroup" aria-labelledby="feedback-rating-label">
                   {[1, 2, 3, 4, 5].map((rating) => (
                     <label key={rating} className="cursor-pointer">
                       <input
                         type="radio"
                         name="rating"
                         value={rating}
+                        aria-label={`${rating} out of 5`}
                         checked={feedbackRating === rating}
                         onChange={(e) => setFeedbackRating(parseInt(e.target.value))}
                         className="sr-only peer"
@@ -379,7 +380,7 @@ export default function Mission() {
                           ? 'border-yellow-400 bg-yellow-50'
                           : 'border-gray-200 hover:border-yellow-300'
                       }`}>
-                        <Star className={`w-6 h-6 ${
+                        <Star aria-hidden="true" className={`w-6 h-6 ${
                           feedbackRating === rating
                             ? 'text-yellow-500 fill-yellow-500'
                             : 'text-gray-400'
