@@ -78,9 +78,9 @@ export default function Home({ setActiveTab, user, habitData }) {
   const todayPct = todayDone === 0 ? 0 : todayDone === 1 ? 33 : todayDone === 2 ? 67 : 100;
 
   const habitLabels = [
-    { key: "morning", label: "Morning", icon: <Sun className="w-5 h-5" /> },
-    { key: "floss",   label: "Floss",   icon: <Brush className="w-5 h-5" /> },
-    { key: "night",   label: "Night",   icon: <Moon className="w-5 h-5" /> },
+    { key: "morning", labelKey: "morning", fallbackLabel: "Morning", icon: <Sun className="w-5 h-5" /> },
+    { key: "floss",   labelKey: "floss", fallbackLabel: "Floss", icon: <Brush className="w-5 h-5" /> },
+    { key: "night",   labelKey: "night", fallbackLabel: "Night", icon: <Moon className="w-5 h-5" /> },
   ];
 
   useEffect(() => {
@@ -173,6 +173,14 @@ export default function Home({ setActiveTab, user, habitData }) {
         recently: "Recently",
         dateUnavailable: "Date unavailable",
         habitsComplete: "habits complete",
+        habitsCompleted: "of 3 habits completed",
+        morning: "Morning",
+        floss: "Floss",
+        night: "Night",
+        streakSummary: "Streak summary",
+        quickActions: "Quick actions",
+        toGo: "to go",
+        keepRoutineGoing: "Keep your routine going",
         simpleCheckIn: "Daily habits",
         routine: "Your routine",
         updateRoutine: "Update routine",
@@ -275,14 +283,14 @@ export default function Home({ setActiveTab, user, habitData }) {
           <p className="home-date">{new Date().toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}</p>
         </header>
 
-        <section className="home-streak-summary" aria-label="Streak summary">
+        <section className="home-streak-summary" aria-label={texts.streakSummary || "Streak summary"}>
           <div className="home-streak-primary">
             <span className="home-eyebrow">{texts.currentStreak || "Current streak"}</span>
             <div className="home-streak-value"><strong>{streak}</strong><span>{texts.days || "days"}</span></div>
           </div>
           <div className="home-streak-secondary">
             <div><span className="home-eyebrow">{texts.personalBest || "Personal best"}</span><strong>{longestStreak}<small>d</small></strong></div>
-            <div><span className="home-eyebrow">{texts.nextMilestone || "Next milestone"}</span><strong>{nextMilestone ? `${nextMilestone} days` : "—"}</strong><small>{nextMilestone && streak ? `${Math.max(nextMilestone - streak, 0)} to go` : "Keep your routine going"}</small></div>
+            <div><span className="home-eyebrow">{texts.nextMilestone || "Next milestone"}</span><strong>{nextMilestone ? `${nextMilestone} ${texts.days || "days"}` : "—"}</strong><small>{nextMilestone && streak ? `${Math.max(nextMilestone - streak, 0)} ${texts.toGo || "to go"}` : (texts.keepRoutineGoing || "Keep your routine going")}</small></div>
             <div><span className="home-eyebrow">{texts.scanHistory || "Scan history"}</span><strong>{totalScans}</strong><small>{formatLastScanDate()}</small></div>
           </div>
           <div className="home-streak-progress">
@@ -305,7 +313,7 @@ export default function Home({ setActiveTab, user, habitData }) {
                   return (
                     <div key={habit.key} className={`home-habit-row ${completed ? "is-complete" : ""}`}>
                       <span className="home-habit-icon">{habit.icon}</span>
-                      <span className="home-habit-name">{habit.label}</span>
+                      <span className="home-habit-name">{texts[habit.labelKey] || habit.fallbackLabel}</span>
                       <span className="home-habit-status">{completed ? <><Check size={14} /> {texts.done || "Done"}</> : texts.notYet || "Not yet"}</span>
                     </div>
                   );
@@ -331,8 +339,8 @@ export default function Home({ setActiveTab, user, habitData }) {
                     <div
                       key={i}
                       role="img"
-                      aria-label={`${date.toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}: ${done} of 3 habits completed`}
-                      title={`${date.toLocaleDateString(currentLanguage, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 habits`}
+                      aria-label={`${date.toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}: ${done} ${texts.habitsCompleted || "of 3 habits completed"}`}
+                      title={`${date.toLocaleDateString(currentLanguage, { weekday: "short", month: "short", day: "numeric" })} · ${done}/3 ${texts.habitsComplete || "habits complete"}`}
                       className={`home-week-day ${isToday ? "is-today" : ""}`}
                     >
                       <div className="home-week-bar-track"><span style={{ height: `${Math.max(percent, 5)}%` }} className={percent === 0 ? "is-empty" : ""} /></div>
@@ -372,7 +380,7 @@ export default function Home({ setActiveTab, user, habitData }) {
               </section>
             )}
 
-            <nav className="home-shortcuts" aria-label="Quick actions">
+            <nav className="home-shortcuts" aria-label={texts.quickActions || "Quick actions"}>
               <h3>{texts.quickAccess || "Quick actions"}</h3>
               {[
                 { tab: "scan", icon: <Camera size={17} />, label: texts.scanTeeth || "Scan teeth", detail: texts.scanSummary || "Photo-based observations" },
