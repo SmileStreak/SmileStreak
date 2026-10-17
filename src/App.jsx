@@ -62,6 +62,7 @@ export default function App() {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState("idle");
   const [analyticsChoice, setAnalyticsChoice] = useState(() => localStorage.getItem("smilestreak-analytics-consent"));
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
@@ -945,7 +946,7 @@ export default function App() {
               <div className="flex items-center gap-4">
                 <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">Privacy & terms</button>
                 <button onClick={() => { setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">Privacy settings</button>
-                <button onClick={() => setShowFeedback(true)} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
+                <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
                   <MessageCircle className="w-4 h-4" />
                   <span>Send feedback</span>
                 </button>
@@ -970,14 +971,14 @@ export default function App() {
 
             <Presence open={showFeedback}>
             {showFeedback && (
-              <div className="t-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                <div role="dialog" aria-modal="true" aria-labelledby="feedback-dialog-title" className={`rounded-3xl max-w-lg w-full p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                <div className="t-modal-backdrop feedback-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowFeedback(false)}>
+                <div role="dialog" aria-modal="true" aria-labelledby="feedback-dialog-title" className={`app-feedback-dialog rounded-3xl max-w-lg w-full p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <MessageCircle className={`w-6 h-6 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                       <h3 id="feedback-dialog-title" className={`text-xl font-black ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Share Your Feedback</h3>
                     </div>
-                    <button onClick={() => setShowFeedback(false)} aria-label="Close feedback dialog" className={`transition-colors ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+                    <button onClick={() => { setShowFeedback(false); setFeedbackStatus("idle"); }} aria-label="Close feedback dialog" className={`feedback-dialog-close transition-colors ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
                       <X className="w-5 h-5" />
                     </button>
                   </div>
@@ -987,6 +988,8 @@ export default function App() {
                   <form
                     onSubmit={async (e) => {
                       e.preventDefault();
+                      if (feedbackStatus === "sending") return;
+                      setFeedbackStatus("sending");
                       const form = e.target;
                       const formData = new FormData(form);
                       try {
@@ -996,17 +999,17 @@ export default function App() {
                           headers: { 'Accept': 'application/json' }
                         });
                         if (response.ok) {
-                          alert('Thank you for your feedback!');
                           form.reset();
-                          setShowFeedback(false);
+                          setFeedbackStatus("success");
                         } else {
-                          alert('Oops! Something went wrong. Please try again.');
+                          setFeedbackStatus("error");
                         }
                       } catch (error) {
-                        alert('Network error. Please check your connection and try again.');
+                        setFeedbackStatus("error");
                       }
                     }}
-                    className="space-y-4"
+                    className={`feedback-form space-y-4 ${feedbackStatus === "success" ? "is-sent" : ""}`}
+                    aria-busy={feedbackStatus === "sending"}
                   >
                     <div>
                       <label htmlFor="feedback-name" className={`block text-sm font-semibold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Name (optional)</label>
@@ -1028,12 +1031,12 @@ export default function App() {
                       <input type="checkbox" name="feedbackConsent" value="yes" required className="mt-1" />
                       <span>I agree to send this feedback and contact information for SmileStreak support to respond.</span>
                     </label>
-                    <div>
-                      <label className={`block text-sm font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>How useful is SmileStreak?</label>
-                      <div className="flex gap-2">
+                    <fieldset className="feedback-rating-fieldset">
+                      <legend className={`block text-sm font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>How useful is SmileStreak?</legend>
+                      <div className="feedback-rating-options flex gap-2">
                         {[1, 2, 3, 4, 5].map((rating) => (
                           <label key={rating} className="cursor-pointer">
-                            <input type="radio" name="rating" value={rating} className="sr-only peer" />
+                            <input type="radio" name="rating" value={rating} aria-label={`${rating} out of 5`} className="sr-only peer" />
                             <div className={`w-12 h-12 flex items-center justify-center border-2 rounded-xl transition-all ${darkMode ? 'border-gray-600 peer-checked:border-blue-500 peer-checked:bg-blue-900/30 hover:border-blue-500' : 'border-gray-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300'}`}>
                               <span className={`text-lg font-bold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{rating}</span>
                             </div>
@@ -1041,12 +1044,14 @@ export default function App() {
                         ))}
                       </div>
                       <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>1 = Not useful, 5 = Very useful</p>
-                    </div>
-                    <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
-                      Send Feedback
+                    </fieldset>
+                    <button type="submit" disabled={feedbackStatus === "sending" || feedbackStatus === "success"} className="feedback-submit w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl font-bold shadow-lg transition-all">
+                      {feedbackStatus === "sending" ? "Sending…" : "Send feedback"}
                     </button>
                   </form>
-                  <p className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Thanks for helping us improve! 💙</p>
+                  {feedbackStatus === "success" && <p role="status" className="feedback-form-status is-success">Thanks — your feedback was sent.</p>}
+                  {feedbackStatus === "error" && <p role="alert" className="feedback-form-status is-error">We couldn’t send your feedback. Check your connection and try again.</p>}
+                  {feedbackStatus === "idle" && <p className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Thanks for helping us improve.</p>}
                 </div>
               </div>
             )}

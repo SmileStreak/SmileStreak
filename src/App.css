@@ -2180,6 +2180,41 @@ html.dark .today-dialog, html.dark .today-completion-dialog { background: var(--
 @media (max-width: 640px) {
   .today-dialog { border-radius: 11px 11px 0 0 !important; }
 }
+
+.app-feedback-dialog {
+  width: min(100%, 520px); max-height: min(88vh, 760px); overflow-y: auto;
+  border: 1px solid var(--line) !important; border-radius: 10px !important;
+  background: var(--surface) !important; color: var(--ink);
+  box-shadow: 0 8px 28px rgb(24 33 42 / .08) !important;
+}
+.app-feedback-dialog h3 { color: var(--ink) !important; font: 500 26px/1.1 "Newsreader Variable", Georgia, serif; }
+.app-feedback-dialog > div:first-child { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+.app-feedback-dialog > p { max-width: 58ch; color: var(--ink-muted) !important; line-height: 1.55; }
+.feedback-dialog-close { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink-secondary) !important; }
+.feedback-dialog-close:focus-visible, .app-feedback-dialog button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.app-feedback-dialog :is(input:not([type="radio"]):not([type="checkbox"]), textarea) { min-height: 42px; border: 1px solid var(--line-strong) !important; border-radius: 7px !important; background: var(--surface) !important; color: var(--ink) !important; }
+.app-feedback-dialog :is(input, textarea):focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; box-shadow: none !important; }
+.app-feedback-dialog label { color: var(--ink-secondary) !important; }
+.app-feedback-dialog fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.app-feedback-dialog legend { color: var(--ink-secondary) !important; }
+.feedback-rating-options { flex-wrap: wrap; gap: 7px !important; }
+.feedback-rating-options label { border-radius: 6px; }
+.feedback-rating-options label > div { width: 40px !important; height: 40px !important; border: 1px solid var(--line-strong) !important; border-radius: 6px !important; background: var(--surface) !important; transition: background-color 180ms ease-out, border-color 180ms ease-out; }
+.feedback-rating-options label:focus-within > div { outline: 2px solid var(--brand); outline-offset: 2px; }
+.feedback-rating-options input:checked + div { border-color: var(--brand) !important; background: #eef3f2 !important; }
+.app-feedback-dialog button[type="submit"] { min-height: 44px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; transition: background-color 180ms ease-out, transform 180ms ease-out; }
+.app-feedback-dialog button[type="submit"]:hover:not(:disabled) { background: var(--brand-hover) !important; }
+.app-feedback-dialog button[type="submit"]:active:not(:disabled) { transform: scale(.985); }
+.app-feedback-dialog .feedback-form.is-sent { display: none; }
+.feedback-form-status { margin: 18px 0 0; padding: 13px 14px; border-top: 1px solid var(--line); color: var(--ink-secondary); font-size: 14px; }
+.feedback-form-status.is-success { border-left: 3px solid #708b79; }
+.feedback-form-status.is-error { border-left: 3px solid #a77670; color: #764942; }
+html.dark .app-feedback-dialog :is(input:not([type="radio"]):not([type="checkbox"]), textarea) { background: #151e27 !important; }
+html.dark .feedback-rating-options input:checked + div { background: #223238 !important; }
+html.dark .feedback-form-status.is-error { color: #d0a5a0; }
+@media (prefers-reduced-motion: reduce) {
+  .feedback-rating-options label > div, .app-feedback-dialog button[type="submit"] { transition: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .dentists-tool-button, .dentists-filter-panel button, .app-page--dentists .dentist-result__photos button { transition: none; }
 }
