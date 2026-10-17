@@ -1568,6 +1568,41 @@ html.dark .mission-problem { border-color: #34404c; background: #1c2630; }
 .reminder-feature-section > div:first-child h3 { margin: 0; color: var(--ink); font-size: 16px; font-weight: 600; }
 .reminder-feature-section .bg-gradient-to-r { border-color: var(--line); }
 .reminder-feature-section button[role="switch"] { flex: 0 0 auto; outline-offset: 3px; }
+.reminder-notification-status { border-radius: 8px !important; box-shadow: none !important; }
+.reminder-time-row {
+  padding: 12px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
+}
+.reminder-custom-times .reminder-time-row:last-child { border-bottom: 1px solid var(--line) !important; }
+.reminder-time-row > div { gap: 10px; }
+.reminder-time-row > div > svg { width: 17px; height: 17px; color: var(--ink-muted) !important; }
+.reminder-time-row p { color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
+.reminder-time-input { min-height: 38px; padding: 7px 10px !important; border: 1px solid var(--line-strong) !important; border-radius: 6px !important; background: var(--surface); color: var(--ink-secondary); }
+.reminder-time-input:focus-visible { border-color: var(--brand) !important; box-shadow: 0 0 0 3px rgb(53 102 108 / .12); }
+.reminder-date-status { padding: 13px 14px !important; border: 1px solid var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; }
+.reminder-date-status > div > svg { color: var(--brand) !important; }
+.reminder-date-status p:first-child { color: var(--ink-secondary); font-size: 13px; font-weight: 600; }
+.reminder-date-status p + p { color: var(--ink-muted); }
+.reminder-switch-row { padding: 12px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+.reminder-switch-icon { width: 30px !important; height: 30px !important; border: 1px solid var(--line); background: var(--surface-quiet); color: var(--ink-muted); }
+.reminder-switch-icon.is-enabled { border-color: #b8c9c4; background: #e7efeb; color: var(--brand); }
+.reminder-toggle { width: 42px !important; height: 23px !important; border-radius: 999px !important; transition: background-color 180ms ease-out !important; }
+.reminder-toggle > div { width: 17px !important; height: 17px !important; top: 3px !important; border-radius: 50% !important; box-shadow: none !important; transition: left 180ms ease-out !important; }
+.reminder-schedule-list { border-top: 1px solid var(--line); }
+.reminder-schedule-row { padding: 10px 0 !important; border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+.reminder-adjust-action { min-height: 36px; border-color: var(--line-strong) !important; border-radius: 6px !important; background: var(--surface) !important; color: var(--brand) !important; }
+.reminder-enable-action { min-height: 46px; border: 1px solid var(--brand-action); border-radius: 7px !important; background: var(--brand-action) !important; box-shadow: none !important; }
+.reminder-feedback { padding: 11px 14px !important; border-color: var(--line) !important; border-radius: 7px !important; background: var(--surface-quiet) !important; text-align: left !important; }
+.reminder-help-note { padding: 12px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
+.reminder-help-note > div > svg { color: var(--brand) !important; }
+.reminder-help-note ul { padding-left: 16px; list-style: disc; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .reminder-adjust-action:hover { border-color: var(--brand) !important; background: var(--surface-quiet) !important; }
+  .reminder-enable-action:hover { filter: brightness(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reminder-toggle, .reminder-toggle > div { transition: none !important; }
+}
 .reminder-empty-state { padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .reminder-empty-state p { margin: 0; }
 .reminder-empty-state p:first-child { color: var(--ink-secondary); font-size: 13px; font-weight: 600; }

@@ -61,9 +61,9 @@ export default function Reminders() {
     tip3: "• Consistent timing builds stronger habits",
     iosTitle: "iPhone Users",
     iosMessage: "For notifications to work on iPhone, add SmileStreak to your home screen via Safari's Share menu, then enable notifications inside the app.",
-    iosNotificationMessage: "📱 Add SmileStreak to your Home Screen via Safari Share → Add to Home Screen, then re-enable notifications.",
-    notificationsEnabled: "✅ Notifications enabled successfully!",
-    notificationsBlocked: "❌ Notifications blocked. Please enable in browser settings.",
+    iosNotificationMessage: "Add SmileStreak to your Home Screen via Safari Share → Add to Home Screen, then re-enable notifications.",
+    notificationsEnabled: "Notifications enabled successfully.",
+    notificationsBlocked: "Notifications are blocked. Please enable them in browser settings.",
     morningSet: "⏰ Morning reminder set to 8:00 AM",
     nightSet: "🌙 Night reminder set to 9:00 PM",
     flossSet: "🧵 Floss reminder set to 8:30 PM"
@@ -153,7 +153,7 @@ export default function Reminders() {
 
       // Show a confirmation notification now via SW
       if (Notification.permission === 'granted') {
-        reg.showNotification('😁 Aligner Reminder Set', {
+        reg.showNotification('Aligner reminder set', {
           body: `We'll remind you to swap trays on ${traySwapDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })}`,
           icon: '/icon-511.png',
           badge: '/icon-511.png',
@@ -182,14 +182,14 @@ export default function Reminders() {
       if (!reg || Notification.permission !== 'granted') return;
 
       if (daysUntil === 1) {
-        reg.showNotification('😁 Tray Swap Tomorrow!', {
+        reg.showNotification('Tray swap tomorrow', {
           body: "Time to switch to your next aligner tray tomorrow. Make sure it's ready!",
           icon: '/icon-511.png',
           badge: '/icon-511.png',
           tag: 'aligner-swap-tomorrow',
         });
       } else if (daysUntil <= 0) {
-        reg.showNotification('😁 Time to Swap Your Tray!', {
+        reg.showNotification('Time to swap your tray', {
           body: "It's time to switch to your next aligner tray. Keep your treatment on track!",
           icon: '/icon-511.png',
           badge: '/icon-511.png',
@@ -222,19 +222,19 @@ export default function Reminders() {
 
       checkAndNotify(
         new Date(visitDate.getTime() - 30 * 24 * 60 * 60 * 1000),
-        "🦷 Dentist Visit in 1 Month",
+        "Dentist visit in 1 month",
         `Your appointment is on ${visitDate.toLocaleDateString()}`,
         'dentist-1month'
       );
       checkAndNotify(
         new Date(visitDate.getTime() - 14 * 24 * 60 * 60 * 1000),
-        "🦷 Dentist Visit in 2 Weeks",
+        "Dentist visit in 2 weeks",
         `Your appointment is on ${visitDate.toLocaleDateString()}`,
         'dentist-2weeks'
       );
       checkAndNotify(
         new Date(visitDate.getTime() - 7 * 24 * 60 * 60 * 1000),
-        "🦷 Dentist Visit in 1 Week",
+        "Dentist visit in 1 week",
         `Your appointment is on ${visitDate.toLocaleDateString()}`,
         'dentist-1week'
       );
@@ -249,9 +249,9 @@ export default function Reminders() {
     const visitDate = new Date(nextDentistVisit);
     const now = new Date();
     const remindersToSchedule = [
-      { label: "1 month before", emoji: "📅", date: new Date(visitDate.getTime() - 30 * 24 * 60 * 60 * 1000), color: "bg-blue-50 border-blue-200 text-blue-700" },
-      { label: "2 weeks before", emoji: "🗓️", date: new Date(visitDate.getTime() - 14 * 24 * 60 * 60 * 1000), color: "bg-purple-50 border-purple-200 text-purple-700" },
-      { label: "1 week before",  emoji: "⏰", date: new Date(visitDate.getTime() - 7 * 24 * 60 * 60 * 1000),  color: "bg-teal-50 border-teal-200 text-teal-700" },
+      { label: "1 month before", date: new Date(visitDate.getTime() - 30 * 24 * 60 * 60 * 1000), color: "bg-blue-50 border-blue-200 text-blue-700" },
+      { label: "2 weeks before", date: new Date(visitDate.getTime() - 14 * 24 * 60 * 60 * 1000), color: "bg-purple-50 border-purple-200 text-purple-700" },
+      { label: "1 week before",  date: new Date(visitDate.getTime() - 7 * 24 * 60 * 60 * 1000),  color: "bg-teal-50 border-teal-200 text-teal-700" },
     ];
     setScheduledDentistReminders(remindersToSchedule.map(r => ({
       ...r,
@@ -268,7 +268,7 @@ export default function Reminders() {
       // Check if running as installed PWA
       const isStandalone = window.navigator.standalone === true;
       if (!isStandalone) {
-        setMessage("📱 First add SmileStreak to your Home Screen: tap Share → Add to Home Screen in Safari, then open from there.");
+        setMessage("First add SmileStreak to your Home Screen: tap Share → Add to Home Screen in Safari, then open from there.");
         setTimeout(() => setMessage(""), 6000);
         return;
       }
@@ -291,7 +291,7 @@ export default function Reminders() {
         setNotificationsEnabled(true);
         setMessage(translatedText.notificationsEnabled || translationKeys.notificationsEnabled);
       } catch (error) {
-        setMessage(`❌ ${error.message}`);
+        setMessage(error.message);
       }
       setTimeout(() => setMessage(""), 3000);
     } else if (permission === "denied") {
@@ -308,7 +308,7 @@ export default function Reminders() {
     if (!dentistReminderEnabled && Notification.permission !== 'granted') {
       const permission = await requestNotificationPermission();
       if (permission !== 'granted') {
-        setMessage("❌ Please enable notifications first.");
+        setMessage("Please enable notifications first.");
         setTimeout(() => setMessage(""), 4000);
         return;
       }
@@ -318,7 +318,7 @@ export default function Reminders() {
       }
     }
     setDentistReminderEnabled(prev => !prev);
-    setMessage(!dentistReminderEnabled ? "🦷 Dentist visit reminders enabled!" : "🔕 Dentist visit reminders disabled.");
+    setMessage(!dentistReminderEnabled ? "Dentist visit reminders enabled." : "Dentist visit reminders disabled.");
     setTimeout(() => setMessage(""), 3000);
   };
 
@@ -326,7 +326,7 @@ export default function Reminders() {
     if (!alignerReminderEnabled && Notification.permission !== 'granted') {
       const permission = await requestNotificationPermission();
       if (permission !== 'granted') {
-        setMessage("❌ Please enable notifications first.");
+        setMessage("Please enable notifications first.");
         setTimeout(() => setMessage(""), 4000);
         return;
       }
@@ -336,7 +336,7 @@ export default function Reminders() {
       }
     }
     setAlignerReminderEnabled(prev => !prev);
-    setMessage(!alignerReminderEnabled ? "😁 Aligner swap reminders enabled!" : "🔕 Aligner swap reminders disabled.");
+    setMessage(!alignerReminderEnabled ? "Aligner swap reminders enabled." : "Aligner swap reminders disabled.");
     setTimeout(() => setMessage(""), 3000);
   };
 
@@ -354,7 +354,7 @@ export default function Reminders() {
       schedule.nextSwapDate = newSwapDate.toISOString();
       localStorage.setItem('alignerSwapSchedule', JSON.stringify(schedule));
     }
-    setMessage(`✅ All future swap reminders pushed back ${days} day${days !== 1 ? 's' : ''}`);
+    setMessage(`All future swap reminders pushed back ${days} day${days !== 1 ? 's' : ''}.`);
     setTimeout(() => setMessage(""), 3000);
   };
 
@@ -476,7 +476,7 @@ export default function Reminders() {
       </dl>
 
       {/* Custom Reminders */}
-      <section className="reminder-feature-section space-y-4">
+      <section className="reminder-feature-section reminder-custom-times space-y-4">
         <div className="flex items-center gap-2 mb-2">
           <Clock className="w-5 h-5 text-blue-600" />
           <h3 className="font-bold text-gray-900">{translatedText.customTimes}</h3>
@@ -487,7 +487,7 @@ export default function Reminders() {
       </section>
 
       {/* ── ALIGNER TRAY SWAP REMINDER ── */}
-      <section className="reminder-feature-section space-y-4">
+      <section className="reminder-feature-section reminder-aligner-section space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <h3 className="font-bold text-gray-900">Aligner Tray Swap Reminder</h3>
         </div>
@@ -500,19 +500,19 @@ export default function Reminders() {
         ) : (
           <>
             {/* Next swap info */}
-            <div className={`rounded-xl p-4 border-2 ${
+            <div className={`reminder-date-status rounded-xl p-4 border-2 ${
               daysUntilSwap !== null && daysUntilSwap <= 0 ? "bg-red-50 border-red-200" :
               daysUntilSwap !== null && daysUntilSwap <= 2 ? "bg-amber-50 border-amber-200" :
               "bg-blue-50 border-blue-200"
             }`}>
               <div className="flex items-start gap-3">
-                <span className="text-2xl">😁</span>
+                <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" aria-hidden="true" />
                 <div>
                   <p className="font-bold text-gray-900 text-sm">
                     {daysUntilSwap !== null && daysUntilSwap <= 0
-                      ? "⚠️ Time to swap your tray!"
+                      ? "Time to swap your tray"
                       : daysUntilSwap === 1
-                      ? "🔔 Swap your tray tomorrow!"
+                      ? "Swap your tray tomorrow"
                       : `Next tray swap in ${daysUntilSwap} days`}
                   </p>
                   {traySwapDate && (
@@ -524,10 +524,10 @@ export default function Reminders() {
             </div>
 
             {/* Toggle */}
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200">
+            <div className="reminder-switch-row flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${alignerReminderEnabled ? "bg-blue-500" : "bg-gray-300"}`}>
-                  <Bell className="w-5 h-5 text-white" />
+                <div className={`reminder-switch-icon w-8 h-8 rounded-md flex items-center justify-center ${alignerReminderEnabled ? "is-enabled" : "is-disabled"}`}>
+                  <Bell className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Tray Swap Reminder</p>
@@ -540,7 +540,7 @@ export default function Reminders() {
                 role="switch"
                 aria-checked={alignerReminderEnabled}
                 aria-label="Aligner tray swap reminders"
-                className={`relative w-12 h-6 rounded-full transition-all duration-300 ${alignerReminderEnabled ? "bg-blue-500" : "bg-gray-300"}`}
+                className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${alignerReminderEnabled ? "bg-blue-500" : "bg-gray-300"}`}
               >
                 <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${alignerReminderEnabled ? "left-6" : "left-0.5"}`} />
               </button>
@@ -555,7 +555,7 @@ export default function Reminders() {
                     <button
                       key={days}
                       onClick={() => pushRemindersBack(days)}
-                      className="py-2.5 rounded-xl text-xs font-bold bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-600 border border-blue-200 hover:border-blue-400 transition-all"
+                      className="reminder-adjust-action py-2.5 rounded-xl text-xs font-bold bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-600 border border-blue-200 hover:border-blue-400 transition-all"
                     >
                       +{days}d
                     </button>
@@ -566,7 +566,7 @@ export default function Reminders() {
 
             {/* Upcoming swap schedule */}
             {alignerReminderEnabled && traySwapDate && (
-              <div className="space-y-2">
+              <div className="reminder-schedule-list space-y-2">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Upcoming Swaps</p>
                 {[0, 1, 2].map(i => {
                   const swapD = new Date(traySwapDate);
@@ -574,9 +574,9 @@ export default function Reminders() {
                   const trayNum = Math.min((alignerData.tray || 1) + i, alignerData.totalTrays);
                   const dUntil = Math.ceil((swapD - new Date()) / (1000 * 60 * 60 * 24));
                   return (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-xl border bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-100">
+                    <div key={i} className="reminder-schedule-row flex items-center justify-between p-3 rounded-xl border bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-100">
                       <div className="flex items-center gap-2">
-                        <span>😁</span>
+                        <Calendar className="h-4 w-4 text-slate-500" aria-hidden="true" />
                         <div>
                           <p className="text-xs font-bold text-blue-700">Tray {trayNum}</p>
                           <p className="text-xs text-gray-500">{swapD.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
@@ -593,24 +593,24 @@ export default function Reminders() {
       </section>
 
       {/* ── DENTIST VISIT REMINDER ── */}
-      <section className="reminder-feature-section space-y-4">
+      <section className="reminder-feature-section reminder-dentist-section space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <Calendar className="w-5 h-5 text-teal-600" />
           <h3 className="font-bold text-gray-900">Dentist Visit Reminder</h3>
         </div>
 
         {nextDentistVisit ? (
-          <div className={`rounded-xl p-4 border-2 ${
+          <div className={`reminder-date-status rounded-xl p-4 border-2 ${
             daysUntilVisit !== null && daysUntilVisit <= 0 ? "bg-red-50 border-red-200" :
             daysUntilVisit !== null && daysUntilVisit <= 30 ? "bg-amber-50 border-amber-200" :
             "bg-teal-50 border-teal-200"
           }`}>
             <div className="flex items-start gap-3">
-              <span className="text-2xl">🦷</span>
+              <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" aria-hidden="true" />
               <div>
                 <p className="font-bold text-gray-900 text-sm">
-                  {daysUntilVisit !== null && daysUntilVisit <= 0 ? "⚠️ Dentist visit overdue!" :
-                   daysUntilVisit !== null && daysUntilVisit <= 7 ? `🔔 Visit in ${daysUntilVisit} days!` :
+                  {daysUntilVisit !== null && daysUntilVisit <= 0 ? "Dentist visit overdue" :
+                   daysUntilVisit !== null && daysUntilVisit <= 7 ? `Visit in ${daysUntilVisit} days` :
                    `Next visit in ${daysUntilVisit} days`}
                 </p>
                 <p className="text-xs text-gray-600 mt-0.5">{formatVisitDate(nextDentistVisit)}</p>
@@ -625,10 +625,10 @@ export default function Reminders() {
           </div>
         )}
 
-        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200">
+        <div className="reminder-switch-row flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"}`}>
-              <Bell className="w-5 h-5 text-white" />
+            <div className={`reminder-switch-icon w-8 h-8 rounded-md flex items-center justify-center ${dentistReminderEnabled ? "is-enabled" : "is-disabled"}`}>
+              <Bell className="w-4 h-4" />
             </div>
             <div>
               <p className="font-semibold text-gray-900 text-sm">Dentist Visit Reminder</p>
@@ -642,7 +642,7 @@ export default function Reminders() {
             aria-checked={dentistReminderEnabled}
             aria-label="Dentist visit reminders"
             disabled={!nextDentistVisit}
-            className={`relative w-12 h-6 rounded-full transition-all duration-300 ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"} ${!nextDentistVisit ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`reminder-toggle relative w-12 h-6 rounded-full transition-all duration-300 ${dentistReminderEnabled ? "bg-teal-500" : "bg-gray-300"} ${!nextDentistVisit ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${dentistReminderEnabled ? "left-6" : "left-0.5"}`} />
           </button>
@@ -654,7 +654,7 @@ export default function Reminders() {
             {scheduledDentistReminders.map((r, i) => (
               <div key={i} className={`flex items-center justify-between p-3 rounded-xl border ${r.color} ${r.isPast ? "opacity-40" : ""}`}>
                 <div className="flex items-center gap-2">
-                  <span>{r.emoji}</span>
+                  <Calendar className="h-4 w-4 text-slate-500" aria-hidden="true" />
                   <div>
                     <p className="text-xs font-bold">{r.label}</p>
                     <p className="text-xs opacity-75">{r.formattedDate}</p>
@@ -678,7 +678,7 @@ export default function Reminders() {
 
       {/* Enable Button */}
       {!notificationsEnabled && (
-        <button onClick={handleNotifications} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-5 rounded-2xl font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+        <button onClick={handleNotifications} className="reminder-enable-action w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
           <Bell className="w-5 h-5" />
           {translatedText.enableButton}
         </button>
@@ -686,13 +686,13 @@ export default function Reminders() {
 
       {/* Message */}
       {message && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
+        <div className="reminder-feedback bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center" role="status" aria-live="polite">
           <p className="text-sm text-gray-700 font-medium">{message}</p>
         </div>
       )}
 
       {/* Tips */}
-      <div className="bg-slate-50 border border-purple-200 rounded-2xl p-5">
+      <aside className="reminder-help-note bg-slate-50 border border-purple-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>
@@ -704,7 +704,7 @@ export default function Reminders() {
             </ul>
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* iOS Notice — only show if installed as PWA */}
       {isIOS && window.navigator.standalone === true && (
@@ -725,13 +725,13 @@ export default function Reminders() {
 
 function ReminderRow({ label, icon, time, onChange }) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200">
+    <div className="reminder-time-row flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200">
       <div className="flex items-center gap-3">
         {icon}
         <p className="font-semibold text-gray-900">{label}</p>
       </div>
-      <input type="time" value={time} onChange={(e) => onChange(e.target.value)}
-        className="border-2 border-blue-200 rounded-xl px-4 py-2 text-sm font-semibold hover:border-blue-400 focus:border-blue-500 focus:outline-none transition-colors" />
+      <input type="time" value={time} aria-label={`Reminder time for ${label}`} onChange={(e) => onChange(e.target.value)}
+        className="reminder-time-input border-2 border-blue-200 rounded-xl px-4 py-2 text-sm font-semibold transition-colors" />
     </div>
   );
 }
