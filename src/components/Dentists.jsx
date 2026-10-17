@@ -415,47 +415,47 @@ const askAIAssistant = async () => {
               <div className="grid grid-cols-2 gap-1 sm:flex sm:gap-2">
                 <button
                   onClick={() => setShowAIAssistant(!showAIAssistant)}
-                  className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50 relative"
+                  className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative"
                   title="AI Assistant"
                   aria-label="Open dental question assistant"
                 >
-                  <Bot className="w-5 h-5" />
+                  <Bot className="w-4 h-4" /><span>Ask a question</span>
                 </button>
                 <button
                   onClick={() => setShowPriceEstimator(!showPriceEstimator)}
-                  className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50"
+                  className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50"
                   title="Treatment cost questions"
                   aria-label="Open treatment cost estimator"
                 >
-                  <DollarSign className="w-5 h-5" />
+                  <DollarSign className="w-4 h-4" /><span>Cost questions</span>
                 </button>
                 <button
                   onClick={() => setShowTreatmentPlanner(!showTreatmentPlanner)}
-                  className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50"
+                  className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50"
                   title="Dental visit prep"
                   aria-label="Open dental visit planner"
                 >
-                  <Calendar className="w-5 h-5" />
+                  <Calendar className="w-4 h-4" /><span>Plan a visit</span>
                 </button>
                 {selectedForCompare.length > 0 && (
-                  <button onClick={() => setShowCompare(true)} className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Compare ${selectedForCompare.length} selected dentists`}>
-                    <BarChart3 className="w-5 h-5" />
+                  <button onClick={() => setShowCompare(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Compare ${selectedForCompare.length} selected dentists`}>
+                    <BarChart3 className="w-4 h-4" /><span>Compare</span>
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{selectedForCompare.length}</span>
                   </button>
                 )}
                 {favorites.length > 0 && (
-                  <button onClick={() => setShowFavorites(true)} className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Show ${favorites.length} saved dentists`}>
-                    <Heart className="w-5 h-5 fill-current text-slate-700" />
+                  <button onClick={() => setShowFavorites(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`Show ${favorites.length} saved dentists`}>
+                    <Heart className="w-4 h-4 fill-current text-slate-700" /><span>Saved</span>
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{favorites.length}</span>
                   </button>
                 )}
-                <button onClick={() => setShowFilters(!showFilters)} className={`rounded-lg border border-slate-200 p-3 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label="Toggle dentist filters" aria-expanded={showFilters}>
-                  <Filter className="w-5 h-5" />
+                <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label="Toggle dentist filters" aria-expanded={showFilters}>
+                  <Filter className="w-4 h-4" /><span>Filters</span>
                 </button>
               </div>
             </div>
           </div>
-          <div className="relative">
+          <div className="dentists-search relative">
             <label htmlFor="dentist-search" className="sr-only">Search dentists by name</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" aria-hidden="true" />
             <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by dentist name" className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
@@ -601,7 +601,7 @@ const askAIAssistant = async () => {
 
       {/* IMPROVED: Cleaner Filters UI */}
       {showFilters && !locationError && (
-        <div className="bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
+        <div className="dentists-filter-panel bg-white rounded-[2rem] p-6 shadow-lg border border-blue-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900">Filters</h3>
             <button onClick={() => { 
@@ -715,7 +715,7 @@ const askAIAssistant = async () => {
 
       {/* INSURANCE */}
       {!locationError && (
-        <div className="bg-white rounded-[2rem] p-6 shadow-md border border-blue-100">
+        <div className="dentists-insurance bg-white rounded-[2rem] p-6 shadow-md border border-blue-100">
           <label className="text-sm font-semibold text-gray-700 mb-2 block">{translatedText.yourInsurance}</label>
           <select value={insurance} onChange={(e) => setInsurance(e.target.value)} className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none font-medium">
             <option value="">{translatedText.selectInsurance}</option>
@@ -726,7 +726,7 @@ const askAIAssistant = async () => {
 
       {/* SORT */}
       {!locationError && dentists.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="dentists-sort flex gap-2 overflow-x-auto pb-2">
           {[
             { id: 'recommended', label: translatedText.recommended, icon: <Award className="w-4 h-4" /> },
             { id: 'rating', label: translatedText.bestRated, icon: <Star className="w-4 h-4" /> },
