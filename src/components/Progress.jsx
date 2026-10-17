@@ -292,7 +292,8 @@ export default function Progress({ habitData }) {
                     <button
                       key={cell.key}
                       type="button"
-                      disabled={cell.isFuture}
+                      aria-disabled={cell.isFuture}
+                      tabIndex={cell.isFuture ? -1 : undefined}
                       aria-label={`${formatTooltipDate(cell.date)}: ${cell.count} of 3 habits completed`}
                       aria-pressed={cell.isFuture ? undefined : !!(tooltip?.pinned && tooltip.cell.key === cell.key)}
                       className={`heatmap-cell w-3 h-3 rounded-sm flex-shrink-0 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 ${getCellColor(cell)} ${cell.isToday ? "ring-1 ring-[#52777b] ring-offset-1" : ""}`}
