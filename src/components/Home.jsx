@@ -193,6 +193,7 @@ export default function Home({ setActiveTab, user, habitData }) {
         notScheduled: "Not scheduled",
         tapToLogVisit: "Tap to log a visit",
         visitOverdue: "Visit is overdue",
+        visitToday: "Visit today",
         addVisitWhenReady: "Add a visit when you're ready",
         noteRoutine: "A note for your routine",
         onCalendar: "On your calendar",
@@ -364,7 +365,7 @@ export default function Home({ setActiveTab, user, habitData }) {
               <span className="home-aside-icon"><Calendar size={18} /></span>
               <span className="home-visit-copy">
                 <span className="home-eyebrow">{texts.nextVisit || "Next dentist visit"}</span>
-                {!nextDentistVisit ? <><strong>{texts.notScheduled || "Not scheduled"}</strong><small>{texts.tapToLogVisit || "Tap to log a visit"}</small></> : daysUntilVisit <= 0 ? <><strong>{texts.visitOverdue || "Visit is overdue"}</strong><small>Was due {formatVisitDate(nextDentistVisit)}</small></> : <><strong>{daysUntilVisit <= 14 ? `${daysUntilVisit} days` : formatVisitDate(nextDentistVisit)}</strong><small>{daysUntilVisit <= 14 ? formatVisitDate(nextDentistVisit) : texts.addVisitWhenReady || "Add a visit when you're ready"}</small></>}
+                {!nextDentistVisit ? <><strong>{texts.notScheduled || "Not scheduled"}</strong><small>{texts.tapToLogVisit || "Tap to log a visit"}</small></> : daysUntilVisit === null ? <><strong>{texts.dateUnavailable || "Date unavailable"}</strong><small>{texts.addVisitWhenReady || "Add a visit when you're ready"}</small></> : daysUntilVisit < 0 ? <><strong>{texts.visitOverdue || "Visit is overdue"}</strong><small>{formatVisitDate(nextDentistVisit)}</small></> : daysUntilVisit === 0 ? <><strong>{texts.visitToday || "Visit today"}</strong><small>{formatVisitDate(nextDentistVisit)}</small></> : <><strong>{daysUntilVisit <= 14 ? `${daysUntilVisit} days` : formatVisitDate(nextDentistVisit)}</strong><small>{daysUntilVisit <= 14 ? formatVisitDate(nextDentistVisit) : texts.addVisitWhenReady || "Add a visit when you're ready"}</small></>}
                 {lastDentistVisit && <small>Last visit: {formatVisitDate(lastDentistVisit)}</small>}
               </span>
               <ChevronRight size={17} />
