@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { Download, Mail, TrendingUp, TrendingDown, Minus, Award, Target, Zap, FileText, Share2, Printer, CheckCircle2, AlertCircle, BarChart3, Sun, Moon, Activity } from "lucide-react";
+import { Download, Mail, TrendingUp, TrendingDown, Minus, Award, Target, Zap, FileText, Share2, Printer, AlertCircle, BarChart3, Sun, Moon, Activity } from "lucide-react";
 import { TranslationContext } from "../App";
 
 export default function Report({ habitData }) {
@@ -372,7 +372,7 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
       </dl>
 
       {/* Detailed Stats */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+      <section className="report-section">
         <h3 className="font-black text-gray-900 mb-4">{translatedText.taskBreakdown}</h3>
         
         <div className="space-y-4">
@@ -402,10 +402,10 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
             );
           })}
         </div>
-      </div>
+      </section>
 
       {/* Completion Distribution */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+      <section className="report-section">
         <h3 className="font-black text-gray-900 mb-4">{translatedText.completionDistribution}</h3>
         
         <div className="report-distribution" role="list" aria-label={translatedText.completionDistribution}>
@@ -421,28 +421,27 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Insights */}
-      <div className="bg-slate-50 rounded-3xl p-6 shadow-lg border-2 border-purple-200">
+      <section className="report-insights">
         <div className="flex items-center gap-2 mb-4">
-          <Zap className="w-6 h-6 text-purple-600" />
           <h3 className="font-black text-gray-900">{translatedText.personalizedInsights}</h3>
         </div>
         
         <div className="space-y-3">
           {insights.map((insight, i) => (
-            <div key={i} className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl">
-              <div className="flex-shrink-0 mt-0.5">{insight.icon}</div>
+            <div key={i} className="report-insight-row">
+              <div className="flex-shrink-0 mt-0.5" aria-hidden="true">{insight.icon}</div>
               <p className="text-sm text-gray-700">{insight.text}</p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Weekly Trend (if available) */}
       {Object.keys(weeklyData).length > 1 && (
-        <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+        <section className="report-section">
           <h3 className="font-black text-gray-900 mb-4">{translatedText.weeklyTrend}</h3>
           <div className="space-y-2">
             {Object.entries(weeklyData).slice(-4).map(([week, data]) => (
@@ -452,29 +451,27 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
                   <span className="text-gray-600">{data.perfect} {translatedText.perfectDaysLower}</span>
                 </div>
                 <div className="flex h-3 rounded-full overflow-hidden bg-gray-100">
-                  <div className="bg-green-500" style={{ width: `${(data.perfect / 7) * 100}%` }} />
-                  <div className="bg-yellow-400" style={{ width: `${(data.partial / 7) * 100}%` }} />
-                  <div className="bg-red-400" style={{ width: `${(data.skipped / 7) * 100}%` }} />
+                  <div className="report-weekly-segment report-weekly-segment--perfect" style={{ width: `${(data.perfect / 7) * 100}%` }} />
+                  <div className="report-weekly-segment report-weekly-segment--partial" style={{ width: `${(data.partial / 7) * 100}%` }} />
+                  <div className="report-weekly-segment report-weekly-segment--skipped" style={{ width: `${(data.skipped / 7) * 100}%` }} />
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Export Options */}
-      <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+      <section className="report-section report-export">
         <h3 className="font-black text-gray-900 mb-4">{translatedText.shareReport}</h3>
         
         <div className="grid grid-cols-1 gap-3">
           <button
             onClick={downloadTxtReport}
-            className="flex items-center justify-between p-4 rounded-2xl bg-blue-50 border-2 border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all group"
+            className="report-export-action"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Download className="w-5 h-5 text-white" />
-              </div>
+              <Download className="w-5 h-5 text-slate-600" />
               <div className="text-left">
                 <p className="font-bold text-gray-900">{translatedText.downloadReport}</p>
                 <p className="text-xs text-gray-600">{translatedText.downloadDesc}</p>
@@ -485,12 +482,10 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
 
           <button
             onClick={shareViaEmail}
-            className="flex items-center justify-between p-4 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 hover:border-green-300 transition-all group"
+            className="report-export-action"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
+              <Mail className="w-5 h-5 text-slate-600" />
               <div className="text-left">
                 <p className="font-bold text-gray-900">{translatedText.emailReport}</p>
                 <p className="text-xs text-gray-600">{translatedText.emailDesc}</p>
@@ -501,12 +496,10 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
 
           <button
             onClick={printReport}
-            className="flex items-center justify-between p-4 rounded-2xl bg-purple-50 border-2 border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-all group"
+            className="report-export-action"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Printer className="w-5 h-5 text-white" />
-              </div>
+              <Printer className="w-5 h-5 text-slate-600" />
               <div className="text-left">
                 <p className="font-bold text-gray-900">{translatedText.printReport}</p>
                 <p className="text-xs text-gray-600">{translatedText.printDesc}</p>
@@ -515,20 +508,13 @@ ${translatedText.reportFooter || translationKeys.reportFooter}
             <Printer className="w-5 h-5 text-gray-400" />
           </button>
         </div>
-      </div>
+      </section>
 
       {/* Dentist Recommendation */}
-      <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-2xl p-5">
-        <div className="flex items-start gap-3">
-          <CheckCircle2 className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold text-gray-900 text-sm mb-1">{translatedText.shareWithDentist}</p>
-            <p className="text-xs text-gray-600">
-              {translatedText.shareWithDentistDesc}
-            </p>
-          </div>
-        </div>
-      </div>
+      <aside className="report-dentist-note">
+        <h3>{translatedText.shareWithDentist}</h3>
+        <p>{translatedText.shareWithDentistDesc}</p>
+      </aside>
     </div>
   );
 }
