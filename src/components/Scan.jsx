@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useContext } from "react";
 import {
 Camera, Upload, X, History, ArrowLeft, ChevronRight,
-AlertCircle, CheckCircle2, TrendingUp, Image as ImageIcon,
+AlertCircle, CheckCircle2, Smile, TrendingUp, Image as ImageIcon,
 Download, Share2, Printer, Calendar, Clock, MapPin, Phone,
 Mail, User, Star, FileText, BarChart3, Brain,
 Activity, Shield, Award, Target,
@@ -160,7 +160,7 @@ title: "Open wide",
 titleKey: "guidanceOpenTitle",
 instruction: "Open your mouth to show all teeth",
 instructionKey: "guidanceOpenInstruction",
-icon: CheckCircle2,
+icon: Smile,
 tip: "Relax your jaw and smile naturally",
 tipKey: "guidanceOpenTip"
 },
