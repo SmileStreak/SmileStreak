@@ -648,8 +648,8 @@ return (
 
 <Presence open={showCompletion}>
 {showCompletion && (
-<div className="t-modal-backdrop fixed inset-0 bg-blue-900/25 flex items-center justify-center z-50">
-<div className="today-completion-dialog bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100" role="dialog" aria-modal="true" aria-labelledby="today-completion-title">
+<div className="today-completion-toast fixed inset-x-4 top-5 z-50 flex justify-center pointer-events-none">
+<div className="today-completion-dialog bg-white rounded-3xl px-10 py-9 text-center shadow-2xl border border-blue-100" role="status" aria-live="polite" aria-labelledby="today-completion-title">
 <div className="mb-4 flex justify-center"><CheckCircle2 className="h-10 w-10 text-blue-700" strokeWidth={1.5} /></div>
 <h2 id="today-completion-title" className="text-2xl font-black text-gray-900 mb-2">{T("Day Complete!")}</h2>
 <p className="text-sm text-gray-500 mb-3">{isRecoveryDay ? `🔄 ${T("Recovery streak saved!")}` : "✨ Perfect consistency!"}</p>

@@ -2285,6 +2285,16 @@ html.dark .today-aligner-panel > div:first-child p:first-child { color: var(--in
 .today-dialog > div[class*="bg-gray-50"] { border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; }
 .today-completion-dialog { padding: 30px 32px !important; background: var(--surface) !important; color: var(--ink); }
 .today-completion-dialog h2 { font: 500 27px/1.1 "Newsreader Variable", Georgia, serif; }
+.today-completion-toast .today-completion-dialog {
+  display: grid; width: min(100%, 390px); grid-template-columns: 32px minmax(0, 1fr); align-items: center;
+  gap: 4px 12px; padding: 14px 18px !important; border-color: var(--line) !important;
+  border-radius: 9px !important; text-align: left;
+}
+.today-completion-toast .today-completion-dialog > div:first-child { grid-row: 1 / span 3; margin: 0 !important; }
+.today-completion-toast .today-completion-dialog > div:first-child svg { width: 26px; height: 26px; color: var(--brand) !important; }
+.today-completion-toast .today-completion-dialog h2 { margin: 0 !important; font-size: 20px; }
+.today-completion-toast .today-completion-dialog p { margin: 0 !important; color: var(--ink-muted); font-size: 12px; }
+.today-completion-toast .today-completion-dialog > span { grid-column: 2; margin-top: 3px; }
 html.dark .today-task-progress > div span { color: var(--brand) !important; }
 html.dark .today-dialog, html.dark .today-completion-dialog { background: var(--surface) !important; color: var(--ink); }
 @media (max-width: 640px) {
