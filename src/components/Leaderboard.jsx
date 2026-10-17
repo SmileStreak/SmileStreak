@@ -37,8 +37,11 @@ export default function Leaderboard({ user, darkMode }) {
 
   // ── FETCH LEAGUE PLAYERS ──
   useEffect(() => {
+    let active = true;
     const fetchLeaguePlayers = async () => {
       if (!user) {
+        setPlayers([]);
+        setLoadError(false);
         setLoading(false);
         return;
       }
@@ -48,9 +51,11 @@ export default function Leaderboard({ user, darkMode }) {
       try {
         // Read only the signed-in user's document to determine their league.
         const currentUserSnapshot = await getDoc(doc(db, "users", user.uid));
+        if (!active) return;
         const currentUserData = currentUserSnapshot.exists() ? currentUserSnapshot.data() : null;
 
         if (!currentUserData) {
+          setPlayers([]);
           setLoading(false);
           return;
         }
@@ -69,6 +74,7 @@ export default function Leaderboard({ user, darkMode }) {
         );
         
         const querySnapshot = await getDocs(q);
+        if (!active) return;
         const playersData = [];
 
         querySnapshot.forEach((doc) => {
@@ -101,18 +107,21 @@ export default function Leaderboard({ user, darkMode }) {
           player.rank = index + 1;
         });
 
-        setPlayers(playersData);
+        if (active) setPlayers(playersData);
 
       } catch (error) {
         console.error("Unable to load the leaderboard.", error);
-        setPlayers([]);
-        setLoadError(true);
+        if (active) {
+          setPlayers([]);
+          setLoadError(true);
+        }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     fetchLeaguePlayers();
+    return () => { active = false; };
   }, [user, loadAttempt]);
 
   // ── FILTER PLAYERS BY SEARCH ──

@@ -105,14 +105,16 @@ export default function Dentists() {
   };
 
   useEffect(() => {
+    let active = true;
     const loadTranslations = async () => {
       const translations = {};
       for (const [key, value] of Object.entries(translationKeys)) {
         translations[key] = await t(value);
       }
-      setTranslatedText(translations);
+      if (active) setTranslatedText(translations);
     };
-    loadTranslations();
+    loadTranslations().catch((error) => console.error("Could not load dentist finder translations:", error));
+    return () => { active = false; };
   }, [currentLanguage, t]);
 
   useEffect(() => {
