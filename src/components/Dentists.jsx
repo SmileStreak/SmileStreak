@@ -713,7 +713,7 @@ const askAIAssistant = async () => {
                   <label className="text-sm font-medium text-gray-600 mb-2 block">Minimum Rating</label>
                   <div className="flex flex-wrap gap-2">
                     {[0, 3, 4, 4.5].map(rating => (
-                      <button key={rating} onClick={() => setFilterMinRating(rating)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${filterMinRating === rating ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}>
+                      <button key={rating} aria-pressed={filterMinRating === rating} onClick={() => setFilterMinRating(rating)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${filterMinRating === rating ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}>
                         {rating === 0 ? 'Any' : `${rating}+ ⭐`}
                       </button>
                     ))}
@@ -770,7 +770,7 @@ const askAIAssistant = async () => {
             { id: 'rating', label: translatedText.bestRated, icon: <Star className="w-4 h-4" /> },
             { id: 'distance', label: translatedText.closest, icon: <Navigation className="w-4 h-4" /> }
           ].map(sort => (
-            <button key={sort.id} onClick={() => setSortBy(sort.id)} className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold whitespace-nowrap transition-all text-sm ${sortBy === sort.id ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}>
+            <button key={sort.id} aria-pressed={sortBy === sort.id} onClick={() => setSortBy(sort.id)} className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold whitespace-nowrap transition-all text-sm ${sortBy === sort.id ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}>
               {sort.icon}{sort.label}
             </button>
           ))}
@@ -873,14 +873,14 @@ const askAIAssistant = async () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => toggleCompare(d)} aria-label={isInCompare ? "Remove dentist from comparison" : "Compare dentist"} aria-pressed={isInCompare} className={`p-3 rounded-xl transition-all ${isInCompare ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-400'}`}><BarChart3 className="w-5 h-5" /></button>
-                    <button type="button" onClick={() => toggleFavorite(d)} aria-label={isFavorite(d.id) ? "Remove dentist from saved list" : "Save dentist"} aria-pressed={isFavorite(d.id)} className="p-3 rounded-xl hover:bg-gray-100 transition-all"><Heart className={`w-5 h-5 transition-all ${isFavorite(d.id) ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400'}`} /></button>
+                    <button type="button" onClick={() => toggleCompare(d)} aria-label={isInCompare ? `Remove ${d.name} from comparison` : `Compare ${d.name}`} aria-pressed={isInCompare} className={`p-3 rounded-xl transition-all ${isInCompare ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-400'}`}><BarChart3 className="w-5 h-5" aria-hidden="true" /></button>
+                    <button type="button" onClick={() => toggleFavorite(d)} aria-label={isFavorite(d.id) ? `Remove ${d.name} from saved dentists` : `Save ${d.name}`} aria-pressed={isFavorite(d.id)} className="p-3 rounded-xl hover:bg-gray-100 transition-all"><Heart className={`w-5 h-5 transition-all ${isFavorite(d.id) ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-400'}`} aria-hidden="true" /></button>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
                   {d.rating && (
-                    <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                    <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-full" role="img" aria-label={`Google Maps rating ${d.rating} out of 5${d.review_count > 0 ? `, ${d.review_count} reviews` : ""}`}>
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" aria-hidden="true" />
                       <span className="font-bold text-gray-900">{d.rating}</span>
                       {d.review_count > 0 && <span className="text-xs text-gray-500">({d.review_count})</span>}
                     </div>
