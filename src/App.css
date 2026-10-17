@@ -2032,13 +2032,25 @@ html.dark .reminder-feedback--success p { color: #c3d6c8 !important; }
 
 /* Dentist search: make the utility row legible, the filters scannable, and
    listings feel like a directory rather than a stack of promotional cards. */
+.dentists-heading {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 22px;
+  margin-bottom: 18px;
+}
+.dentists-heading > div:first-child { min-width: 220px; }
+.dentists-heading > div:first-child p { max-width: 52ch; line-height: 1.5; }
+.dentists-toolbar { min-width: 0; }
+.dentists-toolbar__items { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
 .dentists-tool-button {
   display: inline-flex; min-height: 38px; align-items: center; justify-content: center;
-  gap: 7px; border-radius: 7px; font-size: 12px; font-weight: 600;
+  gap: 7px; padding: 7px 10px; border: 1px solid var(--line) !important; border-radius: 6px !important;
+  color: var(--ink-secondary) !important; background: transparent !important;
+  font-size: 12px; font-weight: 550;
   white-space: nowrap;
 }
 .dentists-tool-button > span { line-height: 1; }
-.dentists-search input { min-height: 48px; border-color: var(--line-strong); border-radius: 8px; }
+.dentists-tool-button svg { width: 15px; height: 15px; color: var(--ink-muted); stroke-width: 1.7; }
+.dentists-tool-button[aria-expanded="true"] { border-color: var(--brand) !important; color: var(--brand) !important; background: var(--surface-quiet) !important; }
+.dentists-search input { min-height: 46px; border-color: var(--line-strong); border-radius: 6px; background: var(--surface-quiet); font-size: 14px; }
 .dentists-search input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgb(53 102 108 / .12); }
 .dentists-filter-panel {
   padding: 20px 0 !important; border: 0 !important; border-top: 1px solid var(--line) !important;
@@ -2082,13 +2094,18 @@ html.dark .app-page--dentists .dentist-result.is-selected { background: #263a3f;
 .app-page--dentists .dentist-result :is(button, a):focus-visible { outline-offset: 3px; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .dentists-tool-button:not(:disabled):hover { border-color: var(--line-strong); background: var(--surface-quiet); }
+  .dentists-tool-button:not(:disabled):active { transform: scale(.985); }
   .app-page--dentists .dentist-result__photos button:hover { transform: translateY(-2px); }
   .dentists-filter-panel label:hover { background: var(--surface-quiet); }
 }
 @media (max-width: 640px) {
+  .dentists-heading { align-items: stretch; flex-direction: column; gap: 14px; }
+  .dentists-toolbar__items { justify-content: flex-start; }
   .dentists-insurance { grid-template-columns: 1fr; gap: 8px; }
   .dentists-tool-button { padding-inline: 9px; }
 }
+html.dark .dentists-tool-button { border-color: var(--line) !important; color: var(--ink-secondary) !important; }
+html.dark .dentists-search input { background: var(--surface-quiet); color: var(--ink); }
 
 /* Leaderboard: one ranked record list, with the account summary grouped above it. */
 .leaderboard-panel {

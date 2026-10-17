@@ -134,6 +134,8 @@ export default function Dentists() {
     askQuestion: "Ask a question", costQuestions: "Cost questions", planVisit: "Plan a visit", compareLabel: "Compare",
     compareSelected: "selected dentists for comparison", savedDentistsAction: "Show saved dentists",
     toggleFilters: "Toggle dentist filters", searchDentists: "Search dentists by name",
+    searchPlaceholder: "Search by dentist name", directoryActions: "Dentist directory actions",
+    savedShortLabel: "Saved",
     closeQuestionAssistant: "Close dental question assistant", closeCostQuestions: "Close treatment cost questions",
     closeVisitPrep: "Close dental visit prep", dentalOfficePhoto: "Dental office photo",
     closeOfficePhoto: "Close dental office photo", officePhotoFromMaps: "Dental office photo from Google Maps",
@@ -508,16 +510,15 @@ const askAIAssistant = async () => {
         <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-20 translate-x-20" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-16 -translate-x-16" />
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
+          <div className="dentists-heading">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h2 className="text-3xl font-black">{translatedText.title}</h2>
               </div>
               <p className="text-base opacity-90">{translatedText.subtitle}</p>
             </div>
-            <div className="flex gap-2">
-              {/* NEW: Feature buttons - Now in a 2x2 grid on mobile */}
-              <div className="grid grid-cols-2 gap-1 sm:flex sm:gap-2">
+            <div className="dentists-toolbar" role="group" aria-label={translatedText.directoryActions || "Dentist directory actions"}>
+              <div className="dentists-toolbar__items">
                 <button
                   onClick={() => setShowAIAssistant(!showAIAssistant)}
                   className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative"
@@ -550,12 +551,12 @@ const askAIAssistant = async () => {
                 )}
                 {favorites.length > 0 && (
                   <button onClick={() => setShowFavorites(true)} className="dentists-tool-button rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 transition-colors hover:bg-slate-50 relative" aria-label={`${translatedText.savedDentistsAction || "Show saved dentists"}: ${favorites.length}`}>
-                    <Heart className="w-4 h-4 fill-current text-slate-700" /><span>Saved</span>
+                    <Heart className="w-4 h-4" /><span>{translatedText.savedShortLabel || "Saved"}</span>
                     <span aria-hidden="true" className="absolute -top-1 -right-1 w-5 h-5 bg-slate-100 text-slate-700 rounded-full text-xs font-bold flex items-center justify-center">{favorites.length}</span>
                   </button>
                 )}
                 <button onClick={() => setShowFilters(!showFilters)} className={`dentists-tool-button rounded-lg border border-slate-200 px-3 py-2 transition-colors ${showFilters ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-50'}`} aria-label={translatedText.toggleFilters || "Toggle dentist filters"} aria-expanded={showFilters}>
-                  <Filter className="w-4 h-4" /><span>Filters</span>
+                  <Filter className="w-4 h-4" /><span>{translatedText.filters || "Filters"}</span>
                 </button>
               </div>
             </div>
@@ -563,7 +564,7 @@ const askAIAssistant = async () => {
           <div className="dentists-search relative">
             <label htmlFor="dentist-search" className="sr-only">{translatedText.searchDentists || "Search dentists by name"}</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" aria-hidden="true" />
-            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by dentist name" className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={translatedText.searchPlaceholder || "Search by dentist name"} className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
           </div>
         </div>
       </div>
