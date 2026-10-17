@@ -1,9 +1,9 @@
 import { generateInsights } from "../utils/insights";
 import { useState, useContext, useEffect } from "react";
 import { 
-  TrendingUp, TrendingDown, Target, Award, Calendar, Clock, Zap, Brain, 
-  Heart, AlertCircle, CheckCircle2, Flame, Trophy, BarChart3, Activity, 
-  Sun, Moon, Sparkles, Share2, Download, Printer
+  TrendingUp, TrendingDown, Target, Award, Calendar, Zap, Brain,
+  CheckCircle2, Flame, Trophy, BarChart3, Activity,
+  Sun, Moon, Share2, Download, Printer
 } from "lucide-react";
 import { TranslationContext } from "../App";
 
@@ -414,30 +414,20 @@ export default function Insights({ habitData }) {
 
       {/* Patterns */}
       {(insights.mostMissedTask || insights.mostMissedDay) && (
-        <div className="bg-white rounded-3xl p-6 shadow-lg border border-blue-100">
+        <section className="insights-patterns">
           <h3 className="font-black text-gray-900 mb-4">{translatedText.detectedPatterns}</h3>
-          <div className="space-y-3">
+          <div className="insights-patterns__rows">
             {insights.mostMissedTask && (
-              <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-2xl">
-                <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm mb-1">{translatedText.mostMissedTask}</p>
-                  <p className="text-sm text-gray-700">
-                    {insights.mostMissedTask} is your most commonly skipped task
-                  </p>
-                </div>
+              <div className="insights-pattern-row">
+                <span>{translatedText.mostMissedTask}</span>
+                <p>{insights.mostMissedTask} is your most commonly skipped task</p>
               </div>
             )}
             
             {insights.mostMissedDay && (
-              <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-2xl">
-                <Clock className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm mb-1">{translatedText.challengingDay}</p>
-                  <p className="text-sm text-gray-700">
-                    {insights.mostMissedDay}s are when you're most likely to miss tasks
-                  </p>
-                </div>
+              <div className="insights-pattern-row">
+                <span>{translatedText.challengingDay}</span>
+                <p>{insights.mostMissedDay}s are when you're most likely to miss tasks</p>
               </div>
             )}
           </div>
@@ -448,31 +438,25 @@ export default function Insights({ habitData }) {
                 .replace('{days}', insights.confidence?.minDaysForPatterns || 14)}
             </p>
           )}
-        </div>
+        </section>
       )}
 
       {/* Summary Insight */}
       {insights.summaryInsight && (
-        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-2xl p-5">
-          <div className="flex items-start gap-3">
-            <Heart className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-gray-900 text-sm mb-1">{translatedText.overview}</p>
-              <p className="text-sm text-gray-700">{insights.summaryInsight}</p>
-            </div>
-          </div>
-        </div>
+        <aside className="insights-editorial-note">
+          <h3>{translatedText.overview}</h3>
+          <p>{insights.summaryInsight}</p>
+        </aside>
       )}
 
       {/* Motivation */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 text-center">
-        <Sparkles className="w-8 h-8 text-green-600 mx-auto mb-2" />
-        <p className="text-sm text-gray-700 font-medium">
+      <aside className="insights-motivation">
+        <p>
           {healthScore.total >= 80 ? (translatedText.motivationExcellent || translationKeys.motivationExcellent) :
            healthScore.total >= 60 ? (translatedText.motivationGood || translationKeys.motivationGood) :
            (translatedText.motivationNeedsWork || translationKeys.motivationNeedsWork)}
         </p>
-      </div>
+      </aside>
 
       {/* Share & Export */}
       <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
