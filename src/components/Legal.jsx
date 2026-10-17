@@ -10,7 +10,7 @@ import { TranslationContext } from "../App";
 import { calculateStreaks } from "../utils/progress";
 import Presence from "./Presence";
 
-export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyticsChoice = false }) {
+export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyticsChoice = false, consentCopy = {} }) {
   const { t, currentLanguage, translating } = useContext(TranslationContext);
   const [open, setOpen] = useState(null);
   const [exported, setExported] = useState(false);
@@ -364,9 +364,10 @@ export default function Legal({ onAnalyticsChoice, analyticsChoice, savingAnalyt
           <p className="text-xs text-slate-500">This notice describes behavior visible in the current app code. It is not legal advice, does not establish legal compliance, and does not specify provider retention periods. Last updated October 17, 2026.</p>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
-          <span className="text-sm text-slate-700">Optional Firebase Analytics: <strong>{analyticsChoice === "granted" ? "Allowed" : analyticsChoice === "denied" ? "Off" : "Not enabled"}</strong></span>
-          <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => onAnalyticsChoice?.(false)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">Reject optional analytics</button>
-          <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => onAnalyticsChoice?.(true)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">Accept optional analytics</button>
+          <span className="text-sm text-slate-700">{consentCopy.statusLabel || "Optional Firebase Analytics:"} <strong>{analyticsChoice === "granted" ? "Allowed" : analyticsChoice === "denied" ? "Off" : "Not enabled"}</strong></span>
+          {savingAnalyticsChoice && <span role="status" className="text-sm text-slate-600">{consentCopy.saving || "Saving your preference…"}</span>}
+          <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => onAnalyticsChoice?.(false)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">{consentCopy.reject || "Reject optional analytics"}</button>
+          <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => onAnalyticsChoice?.(true)} className="legal-consent-choice rounded-md border border-slate-300 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">{consentCopy.accept || "Accept optional analytics"}</button>
         </div>
       </section>
 

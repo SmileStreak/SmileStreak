@@ -75,6 +75,15 @@ export default function App() {
   });
   const [analyticsPreferenceNotice, setAnalyticsPreferenceNotice] = useState("");
   const [savingAnalyticsChoice, setSavingAnalyticsChoice] = useState(false);
+  const [analyticsConsentCopy, setAnalyticsConsentCopy] = useState({
+    heading: "Cookie and analytics choices",
+    message: "SmileStreak stores app settings and progress in your browser. Optional Firebase Analytics may use analytics cookies or identifiers to understand app use; it stays off unless you allow it. You can change your choice in Cookie preferences.",
+    reject: "Reject optional analytics",
+    accept: "Accept optional analytics",
+    saving: "Saving your preference…",
+    preferences: "Cookie preferences",
+    statusLabel: "Optional Firebase Analytics:"
+  });
   const [currentLanguage, setCurrentLanguage] = useState(getStoredLanguage());
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -197,6 +206,23 @@ export default function App() {
     if (currentLanguage === 'en') return text;
     return await translateText(text, currentLanguage, 'en');
   }, [currentLanguage]);
+
+  useEffect(() => {
+    let active = true;
+    const defaults = {
+      heading: "Cookie and analytics choices",
+      message: "SmileStreak stores app settings and progress in your browser. Optional Firebase Analytics may use analytics cookies or identifiers to understand app use; it stays off unless you allow it. You can change your choice in Cookie preferences.",
+      reject: "Reject optional analytics",
+      accept: "Accept optional analytics",
+      saving: "Saving your preference…",
+      preferences: "Cookie preferences",
+      statusLabel: "Optional Firebase Analytics:"
+    };
+    Promise.all(Object.values(defaults).map((text) => t(text))).then((values) => {
+      if (active) setAnalyticsConsentCopy(Object.fromEntries(Object.keys(defaults).map((key, index) => [key, values[index]])));
+    }).catch((error) => console.error("Could not translate cookie preferences:", error));
+    return () => { active = false; };
+  }, [t]);
 
   // Apply dark mode class to html element
   useEffect(() => {
@@ -1040,7 +1066,7 @@ export default function App() {
                   {activeTab === "report" && <Report habitData={habitData} />}
                   {activeTab === "insights" && <Insights habitData={habitData} />}
                   {activeTab === "mission" && <Mission />}
-                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} analyticsChoice={analyticsChoice} savingAnalyticsChoice={savingAnalyticsChoice} />}
+                  {activeTab === "legal" && <Legal onAnalyticsChoice={chooseAnalytics} analyticsChoice={analyticsChoice} savingAnalyticsChoice={savingAnalyticsChoice} consentCopy={analyticsConsentCopy} />}
                 </Suspense>
               </div>
             </main>
@@ -1049,7 +1075,7 @@ export default function App() {
               <span>SmileStreak</span>
               <div className="flex items-center gap-4">
                 <button onClick={() => navigateToTab("legal")} className="py-1 underline-offset-2 hover:underline">Privacy & terms</button>
-                <button onClick={() => { setAnalyticsPreferenceNotice(""); setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">Cookie preferences</button>
+                <button onClick={() => { setAnalyticsPreferenceNotice(""); setAnalyticsChoice(null); navigateToTab("legal"); }} className="py-1 underline-offset-2 hover:underline">{analyticsConsentCopy.preferences}</button>
                 <button onClick={() => { setFeedbackStatus("idle"); setShowFeedback(true); }} className="inline-flex items-center gap-2 py-1 transition-colors hover:text-blue-700" title="Give Feedback">
                   <MessageCircle className="w-4 h-4" />
                   <span>Send feedback</span>
@@ -1062,16 +1088,16 @@ export default function App() {
               <aside aria-labelledby="analytics-consent-title" className={`analytics-consent fixed inset-x-0 bottom-0 z-40 border-t px-4 py-4 shadow-[0_-2px_12px_rgba(0,0,0,0.04)] ${darkMode ? "bg-gray-900 border-gray-700 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}>
                 <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="max-w-3xl">
-                    <h2 id="analytics-consent-title" className="text-sm font-semibold">Cookie and analytics choices</h2>
+                    <h2 id="analytics-consent-title" className="text-sm font-semibold">{analyticsConsentCopy.heading}</h2>
                     <p className="mt-1 text-sm leading-relaxed">
-                      SmileStreak stores app settings and progress in your browser. Optional Firebase Analytics may use analytics cookies or identifiers to understand app use; it stays off unless you allow it. You can change your choice in Cookie preferences.
+                      {analyticsConsentCopy.message}
                     </p>
                     {analyticsPreferenceNotice && <p role="status" className="mt-2 text-sm">{analyticsPreferenceNotice}</p>}
-                    {savingAnalyticsChoice && <p role="status" className="mt-2 text-sm">Saving your preference…</p>}
+                    {savingAnalyticsChoice && <p role="status" className="mt-2 text-sm">{analyticsConsentCopy.saving}</p>}
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">
-                    <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => chooseAnalytics(false)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 disabled:cursor-wait disabled:opacity-60 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Reject optional analytics</button>
-                    <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => chooseAnalytics(true)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 disabled:cursor-wait disabled:opacity-60 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>Accept optional analytics</button>
+                    <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => chooseAnalytics(false)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 disabled:cursor-wait disabled:opacity-60 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>{analyticsConsentCopy.reject}</button>
+                    <button type="button" disabled={savingAnalyticsChoice} aria-busy={savingAnalyticsChoice} onClick={() => chooseAnalytics(true)} className={`analytics-consent-choice rounded-md border px-3 py-2 text-sm font-medium transition-colors duration-200 disabled:cursor-wait disabled:opacity-60 ${darkMode ? "border-gray-600 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-50"}`}>{analyticsConsentCopy.accept}</button>
                   </div>
                 </div>
               </aside>
