@@ -44,6 +44,7 @@ const streamRef = useRef(null);
 const mountedRef = useRef(true);
 const undoScanButtonRef = useRef(null);
 const scanDialogReturnFocusRef = useRef(null);
+const scanHistoryTriggerRef = useRef(null);
 
 const formatScanTimestamp = (scan) => {
 const date = new Date(scan.date || scan.timestamp);
@@ -510,7 +511,9 @@ const titleId = showHistory ? "scan-history-title" : showShareModal ? "scan-shar
 const dialog = titleId ? document.getElementById(titleId)?.closest('[role="dialog"]') : null;
 
 if (!dialog) {
-  if (scanDialogReturnFocusRef.current?.isConnected) scanDialogReturnFocusRef.current.focus();
+  const returnTo = scanDialogReturnFocusRef.current;
+  if (returnTo?.isConnected && !returnTo.closest("[inert]")) returnTo.focus();
+  else scanHistoryTriggerRef.current?.focus();
   scanDialogReturnFocusRef.current = null;
   return undefined;
 }
@@ -625,6 +628,7 @@ return (
         
         {scanHistory.length > 0 && (
           <button
+            ref={scanHistoryTriggerRef}
             onClick={() => setShowHistory(!showHistory)}
             className="scan-history-toggle rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-700 transition-colors"
             aria-label={showHistory ? "Close scan history" : "Open scan history"}
@@ -1138,6 +1142,7 @@ return (
         </button>
         
         <button
+          ref={scanHistoryTriggerRef}
           onClick={() => setShowHistory(true)}
           className="scan-result-action bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
         >
