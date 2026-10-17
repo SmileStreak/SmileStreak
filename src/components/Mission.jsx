@@ -59,8 +59,8 @@ export default function Mission() {
     openSource: "Open Source",
     openSourceDesc: "View code on GitHub",
     medicalDisclaimer: "Medical Disclaimer",
-    disclaimerText: "Smile Streak is designed for education and habit awareness only. It does not provide medical diagnosis or treatment recommendations. Users should always consult a licensed dental professional for personalized advice or concerns about their oral health.",
-    version: "Smile Streak v1.0.0",
+    disclaimerText: "SmileStreak supports dental-habit tracking and general education. It is not a dental practice and does not examine, diagnose, or recommend treatment. Do not use the app for urgent care or personal treatment decisions; contact a licensed dental professional about symptoms or concerns.",
+    version: "Smile Streak v1.1.0",
     madeWith: "Made with ❤️ for better dental health",
     
     exploreFeatures: "Explore Features",

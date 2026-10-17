@@ -3,9 +3,9 @@ import {
   Download, Trash2, Database, CheckCircle
 } from "lucide-react";
 import { useState, useContext, useEffect } from "react";
-import { deleteUser, reauthenticateWithPopup, signOut } from "firebase/auth";
+import { deleteUser, reauthenticateWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../firebase";
-import { deleteDoc, doc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 import { TranslationContext } from "../App";
 import { calculateStreaks } from "../utils/progress";
 
@@ -34,7 +34,7 @@ export default function Legal({ onAnalyticsChoice }) {
     liability: "Using SmileStreak",
     liabilityContent: "SmileStreak provides habit tracking and general educational information. It is not a dental exam, diagnosis, or treatment plan. Contact a licensed dental professional about symptoms or concerns.",
     termsOfUse: "Terms of Use",
-    termsOfUseContent: "Use SmileStreak for personal dental-habit tracking and general educational information. Do not rely on the app for diagnosis, treatment decisions, or emergency care. Directory listings, ratings, and opening details can change; verify them directly with the provider. The current app has no paid subscription or checkout flow. Google Maps Platform terms apply to Places data in the directory and are incorporated by reference; Google, Firebase, Gemini, and Formspree services are also subject to their own terms.",
+    termsOfUseContent: "Use SmileStreak for personal dental-habit tracking and general education. The app is not a dental service and does not provide examinations, diagnoses, treatment recommendations, or emergency care. AI and directory information can be inaccurate or out of date; verify important information with a licensed dental professional or the dental office. This version has no paid subscription or checkout. Google Maps Platform terms apply when you use the dentist directory; Google, Firebase, Gemini, and Formspree have separate service terms and privacy practices linked below.",
     cookiePolicy: "Cookies & Browser Storage",
     cookiePolicyContent: "Necessary browser storage supports app settings, saved progress, sign-in, and reminders. Optional Firebase Analytics is off unless you opt in and may use analytics identifiers or cookies. The current app does not use advertising cookies. Use the controls below to allow or disable optional analytics; your choice is stored on this device.",
     yourDataControls: "Your Data Controls",
@@ -47,7 +47,7 @@ export default function Legal({ onAnalyticsChoice }) {
     sendMessage: "Send Message",
     hide: "Hide",
     view: "View",
-    version: "SmileStreak v1.0.0",
+    version: "SmileStreak v1.1.0",
     lastUpdated: "Last updated",
     
     // Export report sections
@@ -67,13 +67,13 @@ export default function Legal({ onAnalyticsChoice }) {
     rawData: "Raw Data",
     
     // Confirmation messages
-    confirmReset: "This deletes the signed-in SmileStreak Firebase account and synced profile, if present, clears this browser's app data, and signs you out. Your Google Account is not deleted. Continue?",
+    confirmReset: "This permanently deletes your SmileStreak Firebase account and profile, removes saved notification tokens, clears this browser's SmileStreak data, and signs you out. It does not delete your Google Account or copies held by third-party providers or support services. Continue?",
     exportSuccess: "Report exported successfully!",
     deleteSuccess: "SmileStreak data deleted. Refreshing...",
     
     // Data control descriptions
     exportDesc: "Download habit progress and scan history saved in this browser",
-    resetDesc: "If signed in, delete your SmileStreak profile and synced data. Also clears this browser's app data; your Google Account remains."
+    resetDesc: "Delete your SmileStreak Firebase profile and notification tokens, then clear this browser's app data. This does not delete your Google Account or information already held by support or service providers."
   };
 
   // Sections data with translation keys
@@ -191,6 +191,8 @@ export default function Legal({ onAnalyticsChoice }) {
       if (auth.currentUser) {
         localStorage.setItem("smilestreak-deleting-profile", "true");
         await reauthenticateWithPopup(auth.currentUser, provider);
+        const notificationTokens = await getDocs(collection(db, "users", auth.currentUser.uid, "notificationTokens"));
+        await Promise.all(notificationTokens.docs.map((tokenDoc) => deleteDoc(tokenDoc.ref)));
         await deleteDoc(doc(db, "users", auth.currentUser.uid));
         await deleteUser(auth.currentUser);
       }
@@ -205,7 +207,6 @@ export default function Legal({ onAnalyticsChoice }) {
       setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       localStorage.removeItem("smilestreak-deleting-profile");
-      try { await signOut(auth); } catch {}
       console.error("Could not delete SmileStreak data:", error);
       setDeleteError(true);
     }
@@ -297,14 +298,14 @@ export default function Legal({ onAnalyticsChoice }) {
         <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700">
           <p><strong>Account and synced data.</strong> Google sign-in provides your account identity. SmileStreak stores your email, display name, profile photo URL, username, language, theme, habit progress (which can include mood selections, reflections, aligner schedules, and dentist visit dates), leaderboard values, and notification token in Firebase services.</p>
           <p><strong>On this device.</strong> The app uses browser local storage for preferences, habit records, dentist favorites, reminders, and any scan history you choose to save. Scan history saving is off by default; you can delete saved scans individually or clear site data. Clearing site data removes this browser copy and signs you out; it does not delete your Google account or the synced Firebase profile.</p>
-          <p><strong>Scans and AI questions.</strong> After you confirm in the scan flow, the selected image is sent to Google's Gemini service for general educational observations. It is saved in browser history only if you separately turn on that option. Questions entered in the dentist assistant (up to 1,200 characters) are sent to Gemini. Avoid including photos, names, contact details, or other identifying or sensitive information. AI output can be wrong and should not guide diagnosis or treatment.</p>
+          <p><strong>Scans and AI questions.</strong> After you confirm in the scan flow, the selected image is sent to Google's Gemini API for general educational observations. It is saved in browser history only if you separately turn on that option. Questions entered in the dentist assistant (up to 1,200 characters) are also sent to Gemini. Google’s handling differs between paid and unpaid API service; SmileStreak does not currently tell you which quota is active. Do not submit sensitive, confidential, or identifying information. AI output can be wrong and must not guide diagnosis or treatment.</p>
           <p><strong>Location and directory listings.</strong> When you search for nearby dentists, the browser requests your location and sends the coordinates through SmileStreak's server to Google Places after you grant location permission. Business details, photos, and ratings shown in the directory come from Google Maps and may be incomplete or outdated; confirm information with the office.</p>
           <p><strong>Cookies and local storage.</strong> SmileStreak uses browser storage for settings, reminders, progress, and scan history. Firebase Analytics is disabled until you choose “Allow analytics”; its app events cover Today screen visits and duration plus basic timer and sharing interactions. Habit check-ins, mood selections, reflections, aligner details, and dentist visit dates are not sent in those custom events. When enabled, Analytics may use analytics identifiers or cookies. This app does not currently run ad-cookie or advertising systems. You can change the analytics choice here at any time.</p>
           <p><strong>Notifications.</strong> If you enable browser notifications, Firebase Cloud Messaging creates a notification token that is saved with your profile so reminders can be delivered.</p>
           <p><strong>Feedback.</strong> Messages sent through the feedback or support forms are submitted to Formspree and routed to SmileStreak support. Include only information needed to describe the issue; do not send health records or sensitive dental details.</p>
-          <p><strong>Payments and younger visitors.</strong> This version has no in-app checkout or subscription flow. Before the interactive app loads, SmileStreak asks for a self-reported date of birth and uses it only in memory to choose an experience; the date is not saved or independently verified. Visitors under 13 see general brushing tips only. This view has no account, saved progress, scans, location search, reminders, or support submission. Verified parental consent is not currently available, so those interactive features are not offered to under-13 visitors. This simple check is not a substitute for a jurisdiction-specific age-assurance review.</p>
-          <p><strong>Contact and provider policies.</strong> Support messages can be sent using the form below. Data handled by third-party providers is also subject to their policies: <a className="underline" href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Privacy Policy</a>, <a className="underline" href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noreferrer">Google Maps Platform Terms</a>, and <a className="underline" href="https://formspree.io/legal/privacy-policy/" target="_blank" rel="noreferrer">Formspree Privacy Policy</a>.</p>
-          <p className="text-xs text-slate-500">This page describes behavior visible in the current app code. It does not establish legal compliance or specify provider retention periods. Last updated October 16, 2026.</p>
+          <p><strong>Payments and age access.</strong> This version has no in-app checkout or subscription flow. Before the interactive app loads, SmileStreak asks for a self-reported date of birth and uses it only in memory; it is not saved or independently verified. Visitors who report being under 18 see general brushing tips only. The check can be bypassed and is not identity verification or a reliable age-assurance system; access controls and provider eligibility may require further review.</p>
+          <p><strong>Contact and provider policies.</strong> Support messages can be sent using the form below. Provider terms and privacy practices apply to their services: <a className="underline" href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Privacy Policy</a>, <a className="underline" href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noreferrer">Gemini API Additional Terms</a>, <a className="underline" href="https://cloud.google.com/maps-platform/terms" target="_blank" rel="noreferrer">Google Maps Platform Terms</a>, <a className="underline" href="https://firebase.google.com/support/privacy" target="_blank" rel="noreferrer">Firebase Privacy and Security</a>, <a className="underline" href="https://firebase.google.com/terms" target="_blank" rel="noreferrer">Firebase Terms</a>, and <a className="underline" href="https://formspree.io/legal/privacy-policy/" target="_blank" rel="noreferrer">Formspree Privacy Policy</a>.</p>
+          <p className="text-xs text-slate-500">This notice describes behavior visible in the current app code. It is not legal advice, does not establish legal compliance, and does not specify provider retention periods. Last updated October 17, 2026.</p>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
           <span className="text-sm text-slate-700">Optional analytics:</span>

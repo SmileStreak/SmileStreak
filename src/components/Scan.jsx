@@ -737,7 +737,7 @@ return (
           <span>{translatedText.photoStorageConsent}</span>
         </label>
         {consentError && <p className="scan-privacy-error" role="alert">{consentError}</p>}
-        <p className="scan-privacy-note">You can use the photo feedback without saving it here. An optional saved copy stays in this browser until you delete it or clear site data. Avoid photos that show your face or identifying details.</p>
+        <p className="scan-privacy-note">You can use photo feedback without saving it here. An optional saved copy stays in this browser until you delete it or clear site data. Google processes the image under its Gemini API terms; SmileStreak does not show whether its API quota is paid or unpaid. Don’t send sensitive, confidential, or identifying photos.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">

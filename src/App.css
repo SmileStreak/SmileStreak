@@ -122,8 +122,6 @@ button:disabled { cursor: not-allowed; opacity: 0.56; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: 2px solid #52777b; outline-offset: 2px;
 }
-[class*="hover:scale-"]:hover, .group:hover [class*="group-hover:scale-"] { transform: translateY(-1px) scale(1) !important; }
-[class*="hover:-translate-y-"]:hover { transform: translateY(-2px) !important; }
 main svg { stroke-width: 1.6; }
 
 /* Shared page frame and navigation. */
@@ -808,6 +806,40 @@ html.dark .app-page [class*="bg-white"][class*="rounded-"] { border-color: #3440
 html.dark .app-page input, html.dark .app-page textarea, html.dark .app-page select { background-color: #151e27; border-color: #45515c; color: #e2e8f0; }
 html.dark .t-modal-backdrop { background-color: rgb(3 8 13 / 0.62) !important; }
 html.dark .t-modal-backdrop > div[class*="rounded-"] { background-color: #1c2630; }
+
+/* Shared tactile states: restrained at rest, clear on pointer, identical for keyboard. */
+.app-page :is(button:not(:disabled), [role="button"], a[href][class*="rounded-"]) {
+  transition-property: background-color, border-color, color, box-shadow, filter, transform, translate, scale;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .app-page :is(button:not(:disabled):not([class*="text-link"]):not([class*="underline"]), [role="button"], a[href][class*="rounded-"]):hover {
+    transform: none !important;
+    translate: 0 -2px;
+    filter: brightness(1.025);
+    box-shadow: 0 3px 8px rgb(42 42 42 / 0.04);
+  }
+  .app-page :is(.home-visit-row, .home-shortcut-row, .reminder-preset, .mission-involved__action):hover {
+    translate: 0 -1px;
+    background-color: var(--surface-quiet);
+    box-shadow: none;
+  }
+  header nav button:hover { background-color: var(--surface-quiet); }
+}
+.app-page :is(button:not(:disabled), [role="button"], a[href][class*="rounded-"]):active {
+  transform: none !important;
+  translate: 0 0;
+  scale: 0.985;
+  filter: brightness(0.985);
+  box-shadow: none;
+}
+html.dark .app-page :is(button:not(:disabled), [role="button"], a[href][class*="rounded-"]):hover { box-shadow: none; }
+@media (prefers-reduced-motion: reduce) {
+  .app-page :is(button, [role="button"], a[href]) { transition-duration: 1ms !important; }
+  .app-page :is(button, [role="button"], a[href]):hover,
+  .app-page :is(button, [role="button"], a[href]):active { transform: none !important; translate: none; scale: 1; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .t-dropdown.is-open, .t-modal-backdrop.is-open { animation: none !important; }

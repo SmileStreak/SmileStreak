@@ -27,7 +27,7 @@ function AgeGate({ onSubmit }) {
       return setError("Enter a valid date of birth.");
     }
     setError("");
-    onSubmit(ageOnDate(date) >= 13 ? "adult" : "younger");
+    onSubmit(ageOnDate(date) >= 18 ? "adult" : "younger");
   }
 
   return (
@@ -35,14 +35,14 @@ function AgeGate({ onSubmit }) {
       <section style={styles.panel} aria-labelledby="gate-title">
         <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
         <h1 id="gate-title" style={styles.title}>Before we begin</h1>
-        <p style={styles.copy}>Enter your date of birth so we can show the right experience. Your date is used for this check only and is not saved.</p>
+        <p style={styles.copy}>The interactive SmileStreak features, including AI feedback, are for adults 18 and older. Enter your date of birth to confirm your age. Your date is used for this check only and is not saved.</p>
         <form onSubmit={submit}>
           <label htmlFor="birth-date" style={styles.label}>Date of birth</label>
           <input className="entry-input" id="birth-date" type="date" max={maxDate} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required style={styles.input} />
           {error && <p role="alert" style={styles.error}>{error}</p>}
           <button className="entry-button" type="submit" style={styles.button}>Continue</button>
         </form>
-        <p style={styles.note}>This check is not a substitute for verified parental consent.</p>
+        <p style={styles.note}>This is a self-reported age check, not identity verification. If you are under 18, you can still view the brushing tips.</p>
       </section>
     </main>
   );
@@ -59,7 +59,7 @@ function YoungerTips() {
           <li>Use a soft-bristled toothbrush and fluoride toothpaste.</li>
           <li>Ask a parent or caregiver if you have questions about your teeth.</li>
         </ul>
-        <p style={styles.note}>This tips page does not save or send anything. SmileStreak’s interactive features aren’t available in this view.</p>
+        <p style={styles.note}>This tips page does not save or send anything. The interactive features are available only after a self-reported 18+ age check.</p>
       </section>
     </main>
   );
@@ -88,7 +88,7 @@ const styles = {
   copy: { margin: "0 0 24px", color: "#555", fontSize: 16, lineHeight: 1.55 },
   label: { display: "block", marginBottom: 7, fontSize: 14, fontWeight: 600 },
   input: { boxSizing: "border-box", width: "100%", minHeight: 46, padding: "10px 12px", border: "1px solid #cbd5df", borderRadius: 7, color: "#2a2a2a", background: "#fff", fontSize: 16 },
-  button: { width: "100%", minHeight: 46, marginTop: 16, border: 0, borderRadius: 7, background: "#16803c", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer" },
+  button: { width: "100%", minHeight: 46, marginTop: 16, border: 0, borderRadius: 7, background: "#35666c", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   error: { margin: "8px 0 0", color: "#855b58", fontSize: 14 },
   note: { margin: "18px 0 0", color: "#6a6a6a", fontSize: 13, lineHeight: 1.5 },
   list: { paddingLeft: 22, color: "#3c3c3c", fontSize: 16, lineHeight: 1.65 },

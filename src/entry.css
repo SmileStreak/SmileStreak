@@ -5,7 +5,7 @@
 .entry-input:focus-visible,
 .entry-button:focus-visible,
 .entry-page button:focus-visible {
-  outline: 2px solid #5278d1;
+  outline: 2px solid #52777b;
   outline-offset: 3px;
 }
 
@@ -16,8 +16,8 @@
 
 .entry-button:hover,
 .entry-page button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgb(42 42 42 / 0.035);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgb(42 42 42 / 0.04);
 }
 
 .entry-button:active,
