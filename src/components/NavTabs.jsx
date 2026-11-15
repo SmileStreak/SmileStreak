@@ -7,7 +7,7 @@ import { translateBatch } from "../utils/translate.js";
 const primaryTabs = ["Home", "Today", "Progress", "Reminders"];
 const moreTabs = ["Tips", "Scan", "Dentists", "Insights", "Report", "Mission", "Legal"];
 
-export default function NavTabs({ activeTab, setActiveTab }) {
+export default function NavTabs({ activeTab, setActiveTab, onMoreOpenChange, resetMoreMenuKey = 0 }) {
  const [showMore, setShowMore] = useState(false);
  const [moreMenuPosition, setMoreMenuPosition] = useState({ top: 0, left: 0, maxHeight: 420 });
  const [labels, setLabels] = useState({});
@@ -19,6 +19,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
  const handleTab = (tab, returnFocusToMore = false) => {
    setActiveTab(tab.toLowerCase());
    setShowMore(false);
+   onMoreOpenChange?.(false);
    if (returnFocusToMore) {
      window.requestAnimationFrame(() => moreRef.current?.querySelector("#more-tabs-trigger")?.focus());
    }
@@ -36,14 +37,21 @@ export default function NavTabs({ activeTab, setActiveTab }) {
  }, [currentLanguage]);
 
  useEffect(() => {
+   setShowMore(false);
+   onMoreOpenChange?.(false);
+ }, [resetMoreMenuKey]);
+
+ useEffect(() => {
    const handleClickOutside = (e) => {
      if (moreRef.current && !moreRef.current.contains(e.target)) {
        setShowMore(false);
+       onMoreOpenChange?.(false);
      }
    };
    const handleEscape = (e) => {
      if (e.key === "Escape") {
        setShowMore(false);
+       onMoreOpenChange?.(false);
        moreRef.current?.querySelector("#more-tabs-trigger")?.focus();
      }
    };
@@ -95,6 +103,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
            <button
            key={tab}
              type="button"
+             data-tour-tab={tab.toLowerCase()}
              onClick={() => handleTab(tab)}
              aria-current={active ? "page" : undefined}
              className={`
@@ -111,6 +120,7 @@ export default function NavTabs({ activeTab, setActiveTab }) {
          <button
            id="more-tabs-trigger"
            type="button"
+           data-tour-tab="more"
          onClick={(event) => {
            if (!showMore) {
              const rect = event.currentTarget.getBoundingClientRect();
@@ -122,7 +132,9 @@ export default function NavTabs({ activeTab, setActiveTab }) {
                maxHeight: Math.max(96, Math.min(420, window.innerHeight * 0.7, window.innerHeight - top - 8)),
              });
            }
-           setShowMore((prev) => !prev);
+           const nextOpen = !showMore;
+           setShowMore(nextOpen);
+           onMoreOpenChange?.(nextOpen);
          }}
            aria-expanded={showMore}
            aria-controls="more-tabs-menu"

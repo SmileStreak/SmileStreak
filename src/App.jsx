@@ -4,6 +4,7 @@ import "@fontsource-variable/source-sans-3";
 import "@fontsource-variable/newsreader";
 import NavTabs from "./components/NavTabs";
 import Presence from "./components/Presence";
+import GuidedTour from "./components/GuidedTour";
 const pageLoaders = {
   home: () => import("./components/Home"),
   today: () => import("./components/Today"),
@@ -65,8 +66,11 @@ function handleMenuArrowKeys(event) {
   items[nextIndex]?.focus();
 }
 
-export default function App({ onShowTutorial }) {
+export default function App({ startGuidedTour = false, onFinishGuidedTour }) {
   const [activeTab, setActiveTab] = useState("home");
+  const [guidedTourOpen, setGuidedTourOpen] = useState(startGuidedTour);
+  const [moreNavOpen, setMoreNavOpen] = useState(false);
+  const [moreMenuResetKey, setMoreMenuResetKey] = useState(0);
   const navigateToTab = useCallback((tab) => {
     const update = () => flushSync(() => setActiveTab(tab));
     const transition = () => {
@@ -76,6 +80,22 @@ export default function App({ onShowTutorial }) {
     if (pageLoaders[tab]) pageLoaders[tab]().then(transition, transition);
     else transition();
   }, []);
+  const openGuidedTour = () => {
+    setMoreMenuResetKey((key) => key + 1);
+    navigateToTab("home");
+    setGuidedTourOpen(true);
+  };
+  const finishGuidedTour = () => {
+    setGuidedTourOpen(false);
+    setMoreMenuResetKey((key) => key + 1);
+    onFinishGuidedTour?.();
+  };
+
+  useEffect(() => {
+    if (!startGuidedTour) return;
+    setActiveTab("home");
+    setGuidedTourOpen(true);
+  }, [startGuidedTour]);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authPending, setAuthPending] = useState(false);
@@ -1125,7 +1145,7 @@ export default function App({ onShowTutorial }) {
                   <p className="auth-signin-error" role="alert">{authError}</p>
                 )}
 
-                <NavTabs activeTab={activeTab} setActiveTab={navigateToTab} />
+                <NavTabs activeTab={activeTab} setActiveTab={navigateToTab} onMoreOpenChange={setMoreNavOpen} resetMoreMenuKey={moreMenuResetKey} />
               </div>
             </header>
 
@@ -1160,7 +1180,7 @@ export default function App({ onShowTutorial }) {
 
               <div className={`app-page app-page--${activeTab}`} style={{ viewTransitionName: "page-content" }}>
                 <Suspense fallback={<div className="page-loading" role="status">{analyticsConsentCopy.loadingPage}</div>}>
-                  {activeTab === "home" && <Home setActiveTab={navigateToTab} user={user} habitData={habitData} onShowTutorial={onShowTutorial} />}
+                  {activeTab === "home" && <Home setActiveTab={navigateToTab} user={user} habitData={habitData} onShowTutorial={openGuidedTour} />}
                   {activeTab === "today" && <Today habitData={habitData} setHabitData={setHabitData} user={user} />}
                   {activeTab === "progress" && <Progress habitData={habitData} />}
                   {activeTab === "tips" && <Tips />}
@@ -1531,6 +1551,8 @@ export default function App({ onShowTutorial }) {
               );
             })()}
             </Presence>
+
+            {guidedTourOpen && !(usernameLoaded && showUsernameModal && !!user) && <GuidedTour key="open" activeTab={activeTab} isMoreOpen={moreNavOpen} onFinish={finishGuidedTour} />}
 
           </div>
         </div>

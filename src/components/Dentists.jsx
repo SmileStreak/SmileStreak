@@ -67,7 +67,7 @@ export default function Dentists() {
   const { currentLanguage } = useContext(TranslationContext);
   
   const [dentists, setDentists] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [insurance, setInsurance] = useState("");
   const [insuranceEstimates, setInsuranceEstimates] = useState({});
   const [sortBy, setSortBy] = useState("recommended");
@@ -75,6 +75,7 @@ export default function Dentists() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedDentist, setSelectedDentist] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [locationSearchStarted, setLocationSearchStarted] = useState(false);
   const [translatedText, setTranslatedText] = useState({});
   const [locationError, setLocationError] = useState(false);
   const [locationErrorMessage, setLocationErrorMessage] = useState("");
@@ -121,6 +122,10 @@ export default function Dentists() {
     locationDenied: "Location access is blocked. Allow it in browser settings and try again.",
     locationUnavailable: "Your location couldn’t be determined. Check device location services and try again.",
     locationTimeout: "The location request took too long. Try again when you have a stronger signal.",
+    locationSearchTitle: "Find nearby dental offices",
+    locationSearchMessage: "Use your location to look up dental offices near you. Your browser may ask to share it. SmileStreak won’t start the search until you choose.",
+    locationSearchAction: "Use my location",
+    locationSearchNeeded: "Choose a location to load nearby offices.",
     dentistLoadFailed: "Dentists couldn’t be loaded right now. Check your connection and retry.",
     noMatchingDentists: "No dentists match this search.",
     noMatchingDentistsDesc: "Clear the name search and filters to see the full list again.",
@@ -336,21 +341,25 @@ const askAIAssistant = async () => {
   };
 
   // Use live Google Places results only; do not replace failures with invented listings or reviews.
-  const fetchDentists = async (radius) => {
+  const fetchDentists = async (radius, savedLocation = userLocation) => {
     setLoading(true);
     setLocationError(false);
     setLocationErrorMessage("");
     try {
-      if (!navigator.geolocation) throw new Error("Geolocation is unavailable in this browser");
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: 12000,
-          maximumAge: 300000
+      let location = savedLocation;
+      if (!location) {
+        if (!navigator.geolocation) throw new Error("Geolocation is unavailable in this browser");
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false,
+            timeout: 12000,
+            maximumAge: 300000
+          });
         });
-      });
-      const { latitude, longitude } = position.coords;
-      setUserLocation({ latitude, longitude });
+        location = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+        setUserLocation(location);
+      }
+      const { latitude, longitude } = location;
       const params = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(Math.min(radius * 1609.34, 50000)) });
       const response = await fetch(`/api/places?${params}`);
       if (!response.ok) throw new Error(`Google Places API error: ${response.status}`);
@@ -434,8 +443,13 @@ const askAIAssistant = async () => {
   };
 
   useEffect(() => {
-    fetchDentists(searchRadius);
+    if (locationSearchStarted && userLocation) fetchDentists(searchRadius, userLocation);
   }, [searchRadius]);
+
+  const startLocationSearch = () => {
+    setLocationSearchStarted(true);
+    fetchDentists(searchRadius, userLocation);
+  };
 
   const filteredDentists = useMemo(() => {
     return dentists.filter(d => {
@@ -572,10 +586,24 @@ const askAIAssistant = async () => {
           <div className="dentists-search relative">
             <label htmlFor="dentist-search" className="sr-only">{translatedText.searchDentists || "Search dentists by name"}</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" aria-hidden="true" />
-            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={translatedText.searchPlaceholder || "Search by dentist name"} className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+            <input id="dentist-search" type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} disabled={!locationSearchStarted || loading || dentists.length === 0} placeholder={!locationSearchStarted ? (translatedText.locationSearchNeeded || "Choose a location to load nearby offices.") : translatedText.searchPlaceholder || "Search by dentist name"} className="w-full rounded-lg border border-slate-300 bg-white py-3.5 pl-12 pr-4 text-base text-slate-900 placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500" />
           </div>
         </div>
       </div>
+
+      {!locationSearchStarted && (
+        <section className="rounded-xl border border-slate-200 bg-white p-5" aria-labelledby="dentist-location-title">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 id="dentist-location-title" className="text-base font-semibold text-slate-900">{translatedText.locationSearchTitle || "Find nearby dental offices"}</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">{translatedText.locationSearchMessage || "Use your location to look up dental offices near you. Your browser may ask to share it. SmileStreak won’t start the search until you choose."}</p>
+            </div>
+            <button type="button" onClick={startLocationSearch} disabled={loading} className="shrink-0 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-wait disabled:opacity-60">
+              {loading ? translatedText.loading : translatedText.locationSearchAction || "Use my location"}
+            </button>
+          </div>
+        </section>
+      )}
 
       {favoritesStorageWarning && (
         <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-950">
@@ -817,7 +845,7 @@ const askAIAssistant = async () => {
       )}
 
       {/* RESULTS COUNT */}
-      {!locationError && <p className="text-sm text-gray-600 font-medium px-1" aria-live="polite"><span>{translatedText.found || "Found"} </span><span className="text-blue-600 font-bold">{sortedDentists.length}</span> {translatedText.results}</p>}
+      {locationSearchStarted && !locationError && <p className="text-sm text-gray-600 font-medium px-1" aria-live="polite"><span>{translatedText.found || "Found"} </span><span className="text-blue-600 font-bold">{sortedDentists.length}</span> {translatedText.results}</p>}
 
       {/* LOADING */}
       {loading && !locationError && (
@@ -832,12 +860,12 @@ const askAIAssistant = async () => {
         <div role="alert" className="bg-rose-50 border border-rose-200 rounded-xl p-6 text-center">
           <AlertTriangle className="w-6 h-6 text-rose-700 mx-auto mb-3" aria-hidden="true" />
           <p className="text-slate-800 font-medium mb-4">{locationErrorMessage}</p>
-          <button disabled={loading} onClick={() => fetchDentists(searchRadius)} className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-semibold transition-colors duration-200 ease-out hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-wait disabled:opacity-60">{loading ? "Trying…" : "Try again"}</button>
+          <button disabled={loading} onClick={() => fetchDentists(searchRadius, userLocation)} className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-semibold transition-colors duration-200 ease-out hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-wait disabled:opacity-60">{loading ? "Trying…" : "Try again"}</button>
         </div>
       )}
 
       {/* NO RESULTS */}
-      {!loading && !locationError && sortedDentists.length === 0 && (
+      {locationSearchStarted && !loading && !locationError && sortedDentists.length === 0 && (
         <div className="text-center py-12 px-6 bg-slate-50 border border-slate-200 rounded-xl">
           <MapPin className="w-7 h-7 text-slate-500 mx-auto mb-4" aria-hidden="true" />
           {dentists.length > 0 ? (

@@ -5,19 +5,10 @@ import "./entry.css";
 
 const App = lazy(() => import("./App.jsx"));
 const AGE_CONFIRMATION_KEY = "smilestreak-age-confirmed";
-const INTRO_SEEN_KEY = "smilestreak-intro-seen";
 
 function hasSavedAdultConfirmation() {
   try {
     return localStorage.getItem(AGE_CONFIRMATION_KEY) === "18+";
-  } catch {
-    return false;
-  }
-}
-
-function hasSeenIntro() {
-  try {
-    return localStorage.getItem(INTRO_SEEN_KEY) === "yes";
   } catch {
     return false;
   }
@@ -58,11 +49,25 @@ function AgeGate({ onSubmit }) {
   }
 
   return (
-    <main className="entry-page" style={styles.page}>
-      <section style={styles.panel} aria-labelledby="gate-title">
+    <main className="entry-age-gate">
+      <div className="entry-age-preview" aria-hidden="true">
+        <header className="entry-age-preview__header">
+          <strong>smile<span>streak</span></strong>
+          <nav><span>Home</span><span>Today</span><span>Progress</span><span>More</span></nav>
+        </header>
+        <div className="entry-age-preview__content">
+          <div className="entry-age-preview__greeting"><small>YOUR DAILY CARE</small><h2>Small habits add up.</h2><p>A simple place to track brushing and flossing.</p></div>
+          <section className="entry-age-preview__streak"><div><small>CURRENT STREAK</small><strong>— <span>days</span></strong></div><div><small>THIS WEEK</small><strong>— <span>check-ins</span></strong></div></section>
+          <section className="entry-age-preview__routine"><div className="entry-age-preview__section-title"><strong>Today’s routine</strong><span>Log habits</span></div><div><i />Morning brushing</div><div><i />Night brushing</div><div><i />Flossing</div></section>
+          <section className="entry-age-preview__week"><div className="entry-age-preview__section-title"><strong>Weekly activity</strong><span>View progress</span></div><div className="entry-age-preview__bars"><i /><i /><i /><i /><i /><i /><i /></div></section>
+        </div>
+      </div>
+      <div className="entry-age-scrim" aria-hidden="true" />
+      <section className="entry-age-panel" role="dialog" aria-modal="true" aria-labelledby="gate-title" aria-describedby="age-product gate-copy birth-date-help">
         <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
         <h1 id="gate-title" style={styles.title}>Confirm your age</h1>
-        <p style={styles.copy}>The interactive features are for adults 18 and older. We use your date of birth only to check whether you’re 18 or older. Your birth date is not saved. When browser storage is available, this browser remembers only that you passed the check.</p>
+        <p id="age-product" className="entry-age-product">SmileStreak helps you track brushing and flossing and see how your routine builds over time.</p>
+        <p id="gate-copy" style={styles.copy}>The interactive features are for adults 18 and older. We use your date of birth only to check whether you’re 18 or older. Your birth date is not saved. When browser storage is available, this browser remembers only that you passed the check.</p>
         <form onSubmit={submit}>
           <label htmlFor="birth-date" style={styles.label}>Date of birth</label>
           <input className="entry-input" id="birth-date" type="date" max={maxDate} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required aria-invalid={Boolean(error)} aria-describedby={error ? "birth-date-help birth-date-error" : "birth-date-help"} style={styles.input} />
@@ -70,69 +75,6 @@ function AgeGate({ onSubmit }) {
           <button className="entry-button" type="submit" style={styles.button}>Continue to SmileStreak</button>
         </form>
         <p id="birth-date-help" style={styles.note}>This is a self-reported age check, not identity verification. If you are under 18, you can still view the brushing tips.</p>
-      </section>
-    </main>
-  );
-}
-
-function WelcomeIntro({ onContinue }) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const tutorialSteps = [
-    {
-      title: "Log a habit",
-      body: "Open Today to check off morning brushing, night brushing, or flossing when you do it.",
-    },
-    {
-      title: "See your progress",
-      body: "Home updates your streak and weekly activity as you log each habit.",
-    },
-    {
-      title: "Use extra tools when you need them",
-      body: "Set a reminder, find a dentist, or try an optional photo observation. The app asks before using location, notifications, or a photo.",
-    },
-  ];
-  const step = tutorialSteps[stepIndex];
-  const lastStep = stepIndex === tutorialSteps.length - 1;
-
-  return (
-    <main className="entry-page" style={styles.page}>
-      <section className="entry-intro" style={styles.panel} aria-labelledby="intro-title">
-        <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
-        <p style={styles.eyebrow}>A quick walkthrough</p>
-        <h1 id="intro-title" style={styles.title}>How SmileStreak works</h1>
-        <div className="entry-tutorial-status" role="status" aria-live="polite" aria-atomic="true">
-          Step {stepIndex + 1} of {tutorialSteps.length}
-        </div>
-        <div
-          className="entry-tutorial-progress"
-          role="progressbar"
-          aria-label="Tutorial progress"
-          aria-valuemin={1}
-          aria-valuemax={tutorialSteps.length}
-          aria-valuenow={stepIndex + 1}
-        >
-          <span style={{ width: `${((stepIndex + 1) / tutorialSteps.length) * 100}%` }} />
-        </div>
-        <div className="entry-tutorial-copy" aria-live="polite" aria-atomic="true">
-          <h2>{step.title}</h2>
-          <p>{step.body}</p>
-        </div>
-        <div className="entry-tutorial-actions">
-          {stepIndex > 0 ? (
-            <button className="entry-tutorial-back" type="button" onClick={() => setStepIndex((current) => current - 1)}>Back</button>
-          ) : null}
-          <button
-            className="entry-button"
-            type="button"
-            onClick={lastStep ? onContinue : () => setStepIndex((current) => current + 1)}
-            style={styles.button}
-          >
-            {lastStep ? "Continue to age check" : "Next"}
-          </button>
-        </div>
-        <button className="entry-tutorial-skip" type="button" onClick={onContinue}>Skip tutorial</button>
-        <p className="entry-intro__privacy" style={styles.note}>No account is needed to start. Your daily habits are saved in this browser. Optional analytics stay off unless you allow them.</p>
-        <p className="entry-intro__disclaimer">Optional photo observations are educational and aren’t a diagnosis or dental care plan.</p>
       </section>
     </main>
   );
@@ -156,12 +98,16 @@ function YoungerTips() {
 }
 
 function Root() {
-  const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : hasSeenIntro() ? "age-check" : "intro");
-  const [tutorialReturnAudience, setTutorialReturnAudience] = useState("age-check");
+  const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : "age-check");
+  const [startGuidedTour, setStartGuidedTour] = useState(false);
 
-  const openTutorial = () => {
-    setTutorialReturnAudience(audience === "adult" ? "adult" : "age-check");
-    setAudience("tutorial");
+  const handleAgeSubmit = (result) => {
+    setAudience(result);
+    if (result === "adult") setStartGuidedTour(true);
+  };
+
+  const finishGuidedTour = () => {
+    setStartGuidedTour(false);
   };
 
   useEffect(() => {
@@ -172,13 +118,8 @@ function Root() {
   }, [audience]);
 
   if (audience === "younger") return <YoungerTips />;
-  if (audience === "intro") return <WelcomeIntro onContinue={() => {
-    try { localStorage.setItem(INTRO_SEEN_KEY, "yes"); } catch { /* Continue when browser storage is unavailable. */ }
-    setAudience("age-check");
-  }} />;
-  if (audience === "tutorial") return <WelcomeIntro onContinue={() => setAudience(tutorialReturnAudience)} />;
-  if (audience === "age-check") return <AgeGate onSubmit={setAudience} />;
-  return <Suspense fallback={<main style={styles.loading}>Loading SmileStreak…</main>}><App onShowTutorial={openTutorial} /></Suspense>;
+  if (audience === "age-check") return <AgeGate onSubmit={handleAgeSubmit} />;
+  return <Suspense fallback={<main style={styles.loading}>Loading SmileStreak…</main>}><App startGuidedTour={startGuidedTour} onFinishGuidedTour={finishGuidedTour} /></Suspense>;
 }
 
 const styles = {
@@ -192,7 +133,6 @@ const styles = {
   button: { width: "100%", minHeight: 46, marginTop: 16, border: 0, borderRadius: 7, background: "#35666c", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   error: { margin: "8px 0 0", color: "#855b58", fontSize: 14 },
   note: { margin: "18px 0 0", color: "#6a6a6a", fontSize: 13, lineHeight: 1.5 },
-  eyebrow: { margin: "-21px 0 9px", color: "#35666c", fontSize: 12, fontWeight: 650, letterSpacing: ".06em", textTransform: "uppercase" },
   list: { paddingLeft: 22, color: "#3c3c3c", fontSize: 16, lineHeight: 1.65 },
   loading: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f7f8f6", color: "#6a6a6a", fontFamily: "sans-serif" },
 };
