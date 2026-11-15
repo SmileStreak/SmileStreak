@@ -1207,8 +1207,8 @@ export default function App({ startGuidedTour = false, onFinishGuidedTour }) {
               </div>
             </footer>
 
-            <Presence open={analyticsChoice === null} duration={180}>
-            {analyticsChoice === null && (
+            <Presence open={analyticsChoice === null && !guidedTourOpen && !(usernameLoaded && showUsernameModal && !!user)} duration={180}>
+            {analyticsChoice === null && !guidedTourOpen && !(usernameLoaded && showUsernameModal && !!user) && (
               <aside aria-labelledby="analytics-consent-title" aria-describedby="analytics-consent-message" className={`analytics-consent mx-auto mt-6 max-w-7xl border-t px-4 py-4 sm:px-6 lg:px-8 ${darkMode ? "border-gray-700 text-gray-100" : "border-gray-200 text-gray-900"}`}>
                 <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="max-w-3xl">
