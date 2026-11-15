@@ -13,7 +13,7 @@ const steps = [
     tab: "home",
     target: '[data-tour-tab="today"]',
     title: "Open Today",
-    body: "Click Today in the navigation above. That’s where you check off brushing and flossing.",
+    body: "Select Today in the navigation above. That’s where you check off brushing and flossing.",
     advanceOnTab: "today",
   },
   {
@@ -27,7 +27,7 @@ const steps = [
     tab: "today",
     target: '[data-tour-tab="progress"]',
     title: "Open Progress",
-    body: "Click Progress to see how your habits add up over time.",
+    body: "Select Progress to see how your habits add up over time.",
     advanceOnTab: "progress",
   },
   {
@@ -41,7 +41,7 @@ const steps = [
     tab: "progress",
     target: '[data-tour-tab="reminders"]',
     title: "Open Reminders",
-    body: "Click Reminders to set a schedule if that would help your routine.",
+    body: "Select Reminders to set a schedule if that would help your routine.",
     advanceOnTab: "reminders",
   },
   {
@@ -55,7 +55,7 @@ const steps = [
     tab: "reminders",
     target: '[data-tour-tab="more"]',
     title: "Open More",
-    body: "Click More in the navigation to see the other SmileStreak tools.",
+    body: "Select More in the navigation to see the other SmileStreak tools.",
     advanceOnMoreOpen: true,
   },
   {
@@ -90,6 +90,13 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
       target = document.querySelector(step.target);
       if (target) {
         target.classList.add("ss-tour-focus");
+        if (target.matches("[data-tour-tab]")) {
+          target.focus({ preventScroll: true });
+        } else if (step.target === "#more-tabs-menu") {
+          target.querySelector('[role="menuitem"], button')?.focus({ preventScroll: true });
+        } else if (step.nextLabel) {
+          document.querySelector(".guided-tour__next")?.focus({ preventScroll: true });
+        }
         if (!step.target.startsWith("[data-tour-tab")) {
           target.scrollIntoView({
             behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
@@ -134,7 +141,7 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
       <h2>{step.title}</h2>
       <p className="guided-tour__body" aria-live="polite">{step.body}</p>
       {step.advanceOnTab || step.advanceOnMoreOpen ? (
-        <p className="guided-tour__hint">Choose the highlighted page above to continue.</p>
+        <p className="guided-tour__hint">Select the highlighted page above with Enter or Space to continue.</p>
       ) : (
         <button type="button" className="guided-tour__next" onClick={continueTour}>{step.nextLabel}</button>
       )}
