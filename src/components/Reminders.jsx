@@ -90,7 +90,7 @@ export default function Reminders() {
     notificationsActive: "Notifications Active",
     notificationsActiveDesc: "You'll receive reminders at your scheduled times",
     enableNotifications: "Enable Notifications",
-    enableNotificationsDesc: "Get reminded when it's time to brush and floss",
+    enableNotificationsDesc: "Optional. Enable scheduled notifications; your browser may ask for permission if needed. On iPhone, add SmileStreak to your Home Screen first. Reminder times can still be saved without notifications.",
     quickSetup: "Quick Setup",
     morning: "Morning",
     night: "Night",
