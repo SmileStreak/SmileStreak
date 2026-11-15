@@ -76,20 +76,62 @@ function AgeGate({ onSubmit }) {
 }
 
 function WelcomeIntro({ onContinue }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const tutorialSteps = [
+    {
+      title: "Log a habit",
+      body: "Open Today to check off morning brushing, night brushing, or flossing when you do it.",
+    },
+    {
+      title: "See your progress",
+      body: "Home updates your streak and weekly activity as you log each habit.",
+    },
+    {
+      title: "Use extra tools when you need them",
+      body: "Set a reminder, find a dentist, or try an optional photo observation. The app asks before using location, notifications, or a photo.",
+    },
+  ];
+  const step = tutorialSteps[stepIndex];
+  const lastStep = stepIndex === tutorialSteps.length - 1;
+
   return (
     <main className="entry-page" style={styles.page}>
       <section className="entry-intro" style={styles.panel} aria-labelledby="intro-title">
         <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
-        <p style={styles.eyebrow}>A simple daily routine</p>
-        <h1 id="intro-title" style={styles.title}>Small habits. A clearer picture of your week.</h1>
-        <p style={styles.copy}>Log morning brushing, night brushing, and flossing. Your streak and weekly view update as you check them off.</p>
-        <ol className="entry-intro__steps" style={styles.steps}>
-          <li><strong>Log today.</strong> The Today page is where you record each habit.</li>
-          <li><strong>See your progress.</strong> Home shows your streak and weekly activity.</li>
-          <li><strong>Make it easier.</strong> Set reminders or find a dentist when you need one.</li>
-        </ol>
-        <button className="entry-button" type="button" onClick={onContinue} style={styles.button}>Continue to age check</button>
-        <p className="entry-intro__privacy" style={styles.note}>No account is needed to start. Your daily habits are saved in this browser. Optional analytics stay off unless you allow them. We check age before enabling interactive features and don’t save your birth date.</p>
+        <p style={styles.eyebrow}>A quick walkthrough</p>
+        <h1 id="intro-title" style={styles.title}>How SmileStreak works</h1>
+        <div className="entry-tutorial-status" role="status" aria-live="polite" aria-atomic="true">
+          Step {stepIndex + 1} of {tutorialSteps.length}
+        </div>
+        <div
+          className="entry-tutorial-progress"
+          role="progressbar"
+          aria-label="Tutorial progress"
+          aria-valuemin={1}
+          aria-valuemax={tutorialSteps.length}
+          aria-valuenow={stepIndex + 1}
+        >
+          <span style={{ width: `${((stepIndex + 1) / tutorialSteps.length) * 100}%` }} />
+        </div>
+        <div className="entry-tutorial-copy" aria-live="polite" aria-atomic="true">
+          <h2>{step.title}</h2>
+          <p>{step.body}</p>
+        </div>
+        <div className="entry-tutorial-actions">
+          {stepIndex > 0 ? (
+            <button className="entry-tutorial-back" type="button" onClick={() => setStepIndex((current) => current - 1)}>Back</button>
+          ) : null}
+          <button
+            className="entry-button"
+            type="button"
+            onClick={lastStep ? onContinue : () => setStepIndex((current) => current + 1)}
+            style={styles.button}
+          >
+            {lastStep ? "Continue to age check" : "Next"}
+          </button>
+        </div>
+        <button className="entry-tutorial-skip" type="button" onClick={onContinue}>Skip tutorial</button>
+        <p className="entry-intro__privacy" style={styles.note}>No account is needed to start. Your daily habits are saved in this browser. Optional analytics stay off unless you allow them.</p>
         <p className="entry-intro__disclaimer">Optional photo observations are educational and aren’t a diagnosis or dental care plan.</p>
       </section>
     </main>
@@ -115,6 +157,12 @@ function YoungerTips() {
 
 function Root() {
   const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : hasSeenIntro() ? "age-check" : "intro");
+  const [tutorialReturnAudience, setTutorialReturnAudience] = useState("age-check");
+
+  const openTutorial = () => {
+    setTutorialReturnAudience(audience === "adult" ? "adult" : "age-check");
+    setAudience("tutorial");
+  };
 
   useEffect(() => {
     if (audience !== "adult" || !("serviceWorker" in navigator)) return;
@@ -128,8 +176,9 @@ function Root() {
     try { localStorage.setItem(INTRO_SEEN_KEY, "yes"); } catch { /* Continue when browser storage is unavailable. */ }
     setAudience("age-check");
   }} />;
+  if (audience === "tutorial") return <WelcomeIntro onContinue={() => setAudience(tutorialReturnAudience)} />;
   if (audience === "age-check") return <AgeGate onSubmit={setAudience} />;
-  return <Suspense fallback={<main style={styles.loading}>Loading SmileStreak…</main>}><App /></Suspense>;
+  return <Suspense fallback={<main style={styles.loading}>Loading SmileStreak…</main>}><App onShowTutorial={openTutorial} /></Suspense>;
 }
 
 const styles = {
@@ -144,7 +193,6 @@ const styles = {
   error: { margin: "8px 0 0", color: "#855b58", fontSize: 14 },
   note: { margin: "18px 0 0", color: "#6a6a6a", fontSize: 13, lineHeight: 1.5 },
   eyebrow: { margin: "-21px 0 9px", color: "#35666c", fontSize: 12, fontWeight: 650, letterSpacing: ".06em", textTransform: "uppercase" },
-  steps: { display: "grid", gap: 12, margin: "0 0 24px", padding: 0, color: "#3c3c3c", fontSize: 14, lineHeight: 1.5, listStyle: "none" },
   list: { paddingLeft: 22, color: "#3c3c3c", fontSize: 16, lineHeight: 1.65 },
   loading: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f7f8f6", color: "#6a6a6a", fontFamily: "sans-serif" },
 };

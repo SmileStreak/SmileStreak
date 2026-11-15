@@ -25,13 +25,18 @@
   transform: scale(0.98);
 }
 
-.entry-intro__steps { counter-reset: intro-step; }
-.entry-intro__steps li { position: relative; padding-left: 30px; counter-increment: intro-step; }
-.entry-intro__steps li::before {
-  position: absolute; top: 1px; left: 0; display: grid; width: 20px; height: 20px;
-  place-items: center; border: 1px solid #cbd5df; border-radius: 50%;
-  color: #35666c; content: counter(intro-step); font-size: 11px; font-weight: 650;
-}
+.entry-tutorial-status { color: #6a6a6a; font-size: 12px; font-variant-numeric: tabular-nums; }
+.entry-tutorial-progress { height: 3px; margin: 8px 0 24px; overflow: hidden; background: #e2e8f0; }
+.entry-tutorial-progress span { display: block; height: 100%; background: #35666c; transition: width 180ms ease-out; }
+.entry-tutorial-copy { min-height: 106px; }
+.entry-tutorial-copy h2 { margin: 0 0 9px; color: #2a2a2a; font: 500 22px/1.2 Georgia, serif; letter-spacing: -.02em; }
+.entry-tutorial-copy p { margin: 0; color: #3c3c3c; font-size: 15px; line-height: 1.55; }
+.entry-tutorial-actions { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+.entry-tutorial-actions .entry-button { flex: 1; margin: 0 !important; }
+.entry-tutorial-back, .entry-tutorial-skip { min-height: 44px; border: 0; background: transparent; color: #35666c; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.entry-tutorial-back { justify-self: start; padding: 8px 10px 8px 0; }
+.entry-tutorial-skip { display: block; margin: 3px auto 0; padding: 6px 10px; text-decoration: underline; text-underline-offset: 2px; }
+.entry-tutorial-back:focus-visible, .entry-tutorial-skip:focus-visible { outline: 2px solid #52777b; outline-offset: 2px; }
 .entry-intro__privacy { padding-top: 14px; border-top: 1px solid #e2e8f0; }
 .entry-intro__disclaimer { margin: 9px 0 0; color: #6a6a6a; font-size: 12px; line-height: 1.5; }
 
@@ -41,6 +46,7 @@
   .entry-input {
     transition-duration: 1ms !important;
   }
+  .entry-tutorial-progress span { transition: none; }
   .entry-button:hover,
   .entry-page button:hover,
   .entry-button:active,

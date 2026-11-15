@@ -65,7 +65,7 @@ function handleMenuArrowKeys(event) {
   items[nextIndex]?.focus();
 }
 
-export default function App() {
+export default function App({ onShowTutorial }) {
   const [activeTab, setActiveTab] = useState("home");
   const navigateToTab = useCallback((tab) => {
     const update = () => flushSync(() => setActiveTab(tab));
@@ -1160,7 +1160,7 @@ export default function App() {
 
               <div className={`app-page app-page--${activeTab}`} style={{ viewTransitionName: "page-content" }}>
                 <Suspense fallback={<div className="page-loading" role="status">{analyticsConsentCopy.loadingPage}</div>}>
-                  {activeTab === "home" && <Home setActiveTab={navigateToTab} user={user} habitData={habitData} />}
+                  {activeTab === "home" && <Home setActiveTab={navigateToTab} user={user} habitData={habitData} onShowTutorial={onShowTutorial} />}
                   {activeTab === "today" && <Today habitData={habitData} setHabitData={setHabitData} user={user} />}
                   {activeTab === "progress" && <Progress habitData={habitData} />}
                   {activeTab === "tips" && <Tips />}

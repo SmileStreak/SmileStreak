@@ -24,7 +24,7 @@ const dailyTips = [
   { id: 7, title: "Stay Hydrated", tip: "Drinking water helps wash away food particles and bacteria, and prevents dry mouth." }
 ];
 
-export default function Home({ setActiveTab, user, habitData }) {
+export default function Home({ setActiveTab, user, habitData, onShowTutorial }) {
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const { currentLanguage } = useContext(TranslationContext);
@@ -120,6 +120,7 @@ export default function Home({ setActiveTab, user, habitData }) {
         currentStreak: "Current Streak",
         days: "days",
         keepItUp: "Keep it up!",
+        howItWorks: "How it works",
         updateToday: "Update Today",
         dailyStreak: "Daily streak tracking",
         dentistFinder: "Dentist finder tool",
@@ -260,6 +261,7 @@ export default function Home({ setActiveTab, user, habitData }) {
           <div>
             <h2>{getGreeting()}{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}</h2>
             <p className="home-intro">{texts.careIntro || "A few small habits add up to a healthier smile."}</p>
+            <button className="home-text-link home-tutorial-link" type="button" onClick={onShowTutorial}>{texts.howItWorks || "How it works"} <ChevronRight size={16} /></button>
           </div>
           <p className="home-date">{new Date().toLocaleDateString(currentLanguage, { weekday: "long", month: "long", day: "numeric" })}</p>
         </header>
