@@ -5,10 +5,19 @@ import "./entry.css";
 
 const App = lazy(() => import("./App.jsx"));
 const AGE_CONFIRMATION_KEY = "smilestreak-age-confirmed";
+const INTRO_SEEN_KEY = "smilestreak-intro-seen";
 
 function hasSavedAdultConfirmation() {
   try {
     return localStorage.getItem(AGE_CONFIRMATION_KEY) === "18+";
+  } catch {
+    return false;
+  }
+}
+
+function hasSeenIntro() {
+  try {
+    return localStorage.getItem(INTRO_SEEN_KEY) === "yes";
   } catch {
     return false;
   }
@@ -52,15 +61,36 @@ function AgeGate({ onSubmit }) {
     <main className="entry-page" style={styles.page}>
       <section style={styles.panel} aria-labelledby="gate-title">
         <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
-        <h1 id="gate-title" style={styles.title}>Before we begin</h1>
-        <p style={styles.copy}>The interactive SmileStreak features, including AI feedback, are for adults 18 and older. Enter your date of birth to confirm your age. Your date is used for this check only and is not saved.</p>
+        <h1 id="gate-title" style={styles.title}>Confirm your age</h1>
+        <p style={styles.copy}>The interactive features are for adults 18 and older. Enter your date of birth for the age check; SmileStreak saves only the eligibility result, not your birth date.</p>
         <form onSubmit={submit}>
           <label htmlFor="birth-date" style={styles.label}>Date of birth</label>
-          <input className="entry-input" id="birth-date" type="date" max={maxDate} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required style={styles.input} />
-          {error && <p role="alert" style={styles.error}>{error}</p>}
-          <button className="entry-button" type="submit" style={styles.button}>Continue</button>
+          <input className="entry-input" id="birth-date" type="date" max={maxDate} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required aria-invalid={Boolean(error)} aria-describedby={error ? "birth-date-help birth-date-error" : "birth-date-help"} style={styles.input} />
+          {error && <p id="birth-date-error" role="alert" style={styles.error}>{error}</p>}
+          <button className="entry-button" type="submit" style={styles.button}>Continue to SmileStreak</button>
         </form>
-        <p style={styles.note}>This is a self-reported age check, not identity verification. If you are under 18, you can still view the brushing tips.</p>
+        <p id="birth-date-help" style={styles.note}>This is a self-reported age check, not identity verification. If you are under 18, you can still view the brushing tips.</p>
+      </section>
+    </main>
+  );
+}
+
+function WelcomeIntro({ onContinue }) {
+  return (
+    <main className="entry-page" style={styles.page}>
+      <section className="entry-intro" style={styles.panel} aria-labelledby="intro-title">
+        <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
+        <p style={styles.eyebrow}>A simple daily routine</p>
+        <h1 id="intro-title" style={styles.title}>Small habits. A clearer picture of your week.</h1>
+        <p style={styles.copy}>Log morning brushing, night brushing, and flossing. Your streak and weekly view update as you check them off.</p>
+        <ol className="entry-intro__steps" style={styles.steps}>
+          <li><strong>Log today.</strong> The Today page is where you record each habit.</li>
+          <li><strong>See your progress.</strong> Home shows your streak and weekly activity.</li>
+          <li><strong>Make it easier.</strong> Set reminders or find a dentist when you need one.</li>
+        </ol>
+        <button className="entry-button" type="button" onClick={onContinue} style={styles.button}>Continue to age check</button>
+        <p className="entry-intro__privacy" style={styles.note}>You can use SmileStreak without signing in. Your habits stay in this browser unless you choose to sign in and sync. Optional analytics stay off unless you allow them. We check age before enabling interactive features and don’t save your birth date.</p>
+        <p className="entry-intro__disclaimer">Optional photo observations are educational and aren’t a diagnosis or dental care plan.</p>
       </section>
     </main>
   );
@@ -84,7 +114,7 @@ function YoungerTips() {
 }
 
 function Root() {
-  const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : null);
+  const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : hasSeenIntro() ? "age-check" : "intro");
 
   useEffect(() => {
     if (audience !== "adult" || !("serviceWorker" in navigator)) return;
@@ -94,7 +124,11 @@ function Root() {
   }, [audience]);
 
   if (audience === "younger") return <YoungerTips />;
-  if (audience !== "adult") return <AgeGate onSubmit={setAudience} />;
+  if (audience === "intro") return <WelcomeIntro onContinue={() => {
+    try { localStorage.setItem(INTRO_SEEN_KEY, "yes"); } catch { /* Continue when browser storage is unavailable. */ }
+    setAudience("age-check");
+  }} />;
+  if (audience === "age-check") return <AgeGate onSubmit={setAudience} />;
   return <Suspense fallback={<main style={styles.loading}>Loading SmileStreak…</main>}><App /></Suspense>;
 }
 
@@ -109,6 +143,8 @@ const styles = {
   button: { width: "100%", minHeight: 46, marginTop: 16, border: 0, borderRadius: 7, background: "#35666c", color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   error: { margin: "8px 0 0", color: "#855b58", fontSize: 14 },
   note: { margin: "18px 0 0", color: "#6a6a6a", fontSize: 13, lineHeight: 1.5 },
+  eyebrow: { margin: "-21px 0 9px", color: "#35666c", fontSize: 12, fontWeight: 650, letterSpacing: ".06em", textTransform: "uppercase" },
+  steps: { display: "grid", gap: 12, margin: "0 0 24px", padding: 0, color: "#3c3c3c", fontSize: 14, lineHeight: 1.5, listStyle: "none" },
   list: { paddingLeft: 22, color: "#3c3c3c", fontSize: 16, lineHeight: 1.65 },
   loading: { minHeight: "100vh", display: "grid", placeItems: "center", background: "#f7f8f6", color: "#6a6a6a", fontFamily: "sans-serif" },
 };

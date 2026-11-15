@@ -25,6 +25,16 @@
   transform: scale(0.98);
 }
 
+.entry-intro__steps { counter-reset: intro-step; }
+.entry-intro__steps li { position: relative; padding-left: 30px; counter-increment: intro-step; }
+.entry-intro__steps li::before {
+  position: absolute; top: 1px; left: 0; display: grid; width: 20px; height: 20px;
+  place-items: center; border: 1px solid #cbd5df; border-radius: 50%;
+  color: #35666c; content: counter(intro-step); font-size: 11px; font-weight: 650;
+}
+.entry-intro__privacy { padding-top: 14px; border-top: 1px solid #e2e8f0; }
+.entry-intro__disclaimer { margin: 9px 0 0; color: #6a6a6a; font-size: 12px; line-height: 1.5; }
+
 @media (prefers-reduced-motion: reduce) {
   .entry-button,
   .entry-page button,

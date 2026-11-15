@@ -164,7 +164,8 @@ export default function Home({ setActiveTab, user, habitData }) {
         keepRoutineGoing: "Keep your routine going",
         simpleCheckIn: "Daily habits",
         routine: "Your routine",
-        updateRoutine: "Update routine",
+        updateRoutine: "Log today's habits",
+        routineExplainer: "Your check-ins update the streak and weekly view.",
         done: "Done",
         notYet: "Not yet",
         consistency: "Consistency",
@@ -279,9 +280,9 @@ export default function Home({ setActiveTab, user, habitData }) {
           <div className="home-main-column">
             <section className="home-routine-section">
               <div className="home-section-heading">
-                <div><h3>{texts.routine || "Today's routine"}</h3></div>
+                <div><h3>{texts.routine || "Today's routine"}</h3><p className="home-routine-hint">{texts.routineExplainer || "Your check-ins update the streak and weekly view."}</p></div>
                 <div className="home-routine-heading-actions">
-                  <span className="home-routine-count" aria-label={`${todayDone} of 3 habits complete`}>{todayDone}/3</span>
+                  <span className="home-routine-count" aria-label={`${todayDone} ${texts.habitsCompleted || "of 3 habits completed"}`}>{todayDone}/3</span>
                   <button className="home-text-link" onClick={() => go("today")}>{texts.updateRoutine || "Update routine"} <ChevronRight size={16} /></button>
                 </div>
               </div>
