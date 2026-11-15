@@ -174,7 +174,6 @@ export default function Home({ setActiveTab, user, habitData }) {
         moreActivity: "More activity",
         weekEmptyTitle: "No activity logged this week",
         weekEmptyBody: "Log a daily habit and it will show up here.",
-        startToday: "Go to today’s routine",
         nextVisit: "Next dentist visit",
         notScheduled: "Not scheduled",
         tapToLogVisit: "Tap to log a visit",
@@ -309,9 +308,6 @@ export default function Home({ setActiveTab, user, habitData }) {
                 <div className="home-week-empty">
                   <p>{texts.weekEmptyTitle || "No activity logged this week"}</p>
                   <span>{texts.weekEmptyBody || "Log a daily habit and it will show up here."}</span>
-                  <button className="home-text-link" onClick={() => go("today")}>
-                    {texts.startToday || "Go to today’s routine"}<ChevronRight size={16} />
-                  </button>
                 </div>
               ) : (
                 <>
