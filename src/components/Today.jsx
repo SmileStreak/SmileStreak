@@ -738,42 +738,6 @@ return (
     </div>
   </header>
 
-{/* ── SUMMARY ROW ── */}
-  <dl className="today-stats">
-    {[
-      { val:current, unit:"d", labelKey:"Current streak" },
-      { val:longest, unit:"d", labelKey:"Personal best" },
-      { val:consistencyScore, unit:"%", labelKey:"Weekly completion" },
-      { val:streakMultiplier, unit:"x", labelKey:"Streak bonus" },
-    ].map(s => (
-      <div key={s.labelKey} className="today-stat">
-        <dt>{T(s.labelKey)}</dt>
-        <dd><strong>{s.val}</strong><span>{s.unit}</span></dd>
-      </div>
-    ))}
-  </dl>
-
-{/* ── WEEKLY CHART ── */}
-  <section className="today-week-section">
-    <div className="today-week-heading">
-      <h3>{T("This Week")}</h3>
-      <span>{T("Daily Tasks")}</span>
-    </div>
-    <div className="today-week-chart flex justify-between items-end gap-2" role="group" aria-label={T("Weekly routine completion")}>
-      {weekDots.map((d, i) => (
-        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-current={d.isToday ? "date" : undefined} aria-label={`${d.fullLabel}: ${d.done} ${T("of 3 tasks complete")}${d.isToday ? `, ${T("Today")}` : ""}`}>
-          <div className="today-week-day-bars w-full flex flex-col gap-0.5" aria-hidden="true">
-            {[2,1,0].map(slot => (
-              <div key={slot} className={`h-2 rounded-sm transition-colors duration-200 ${d.done > slot ? "bg-blue-600" : "bg-slate-100"}`} />
-            ))}
-          </div>
-          <span className={`text-xs ${d.isToday ? "text-blue-700 font-semibold" : "text-gray-500"}`}>{d.label}</span>
-          {d.isToday && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
-        </div>
-      ))}
-    </div>
-  </section>
-
 {/* ── RECOVERY NOTICE ── */}
 {isRecoveryDay && (
 <div className="today-recovery-note flex items-center gap-3">
@@ -892,6 +856,42 @@ Log Dentist Visit
 </button>
 
   </div>
+
+{/* ── PROGRESS SUMMARY ── */}
+  <dl className="today-stats">
+    {[
+      { val:current, unit:"d", labelKey:"Current streak" },
+      { val:longest, unit:"d", labelKey:"Personal best" },
+      { val:consistencyScore, unit:"%", labelKey:"Weekly completion" },
+      { val:streakMultiplier, unit:"x", labelKey:"Streak bonus" },
+    ].map(s => (
+      <div key={s.labelKey} className="today-stat">
+        <dt>{T(s.labelKey)}</dt>
+        <dd><strong>{s.val}</strong><span>{s.unit}</span></dd>
+      </div>
+    ))}
+  </dl>
+
+{/* ── WEEKLY CHART ── */}
+  <section className="today-week-section">
+    <div className="today-week-heading">
+      <h3>{T("This Week")}</h3>
+      <span>{T("Daily Tasks")}</span>
+    </div>
+    <div className="today-week-chart flex justify-between items-end gap-2" role="group" aria-label={T("Weekly routine completion")}>
+      {weekDots.map((d, i) => (
+        <div key={i} className="today-week-day flex-1 flex flex-col items-center gap-1.5" role="group" aria-current={d.isToday ? "date" : undefined} aria-label={`${d.fullLabel}: ${d.done} ${T("of 3 tasks complete")}${d.isToday ? `, ${T("Today")}` : ""}`}>
+          <div className="today-week-day-bars w-full flex flex-col gap-0.5" aria-hidden="true">
+            {[2,1,0].map(slot => (
+              <div key={slot} className={`h-2 rounded-sm transition-colors duration-200 ${d.done > slot ? "bg-blue-600" : "bg-slate-100"}`} />
+            ))}
+          </div>
+          <span className={`text-xs ${d.isToday ? "text-blue-700 font-semibold" : "text-gray-500"}`}>{d.label}</span>
+          {d.isToday && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+        </div>
+      ))}
+    </div>
+  </section>
 
 {/* ── ALIGNER TRACKER ── */}
 <div className="today-aligner-panel bg-white rounded-3xl p-5 shadow-lg border border-blue-100">
