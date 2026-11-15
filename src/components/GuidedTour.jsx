@@ -109,7 +109,7 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
 
   useEffect(() => {
     if (step.advanceOnTab && step.advanceOnTab !== activeTab) return undefined;
-    if (step.advanceOnMoreOpen && !isMoreOpen) return undefined;
+    if (step.advanceOnMoreOpen && !isMoreOpen && !morePageDetails[activeTab]) return undefined;
     if (!step.advanceOnTab && !step.advanceOnMoreOpen) return undefined;
     const timer = window.setTimeout(() => setStepIndex((current) => Math.min(current + 1, steps.length - 1)), 180);
     return () => window.clearTimeout(timer);

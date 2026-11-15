@@ -5,12 +5,29 @@ import "./entry.css";
 
 const App = lazy(() => import("./App.jsx"));
 const AGE_CONFIRMATION_KEY = "smilestreak-age-confirmed";
+const TOUR_COMPLETION_KEY = "smilestreak-tour-completed";
 
 function hasSavedAdultConfirmation() {
   try {
     return localStorage.getItem(AGE_CONFIRMATION_KEY) === "18+";
   } catch {
     return false;
+  }
+}
+
+function hasCompletedTour() {
+  try {
+    return localStorage.getItem(TOUR_COMPLETION_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function saveTourCompletion() {
+  try {
+    localStorage.setItem(TOUR_COMPLETION_KEY, "true");
+  } catch {
+    // Keep the completed state in memory if browser storage is unavailable.
   }
 }
 
@@ -98,16 +115,22 @@ function YoungerTips() {
 }
 
 function Root() {
-  const [audience, setAudience] = useState(() => hasSavedAdultConfirmation() ? "adult" : "age-check");
-  const [startGuidedTour, setStartGuidedTour] = useState(false);
+  const [audience, setAudience] = useState(() => {
+    if (hasSavedAdultConfirmation()) return "adult";
+    return hasCompletedTour() ? "age-check" : "onboarding";
+  });
+  const [startGuidedTour, setStartGuidedTour] = useState(() => !hasCompletedTour());
 
   const handleAgeSubmit = (result) => {
     setAudience(result);
-    if (result === "adult") setStartGuidedTour(true);
+    setStartGuidedTour(false);
   };
 
   const finishGuidedTour = () => {
+    const firstVisit = audience === "onboarding";
+    saveTourCompletion();
     setStartGuidedTour(false);
+    if (firstVisit && !hasSavedAdultConfirmation()) setAudience("age-check");
   };
 
   useEffect(() => {

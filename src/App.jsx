@@ -71,11 +71,22 @@ export default function App({ startGuidedTour = false, onFinishGuidedTour }) {
   const [guidedTourOpen, setGuidedTourOpen] = useState(startGuidedTour);
   const [moreNavOpen, setMoreNavOpen] = useState(false);
   const [moreMenuResetKey, setMoreMenuResetKey] = useState(0);
+  const navigationRequestRef = useRef(0);
   const navigateToTab = useCallback((tab) => {
-    const update = () => flushSync(() => setActiveTab(tab));
+    const requestId = ++navigationRequestRef.current;
+    const update = () => {
+      if (requestId !== navigationRequestRef.current) return;
+      flushSync(() => setActiveTab(tab));
+    };
     const transition = () => {
-      if (document.startViewTransition) document.startViewTransition(update);
-      else setActiveTab(tab);
+      if (requestId !== navigationRequestRef.current) return;
+      if (document.startViewTransition) {
+        try {
+          document.startViewTransition(update);
+        } catch {
+          update();
+        }
+      } else update();
     };
     if (pageLoaders[tab]) pageLoaders[tab]().then(transition, transition);
     else transition();
@@ -1078,7 +1089,7 @@ export default function App({ startGuidedTour = false, onFinishGuidedTour }) {
 
                               <button
                                 role="menuitem"
-                                onClick={() => { setActiveTab("progress"); setShowAccountMenu(false); }}
+                                onClick={() => { navigateToTab("progress"); setShowAccountMenu(false); }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                                 }`}
