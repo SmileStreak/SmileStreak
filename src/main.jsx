@@ -62,7 +62,7 @@ function AgeGate({ onSubmit }) {
       <section style={styles.panel} aria-labelledby="gate-title">
         <p style={styles.brand}>Smile<span style={{ color: "#16803c" }}>Streak</span></p>
         <h1 id="gate-title" style={styles.title}>Confirm your age</h1>
-        <p style={styles.copy}>The interactive features are for adults 18 and older. Enter your date of birth for the age check; SmileStreak saves only the eligibility result, not your birth date.</p>
+        <p style={styles.copy}>The interactive features are for adults 18 and older. We use your date of birth only to check whether you’re 18 or older. Your birth date is not saved. When browser storage is available, this browser remembers only that you passed the check.</p>
         <form onSubmit={submit}>
           <label htmlFor="birth-date" style={styles.label}>Date of birth</label>
           <input className="entry-input" id="birth-date" type="date" max={maxDate} value={birthDate} onChange={(event) => setBirthDate(event.target.value)} required aria-invalid={Boolean(error)} aria-describedby={error ? "birth-date-help birth-date-error" : "birth-date-help"} style={styles.input} />
