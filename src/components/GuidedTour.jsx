@@ -62,15 +62,50 @@ const steps = [
     tab: "reminders",
     target: "#more-tabs-menu",
     title: "Choose tools when you need them",
-    body: "More includes tips, dentist finder, and photo observations. The dentist search waits for your choice to use location; photo observations explain consent before sending. You can explore any tool without doing it now.",
+    body: "Select a More page to see what it does, or finish the tour. Dentist search asks before using your location; photo observations require consent and aren’t a diagnosis.",
     nextLabel: "Finish tour",
     finish: true,
   },
 ];
 
+const morePageDetails = {
+  tips: {
+    title: "Dental tips",
+    body: "Tips offers practical lessons about brushing and interdental care, with sources you can read at your own pace. Use More to explore another page, or finish the tour.",
+  },
+  scan: {
+    title: "Photo observations",
+    body: "Scan provides general habit-focused observations from a photo you choose to send. It isn’t a diagnosis, and saving a copy in this browser is a separate opt-in. Use More to explore another page, or finish the tour.",
+  },
+  dentists: {
+    title: "Find a dentist",
+    body: "Dentist Finder searches nearby offices after you choose to use your location. It doesn’t book appointments. Use More to explore another page, or finish the tour.",
+  },
+  insights: {
+    title: "Habit insights",
+    body: "Insights turns the check-ins you’ve logged into summaries and patterns. Use More to explore another page, or finish the tour.",
+  },
+  report: {
+    title: "Progress report",
+    body: "Reports organizes your logged habit progress into a timeframe you can review or export. You choose if and when to share it. Use More to explore another page, or finish the tour.",
+  },
+  mission: {
+    title: "Our mission",
+    body: "Mission explains why SmileStreak exists, the ideas behind it, and ways to get involved. Use More to explore another page, or finish the tour.",
+  },
+  legal: {
+    title: "Privacy and terms",
+    body: "Privacy & terms explains how the app handles data and lets you change your optional analytics choice. Use More to explore another page, or finish the tour.",
+  },
+};
+
 export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
   const [stepIndex, setStepIndex] = useState(0);
   const step = steps[stepIndex];
+  const selectedMorePage = step.finish && activeTab !== "reminders" ? morePageDetails[activeTab] : null;
+  const targetSelector = selectedMorePage
+    ? activeTab === "mission" ? ".app-page--mission .mission-heading" : `.app-page--${activeTab} .page-heading-surface`
+    : step.target;
 
   useEffect(() => {
     if (step.advanceOnTab && step.advanceOnTab !== activeTab) return undefined;
@@ -87,17 +122,17 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
     const startedAt = performance.now();
     const findTarget = () => {
       if (cancelled) return;
-      target = document.querySelector(step.target);
+      target = document.querySelector(targetSelector);
       if (target) {
         target.classList.add("ss-tour-focus");
         if (target.matches("[data-tour-tab]")) {
           target.focus({ preventScroll: true });
-        } else if (step.target === "#more-tabs-menu") {
+        } else if (!selectedMorePage && step.target === "#more-tabs-menu") {
           target.querySelector('[role="menuitem"], button')?.focus({ preventScroll: true });
         } else if (step.nextLabel) {
           document.querySelector(".guided-tour__next")?.focus({ preventScroll: true });
         }
-        if (!step.target.startsWith("[data-tour-tab")) {
+        if (!targetSelector.startsWith("[data-tour-tab")) {
           target.scrollIntoView({
             behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
             block: "center",
@@ -113,7 +148,7 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
       if (frame) window.cancelAnimationFrame(frame);
       target?.classList.remove("ss-tour-focus");
     };
-  }, [activeTab, stepIndex, step.target]);
+  }, [activeTab, stepIndex, step.target, targetSelector, selectedMorePage, step.nextLabel]);
 
   useEffect(() => {
     const handleEscape = (event) => {
@@ -138,8 +173,8 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
         <button type="button" onClick={onFinish} aria-label="Close tour" className="guided-tour__close"><X size={17} /></button>
       </div>
       <p className="guided-tour__progress" role="status" aria-live="polite">Step {stepIndex + 1} of {steps.length}</p>
-      <h2>{step.title}</h2>
-      <p className="guided-tour__body" aria-live="polite">{step.body}</p>
+      <h2>{selectedMorePage?.title || step.title}</h2>
+      <p className="guided-tour__body" aria-live="polite">{selectedMorePage?.body || step.body}</p>
       {step.advanceOnTab || step.advanceOnMoreOpen ? (
         <p className="guided-tour__hint">Select the highlighted page above with Enter or Space to continue.</p>
       ) : (
