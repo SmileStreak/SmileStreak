@@ -89,7 +89,7 @@ function WelcomeIntro({ onContinue }) {
           <li><strong>Make it easier.</strong> Set reminders or find a dentist when you need one.</li>
         </ol>
         <button className="entry-button" type="button" onClick={onContinue} style={styles.button}>Continue to age check</button>
-        <p className="entry-intro__privacy" style={styles.note}>You can use SmileStreak without signing in. Your habits stay in this browser unless you choose to sign in and sync. Optional analytics stay off unless you allow them. We check age before enabling interactive features and don’t save your birth date.</p>
+        <p className="entry-intro__privacy" style={styles.note}>No account is needed to start. Your daily habits are saved in this browser. Optional analytics stay off unless you allow them. We check age before enabling interactive features and don’t save your birth date.</p>
         <p className="entry-intro__disclaimer">Optional photo observations are educational and aren’t a diagnosis or dental care plan.</p>
       </section>
     </main>
