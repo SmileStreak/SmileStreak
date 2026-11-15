@@ -20,7 +20,7 @@ const steps = [
     tab: "today",
     target: ".today-task-panel",
     title: "Log your daily habits",
-    body: "Check off morning or night brushing and choose floss or another interdental option. Each check-in updates your streak and weekly activity. You can explore without logging anything now.",
+    body: "Check off morning or night brushing and choose floss or another interdental option. Complete all three for a day to count toward your streak; individual check-ins appear in your weekly activity. You can explore without logging anything now.",
     nextLabel: "Show me Progress",
   },
   {
