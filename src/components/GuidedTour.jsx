@@ -167,20 +167,23 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
   };
 
   return (
-    <aside className="guided-tour" aria-label="SmileStreak interactive tour">
-      <div className="guided-tour__topline">
-        <span>GETTING STARTED</span>
-        <button type="button" onClick={onFinish} aria-label="Close tour" className="guided-tour__close"><X size={17} /></button>
-      </div>
-      <p className="guided-tour__progress" role="status" aria-live="polite">Step {stepIndex + 1} of {steps.length}</p>
-      <h2>{selectedMorePage?.title || step.title}</h2>
-      <p className="guided-tour__body" aria-live="polite">{selectedMorePage?.body || step.body}</p>
-      {step.advanceOnTab || step.advanceOnMoreOpen ? (
-        <p className="guided-tour__hint">Select the highlighted page above with Enter or Space to continue.</p>
-      ) : (
-        <button type="button" className="guided-tour__next" onClick={continueTour}>{step.nextLabel}</button>
-      )}
-      <button type="button" className="guided-tour__skip" onClick={onFinish}>Skip tour</button>
-    </aside>
+    <>
+      <div className="guided-tour-backdrop" aria-hidden="true" />
+      <aside className="guided-tour" aria-label="SmileStreak interactive tour">
+        <div className="guided-tour__topline">
+          <span>GETTING STARTED</span>
+          <button type="button" onClick={onFinish} aria-label="Close tour" className="guided-tour__close"><X size={17} /></button>
+        </div>
+        <p className="guided-tour__progress" role="status" aria-live="polite">Step {stepIndex + 1} of {steps.length}</p>
+        <h2>{selectedMorePage?.title || step.title}</h2>
+        <p className="guided-tour__body" aria-live="polite">{selectedMorePage?.body || step.body}</p>
+        {step.advanceOnTab || step.advanceOnMoreOpen ? (
+          <p className="guided-tour__hint">Select the highlighted page above with Enter or Space to continue.</p>
+        ) : (
+          <button type="button" className="guided-tour__next" onClick={continueTour}>{step.nextLabel}</button>
+        )}
+        <button type="button" className="guided-tour__skip" onClick={onFinish}>Skip tour</button>
+      </aside>
+    </>
   );
 }
