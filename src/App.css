@@ -504,6 +504,40 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ba6af; 
   transform: translateX(2px);
 }
 
+.home-routine-action {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid var(--home-accent);
+  border-radius: 7px;
+  background: var(--home-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out, transform 180ms ease-out;
+}
+
+.home-routine-action:hover {
+  transform: translateY(-1px);
+  border-color: var(--brand-hover);
+  background: var(--brand-hover);
+}
+
+.home-dashboard.is-dark .home-routine-action {
+  border-color: #35666c;
+  background: #35666c;
+  color: #fff;
+}
+
+.home-dashboard.is-dark .home-routine-action:hover {
+  border-color: #2b5459;
+  background: #2b5459;
+}
+
 .home-habit-list {
   border-top: 1px solid var(--home-line);
 }
