@@ -117,20 +117,20 @@ function YoungerTips() {
 function Root() {
   const [audience, setAudience] = useState(() => {
     if (hasSavedAdultConfirmation()) return "adult";
-    return hasCompletedTour() ? "age-check" : "onboarding";
+    return "age-check";
   });
-  const [startGuidedTour, setStartGuidedTour] = useState(() => !hasCompletedTour());
+  const [startGuidedTour, setStartGuidedTour] = useState(() => (
+    hasSavedAdultConfirmation() && !hasCompletedTour()
+  ));
 
   const handleAgeSubmit = (result) => {
     setAudience(result);
-    setStartGuidedTour(false);
+    setStartGuidedTour(result === "adult" && !hasCompletedTour());
   };
 
   const finishGuidedTour = () => {
-    const firstVisit = audience === "onboarding";
     saveTourCompletion();
     setStartGuidedTour(false);
-    if (firstVisit && !hasSavedAdultConfirmation()) setAudience("age-check");
   };
 
   useEffect(() => {
