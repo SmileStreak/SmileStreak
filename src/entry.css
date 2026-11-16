@@ -57,7 +57,7 @@
 .entry-age-panel .entry-button { margin-top: 16px; }
 .entry-age-panel button:focus-visible { outline: 2px solid #52777b; outline-offset: 3px; }
 
-.guided-tour-backdrop { position: fixed; z-index: 40; inset: 0; pointer-events: none; background: rgb(247 248 246 / .12); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.guided-tour-backdrop { position: fixed; z-index: 40; inset: 0; pointer-events: none; background: rgb(247 248 246 / .12); }
 .guided-tour { position: fixed; z-index: 1000; right: 24px; bottom: max(24px, env(safe-area-inset-bottom)); width: min(368px, calc(100vw - 32px)); box-sizing: border-box; padding: 18px 20px 15px; border: 1px solid #dce3df; border-radius: 11px; background: #fff; color: #2a2a2a; box-shadow: 0 8px 28px rgb(42 42 42 / .1); }
 .guided-tour__topline { display: flex; align-items: center; justify-content: space-between; color: #6a6a6a; font-size: 10px; font-weight: 650; letter-spacing: .08em; }
 .guided-tour__close { display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 6px; background: transparent; color: #59645f; cursor: pointer; }
