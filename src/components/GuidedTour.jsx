@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 const steps = [
@@ -166,7 +167,7 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
     setStepIndex((current) => Math.min(current + 1, steps.length - 1));
   };
 
-  return (
+  return typeof document === "undefined" ? null : createPortal(
     <>
       <div className="guided-tour-backdrop" aria-hidden="true" />
       <aside className="guided-tour" aria-label="SmileStreak interactive tour">
@@ -184,6 +185,7 @@ export default function GuidedTour({ activeTab, isMoreOpen, onFinish }) {
         )}
         <button type="button" className="guided-tour__skip" onClick={onFinish}>Skip tour</button>
       </aside>
-    </>
+    </>,
+    document.body
   );
 }
